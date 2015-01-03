@@ -153,7 +153,6 @@ public class Category {
     if(p.getSubCount() == 0) {
       p.hasSubcat = false;
     }
-    System.out.println(this);
   }
 
   public static void addCategory(Category child, Category parent) {

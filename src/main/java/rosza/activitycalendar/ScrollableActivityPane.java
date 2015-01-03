@@ -17,7 +17,8 @@ import javax.swing.border.MatteBorder;
 import org.joda.time.*;
 //</editor-fold>
 
-public class ScrollableActivityPane extends JLayeredPane implements Scrollable, MouseMotionListener {
+public class ScrollableActivityPane extends JLayeredPane implements Scrollable {
+  //<editor-fold defaultstate="collapsed" desc=" Variables declaration ">
   private final int currentView;
   private final int cellWidth;
 
@@ -34,10 +35,11 @@ public class ScrollableActivityPane extends JLayeredPane implements Scrollable, 
 
 	//private MouseEvent pressed;
 	//private Point      location;
+  //</editor-fold>
 
   public ScrollableActivityPane(int view, int year, int month, int day) {
     setAutoscrolls(true);               //enable synthetic drag events
-    addMouseMotionListener(this);       //handle mouse drags
+    addMouseMotionListener(mouseMotionListener);       //handle mouse drags
     setBackground(Constant.CELL_BG_COLOR);
     setOpaque(true);
 
@@ -61,7 +63,7 @@ public class ScrollableActivityPane extends JLayeredPane implements Scrollable, 
             cellHeight = Constant.CELL_HEIGHT / 2;
           }
           al.setBounds(day2x(currentView, tempCalendar.getDayOfWeek()), time2y(a.getStartHour(), a.getStartMinute()), cellWidth - Constant.CELL_SPACER, cellHeight);
-          al.addMouseMotionListener(this);
+          al.addMouseMotionListener(mouseMotionListener);
           al.addMouseListener(mouseListener);
           add(al, 5 + j, 1);
           j++;
@@ -213,7 +215,7 @@ public class ScrollableActivityPane extends JLayeredPane implements Scrollable, 
     public void mouseReleased(MouseEvent e) {
     }
 
-  @Override
+    @Override
    public void mouseEntered(MouseEvent e) {
     }
 
@@ -222,14 +224,15 @@ public class ScrollableActivityPane extends JLayeredPane implements Scrollable, 
     }
   };
 
-  //Methods required by the MouseMotionListener interface:
-  @Override
-  public void mouseMoved(MouseEvent e) {
-  }
+  MouseMotionListener mouseMotionListener = new MouseMotionListener() {
+    @Override
+    public void mouseMoved(MouseEvent e) {
+    }
 
-  @Override
-  public void mouseDragged(MouseEvent e) {
-  }
+    @Override
+    public void mouseDragged(MouseEvent e) {
+    }
+  };
 
   @Override
   public Dimension getPreferredSize() {

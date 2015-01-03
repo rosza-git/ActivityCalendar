@@ -7,34 +7,39 @@
 package rosza.activitycalendar;
 
 //<editor-fold defaultstate="collapsed" desc=" Import ">
-import java.awt.Color;
+import rosza.xcomponents.JLabelX;
+import rosza.xcomponents.JPanelX;
+import rosza.xcomponents.JButtonX;
+import rosza.xcomponents.JScrollBarX;
+import rosza.xcomponents.JSpinnerX;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
-import java.util.Enumeration;
-import java.util.List;
-import javax.swing.*;
-import javax.swing.border.MatteBorder;
+import javax.swing.GroupLayout;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
+import javax.swing.JTextField;
+import javax.swing.LayoutStyle;
+import javax.swing.SpinnerDateModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
+import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 //</editor-fold>
 
-public class AddActivity extends JPanel {
+public class AddActivity extends JPanelX {
   //<editor-fold defaultstate="collapsed" desc=" Variables declaration ">
-  private JLabel       headerLabel;
+  private JLabelX      headerLabel;
   private JLabel       categoryLabel;
   private JLabel       commentLabel;
   private JTextField   commentTextField;
@@ -45,32 +50,36 @@ public class AddActivity extends JPanel {
   private JSpinner     endDateSpinner;
   private JSpinner     endTimeSpinner;
   private CategoryTree categoryTree;
-  private JButton      addActivityButton;
-  private JButton      modifyActivityButton;
-  private JButton      removeActivityButton;
-  private JButton      cancelButton;
+  private JButtonX     addActivityButton;
+  private JButtonX     modifyActivityButton;
+  private JButtonX     removeActivityButton;
+  private JButtonX     cancelButton;
   private Category     categoryTreeElements = XMLUtil.getCategories();
   private JScrollPane  categoryScrollPane;
   private Activity     activity;
   //</editor-fold>
 
+  //<editor-fold defaultstate="collapsed" desc=" Create new Add Activity panel ">
   public AddActivity() {
     initComponents();
   }
+  //</editor-fold>
 
+  //<editor-fold defaultstate="collapsed" desc=" Create new Add Activity panel with initial values ">
   public AddActivity(Activity a) {
     activity = a;
     initComponents();
   }
+  //</editor-fold>
 
   //<editor-fold defaultstate="collapsed" desc=" Initialize UI components ">
   @SuppressWarnings("unchecked")
   private void initComponents() {
-    headerLabel          = new JLabel();
-    addActivityButton    = new JButton();
-    modifyActivityButton = new JButton();
-    removeActivityButton = new JButton();
-    cancelButton         = new JButton();
+    headerLabel          = new JLabelX(5, 0, 5, 0);
+    addActivityButton    = new JButtonX("add");
+    modifyActivityButton = new JButtonX("modify");
+    removeActivityButton = new JButtonX("remove");
+    cancelButton         = new JButtonX("cancel");
     commentTextField     = new JTextField();
     commentLabel         = new JLabel();
     startLabel           = new JLabel();
@@ -83,7 +92,9 @@ public class AddActivity extends JPanel {
     categoryTree         = new CategoryTree(categoryTreeElements);
     categoryScrollPane   = new JScrollPane();
 
-    setBorder(new MatteBorder(1, 1, 1, 1, Color.black));
+    headerLabel.setText("add activity");
+    headerLabel.setHorizontalAlignment(JLabel.CENTER);
+    headerLabel.setFont(headerLabel.getFont().deriveFont(Font.BOLD).deriveFont(18f));
 
     modifyActivityButton.setText("modify");
     modifyActivityButton.addActionListener(new ActionListener() {
@@ -92,7 +103,7 @@ public class AddActivity extends JPanel {
         modifyActivityButtonActionPerformed(e);
       }
     });
-    modifyActivityButton.setEnabled(activity == null ? false : true);
+    modifyActivityButton.setEnabled((activity != null));
 
     addActivityButton.setText("add");
     addActivityButton.addActionListener(new ActionListener() {
@@ -101,7 +112,7 @@ public class AddActivity extends JPanel {
         addActivityButtonActionPerformed(e);
       }
     });
-    addActivityButton.setEnabled(activity == null ? true : false);
+    addActivityButton.setEnabled((activity == null));
 
     removeActivityButton.setText("remove");
     removeActivityButton.addActionListener(new ActionListener() {
@@ -110,7 +121,7 @@ public class AddActivity extends JPanel {
         removeActivityButtonActionPerformed(e);
       }
     });
-    removeActivityButton.setEnabled(activity == null ? false : true);
+    removeActivityButton.setEnabled((activity != null));
 
     cancelButton.setText("cancel");
     cancelButton.addActionListener(new ActionListener() {
@@ -132,6 +143,7 @@ public class AddActivity extends JPanel {
 
     startDateSpinner.setModel(new SpinnerDateModel(activity == null ? new Date(ActivityCalendar.selectedDate.getMillis()) : new Date(activity.getStartDate().getMillis()), null, null, Calendar.DAY_OF_MONTH));
     startDateSpinner.setEditor(new JSpinner.DateEditor(startDateSpinner, "yyyy.MM.dd."));
+    startDateSpinner.setUI(new JSpinnerX());
     startDateSpinner.addChangeListener(new ChangeListener() {
       @Override
       public void stateChanged(ChangeEvent e) {
@@ -141,6 +153,7 @@ public class AddActivity extends JPanel {
 
     startTimeSpinner.setModel(new SpinnerDateModel(activity == null ? new Date(ActivityCalendar.selectedDate.getMillis()) : new Date(activity.getStartDate().getMillis()), null, null, Calendar.MINUTE));
     startTimeSpinner.setEditor(new JSpinner.DateEditor(startTimeSpinner, "HH:mm"));
+    startTimeSpinner.setUI(new JSpinnerX());
     startTimeSpinner.addChangeListener(new ChangeListener() {
       @Override
       public void stateChanged(ChangeEvent e) {
@@ -154,6 +167,7 @@ public class AddActivity extends JPanel {
 
     endDateSpinner.setModel(new SpinnerDateModel(activity == null ? new Date(ActivityCalendar.selectedDate.getMillis()) : new Date(activity.getEndDate().getMillis()), null, null, Calendar.DAY_OF_MONTH));
     endDateSpinner.setEditor(new JSpinner.DateEditor(endDateSpinner, "yyyy.MM.dd."));
+    endDateSpinner.setUI(new JSpinnerX());
     endDateSpinner.addChangeListener(new ChangeListener() {
       @Override
       public void stateChanged(ChangeEvent e) {
@@ -163,6 +177,7 @@ public class AddActivity extends JPanel {
 
     endTimeSpinner.setModel(new SpinnerDateModel(activity == null ? new Date(ActivityCalendar.selectedDate.getMillis()) : new Date(activity.getEndDate().getMillis()), null, null, Calendar.MINUTE));
     endTimeSpinner.setEditor(new JSpinner.DateEditor(endTimeSpinner, "HH:mm"));
+    endTimeSpinner.setUI(new JSpinnerX());
     endTimeSpinner.addChangeListener(new ChangeListener() {
       @Override
       public void stateChanged(ChangeEvent e) {
@@ -191,11 +206,8 @@ public class AddActivity extends JPanel {
 
     categoryScrollPane.setViewportView(categoryTree);
     categoryScrollPane.setPreferredSize(new Dimension(categoryTree.getWidth(), (int)Constant.FONT_SIZE * 6));
-
-    headerLabel.setText("add activity");
-    headerLabel.setFont(headerLabel.getFont().deriveFont(Font.BOLD));
-    headerLabel.setHorizontalAlignment(JLabel.CENTER);
-    headerLabel.setBackground(Color.red);
+    categoryScrollPane.getVerticalScrollBar().setUI(new JScrollBarX());
+    categoryScrollPane.getHorizontalScrollBar().setUI(new JScrollBarX());
 
     GroupLayout layout = new GroupLayout(this);
     this.setLayout(layout);
@@ -225,14 +237,14 @@ public class AddActivity extends JPanel {
             .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
               .addComponent(commentTextField)
               .addGroup(layout.createSequentialGroup()
-                .addComponent(startDateSpinner, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                .addComponent(startDateSpinner, GroupLayout.PREFERRED_SIZE, 82, GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(startTimeSpinner, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                .addComponent(startTimeSpinner, GroupLayout.PREFERRED_SIZE, 52, GroupLayout.PREFERRED_SIZE)
               )
               .addGroup(layout.createSequentialGroup()
-                .addComponent(endDateSpinner, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                .addComponent(endDateSpinner, GroupLayout.PREFERRED_SIZE, 82, GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(endTimeSpinner, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+                .addComponent(endTimeSpinner, GroupLayout.PREFERRED_SIZE, 52, GroupLayout.PREFERRED_SIZE)
               )
               .addComponent(categoryScrollPane, GroupLayout.PREFERRED_SIZE, 215, GroupLayout.PREFERRED_SIZE)
             )
@@ -257,15 +269,15 @@ public class AddActivity extends JPanel {
         )
         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
         .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-          .addComponent(startDateSpinner, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+          .addComponent(startDateSpinner, GroupLayout.PREFERRED_SIZE, 22, GroupLayout.PREFERRED_SIZE)
           .addComponent(startLabel)
-          .addComponent(startTimeSpinner, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+          .addComponent(startTimeSpinner, GroupLayout.PREFERRED_SIZE, 22, GroupLayout.PREFERRED_SIZE)
         )
         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
         .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-          .addComponent(endDateSpinner, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+          .addComponent(endDateSpinner, GroupLayout.PREFERRED_SIZE, 22, GroupLayout.PREFERRED_SIZE)
           .addComponent(endLabel)
-          .addComponent(endTimeSpinner, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+          .addComponent(endTimeSpinner, GroupLayout.PREFERRED_SIZE, 22, GroupLayout.PREFERRED_SIZE)
         )
         .addGap(18, 18, 18)
         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -293,7 +305,7 @@ public class AddActivity extends JPanel {
     DateTime start = new DateTime(sdate.getYear(), sdate.getMonthOfYear(), sdate.getDayOfMonth(), stime.getHourOfDay(), stime.getMinuteOfHour());
     DateTime end = new DateTime(edate.getYear(), edate.getMonthOfYear(), edate.getDayOfMonth(), etime.getHourOfDay(), etime.getMinuteOfHour());
 
-    Activity a = new Activity(comment, category, start, end);
+    Activity a = new Activity(escapeHtml(comment), category, start, end);
 
     ArrayList<Activity> activityList = XMLUtil.getActivityByDate(sdate.getYear(), sdate.getMonthOfYear(), sdate.getDayOfMonth());
     for(Activity act : activityList) {
@@ -448,7 +460,6 @@ public class AddActivity extends JPanel {
       path.add(0, categoryTreeElements.getCategoryByID(c.getID()).getParentCategory());
       c = categoryTreeElements.getCategoryByID(c.getID()).getParentCategory();
     }
-    System.out.println(path);
 
     return new TreePath(path.toArray());
     //return path.toArray(new Category[path.size()]);

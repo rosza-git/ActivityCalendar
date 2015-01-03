@@ -7,11 +7,15 @@
 package rosza.activitycalendar;
 
 //<editor-fold defaultstate="collapsed" desc=" Import ">
+import rosza.xcomponents.JLabelX;
 import java.awt.AWTException;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
@@ -41,6 +45,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
+import javax.swing.border.EmptyBorder;
 import org.joda.time.DateTime;
 //</editor-fold>
 
@@ -79,7 +84,7 @@ public class ActivityCalendar extends JFrame {
   public static DateTime selectedDate       = new DateTime(now);      // get new Joda-TIme for selected date
   // End of calendar action variables declaration
 
-  //<editor-fold defaultstate="collapsed" desc=" Creates new form ActivityCalendar ">
+  //<editor-fold defaultstate="collapsed" desc=" Create new form ActivityCalendar ">
   public ActivityCalendar() {
     //setUIFont();
     initUIComponents();
@@ -195,7 +200,7 @@ public class ActivityCalendar extends JFrame {
       return;
     }
     if(monthCalendar == null) {
-      monthCalendar = new MonthCalendar(currentYear, currentMonth, currentDayOfMonth);
+      monthCalendar = new MonthCalendar(selectedDate.getYear(), selectedDate.getMonthOfYear(), selectedDate.getDayOfMonth());
       monthCalendar.setBounds(baseLayer.getSize().width / 2 - monthCalendar.getPreferredSize().width / 2, baseLayer.getSize().height / 2 - monthCalendar.getPreferredSize().height / 2, monthCalendar.getPreferredSize().width, monthCalendar.getPreferredSize().height);
       monthCalendar.addPropertyChangeListener(propertyChangeListener);
       monthCalendar.addMouseListener(mouseListener);
@@ -421,29 +426,6 @@ public class ActivityCalendar extends JFrame {
    * @param args the command line arguments
    */
   public static void main(String args[]) {
-    /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-     * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-     */
-    try {
-      for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-        if ("Windows".equals(info.getName())) {
-          javax.swing.UIManager.setLookAndFeel(info.getClassName());
-          //break;
-        }
-      }
-    } catch (ClassNotFoundException ex) {
-      java.util.logging.Logger.getLogger(ActivityCalendar.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-    } catch (InstantiationException ex) {
-      java.util.logging.Logger.getLogger(ActivityCalendar.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-    } catch (IllegalAccessException ex) {
-      java.util.logging.Logger.getLogger(ActivityCalendar.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-    } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-      java.util.logging.Logger.getLogger(ActivityCalendar.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-    }
-    //</editor-fold>
-
     /* Create and display the form */
     java.awt.EventQueue.invokeLater(new Runnable() {
       @Override
@@ -574,8 +556,7 @@ public class ActivityCalendar extends JFrame {
       hideButton     = new JLabel();
       Dimension iconSize = new Dimension(40, 40);
 
-      setOpaque(true);
-      setBackground(Constant.BG_COLOR);
+      setOpaque(false);
       
       headerLabel.setFont(headerLabel.getFont());
       headerLabel.setFont(headerLabel.getFont().deriveFont(Font.BOLD).deriveFont(22f));
@@ -630,11 +611,11 @@ public class ActivityCalendar extends JFrame {
         .addGroup(layout.createSequentialGroup()
           .addGap(10)
           .addComponent(headerLabel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-          .addComponent(hideButton)//, tempSize, tempSize, tempSize)
+          .addComponent(hideButton)
           .addGap(10)
-          .addComponent(minimizeButton)//, tempSize, tempSize, tempSize)
+          .addComponent(minimizeButton)
           .addGap(10)
-          .addComponent(closeButton)//, tempSize, tempSize, tempSize)
+          .addComponent(closeButton)
           .addGap(10)
         )
       );
@@ -643,37 +624,36 @@ public class ActivityCalendar extends JFrame {
         .addGroup(layout.createSequentialGroup()
           .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
             .addComponent(headerLabel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(hideButton)//, tempSize, tempSize, tempSize)
-            .addComponent(minimizeButton)//, tempSize, tempSize, tempSize)
-            .addComponent(closeButton)//, tempSize, tempSize, tempSize)
+            .addComponent(hideButton)
+            .addComponent(minimizeButton)
+            .addComponent(closeButton)
           )
         )
       );
     }
-/*
+
     @Override
-    public void paintComponent(Graphics g) {
-      super.paintComponent(g);
+    public void paint(Graphics g) {
       int w = getWidth();
       int h = getHeight();
-      Graphics2D g2d = (Graphics2D)g;
-      GradientPaint gp = new GradientPaint(0, 0, Color.white, 0, h, Color.white.darker());
-      g2d.setPaint(gp);
+      Graphics2D g2d = (Graphics2D) g;
+      GradientPaint p = new GradientPaint(0, 0, Constant.BG_DARKER_COLOR, 0, h, Constant.BG_COLOR);
+      g2d.setPaint(p);
       g2d.fillRect(0, 0, w, h);
+      super.paint(g2d);
     }
-  */
   }
   //</editor-fold>
 
   //<editor-fold defaultstate="collapsed" desc=" Activity menu ">
   class ActivityMenu extends JPanel {
     private JLabel timeLabel;
-    private JLabel todayLabel;
+    private JLabelX todayLabel;
     private JLabel prevButton;
     private JLabel nextButton;
     private JLabel settingsButton;
     private JLabel reportButton;
-    private JLabel selectedDateLabel;
+    private JLabelX selectedDateLabel;
     private JLabel addButton;
 
     ActivityMenu() {
@@ -683,17 +663,17 @@ public class ActivityCalendar extends JFrame {
 
     private void initMenuComponents() {
       timeLabel          = new JLabel();
-      todayLabel         = new JLabel();
+      todayLabel         = new JLabelX(Constant.WHITE);
       prevButton         = new JLabel();
       nextButton         = new JLabel();
       settingsButton     = new JLabel();
       reportButton       = new JLabel();
-      selectedDateLabel  = new JLabel();
+      selectedDateLabel  = new JLabelX(Constant.WHITE);
       addButton          = new JLabel();
       Dimension iconSize = new Dimension(40, 40);
 
-      setOpaque(true);
-      setBackground(Constant.BG_COLOR);
+      setOpaque(false);
+      this.setBorder(new EmptyBorder(5, 5, 5, 5));
 
       timeLabel.setFont(timeLabel.getFont());
       timeLabel.setFont(timeLabel.getFont().deriveFont(Font.BOLD).deriveFont(34f));
@@ -848,17 +828,16 @@ public class ActivityCalendar extends JFrame {
       }.start();
     }
 
-/*    @Override
-    public void paintComponent(Graphics g) {
+    @Override
+    public void paint(Graphics g) {
       int w = getWidth();
       int h = getHeight();
       Graphics2D g2d = (Graphics2D) g;
-      GradientPaint p = new GradientPaint(0, 0, Color.white, 0, h, Color.white.darker());
-
-      g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+      GradientPaint p = new GradientPaint(0, 0, Constant.BG_DARKER_BLUE, 0, h, Constant.BG_BLUE);
       g2d.setPaint(p);
       g2d.fillRect(0, 0, w, h);
-    }*/
+      super.paint(g2d);
+    }
   }
   //</editor-fold>
 }

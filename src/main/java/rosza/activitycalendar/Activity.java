@@ -27,7 +27,6 @@ public class Activity {
   }
 
   public Activity(int id, String comment, Category category, DateTime sdate, DateTime edate) {
-    //System.out.println(id);
     this.id = id;
     this.comment = comment;
     this.category = category;
@@ -149,10 +148,7 @@ public class Activity {
   }
 
   public static double time2fraction(int duration) {
-    double f = 0.0;
-    f = duration /60.0;
-
-    return round(f);
+    return round(duration /60.0);
   }
 
   public static double time2fraction(int hour, int minutes) {
@@ -187,5 +183,4 @@ public class Activity {
 
     return s.toString();
   }
-
 }

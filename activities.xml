@@ -47,7 +47,7 @@
   </activity>
 <activity id="11">
     <comment>category tree test</comment>
-    <category>9</category>
+    <category>5</category>
     <start>2015-01-02T08:18:00.000+01:00</start>
     <end>2015-01-02T10:18:00.000+01:00</end>
   </activity>
@@ -76,12 +76,7 @@
     <start>2015-01-04T11:00:00.000+01:00</start>
     <end>2015-01-04T11:00:00.000+01:00</end>
   </activity>
-<activity id="17">
-    <comment>jo lesz!</comment>
-    <category>2</category>
-    <start>2015-01-03T12:00:00.000+01:00</start>
-    <end>2015-01-03T12:30:00.000+01:00</end>
-  </activity>
+
 <activity id="18">
     <comment>05</comment>
     <category>1</category>
@@ -89,10 +84,10 @@
     <end>2015-01-05T10:00:00.000+01:00</end>
   </activity>
 <activity id="19">
-    <comment>update</comment>
+    <comment>update &gt;</comment>
     <category>7</category>
     <start>2015-01-03T06:00:00.000+01:00</start>
-    <end>2015-01-03T06:50:00.000+01:00</end>
+    <end>2015-01-03T07:10:00.000+01:00</end>
   </activity>
 <activity id="20">
     <comment>wedding</comment>
@@ -101,9 +96,15 @@
     <end>2015-01-02T14:41:00.000+01:00</end>
   </activity>
 <activity id="21">
-    <comment>big time</comment>
+    <comment>&lt; time</comment>
     <category>6</category>
     <start>2015-01-03T00:00:00.000+01:00</start>
     <end>2015-01-03T00:59:00.000+01:00</end>
+  </activity>
+<activity id="22">
+    <comment>accident :)</comment>
+    <category>1</category>
+    <start>2015-01-03T17:16:00.000+01:00</start>
+    <end>2015-01-03T19:16:00.000+01:00</end>
   </activity>
 </ActivityCalendarActivities>

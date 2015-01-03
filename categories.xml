@@ -8,7 +8,7 @@
       </category>
     </category>
     <category color="#0000ff" id="2" name="business" parent="0" predefined="true">
-      <category color="#ff00ff" id="5" name="boss" parent="2" predefined="false">
+      <category color="#ffb5a1" id="5" name="boss" parent="2" predefined="false">
         <category color="#5eb432" id="7" name="meeting" parent="5" predefined="false"/>
       </category>
       <category color="#ffafaf" id="6" name="employee" parent="2" predefined="false">

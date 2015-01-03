@@ -7,7 +7,6 @@ package rosza.activitycalendar;
 
 //<editor-fold defaultstate="collapsed" desc=" Import ">
 import java.awt.BasicStroke;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -20,6 +19,7 @@ import javax.swing.*;
 import javax.swing.border.*;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
+import rosza.xcomponents.JScrollBarX;
 //</editor-fold>
 
 public class ActivityPane extends JPanel  {
@@ -41,7 +41,6 @@ public class ActivityPane extends JPanel  {
 
   public ActivityPane(int view, int year, int month, int day) {
     setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
-    //setBackground(Constant.BG_COLOR);
     setOpaque(true);
 
     tempCalendar = new DateTime(year, month, day, 0, 0);
@@ -58,11 +57,13 @@ public class ActivityPane extends JPanel  {
     scrollableActivityPane = new ScrollableActivityPane(currentView, selectedYear, selectedMonth, selectedDayOfMonth);
     scrollableActivityPane.addPropertyChangeListener(propertyChangeListener);
     scrollPane = new JScrollPane(scrollableActivityPane);
-    int paneWidth = 4 + scrollPane.getVerticalScrollBar().getMaximumSize().width + Constant.BAR_WIDTH + cellWidth * (currentView == Constant.DAY_VIEW ? 1 : 7);
+    int paneWidth = 5 + scrollPane.getVerticalScrollBar().getMaximumSize().width + Constant.BAR_WIDTH + cellWidth * (currentView == Constant.DAY_VIEW ? 1 : 7);
     scrollPane.setPreferredSize(new Dimension(paneWidth, Constant.CELL_HEIGHT * 16));
     scrollPane.setColumnHeaderView(daysBar);
     scrollPane.setRowHeaderView(hoursBar);
- 
+    scrollPane.getVerticalScrollBar().setUI(new JScrollBarX());
+    scrollPane.getHorizontalScrollBar().setUI(new JScrollBarX());
+
     //Set the corners.
     scrollPane.setCorner(JScrollPane.UPPER_LEFT_CORNER, new Corner("time"));
     scrollPane.setCorner(JScrollPane.LOWER_LEFT_CORNER, new Corner());

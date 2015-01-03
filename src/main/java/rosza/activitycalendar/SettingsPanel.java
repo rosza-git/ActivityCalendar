@@ -7,14 +7,16 @@
 package rosza.activitycalendar;
 
 //<editor-fold defaultstate="collapsed" desc=" Import ">
+import rosza.xcomponents.JLabelX;
+import rosza.xcomponents.JPanelX;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Properties;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JButton;
 import javax.swing.JColorChooser;
 import javax.swing.JRadioButton;
 import javax.swing.JTabbedPane;
@@ -24,9 +26,9 @@ import javax.swing.JScrollPane;
 import javax.swing.ButtonGroup;
 import javax.swing.GroupLayout;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.LayoutStyle;
-import javax.swing.border.MatteBorder;
 import javax.swing.colorchooser.AbstractColorChooserPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -34,12 +36,15 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
+import rosza.xcomponents.JButtonX;
+import rosza.xcomponents.JScrollBarX;
 //</editor-fold>
 
-public class SettingsPanel extends JPanel {
+public class SettingsPanel extends JPanelX {
   //<editor-fold defaultstate="collapsed" desc=" Variables declaration ">
   // UI variables declaration
-  private JLabel         headerLabel;
+  private JLabelX        headerLabel;
   private JTabbedPane    settingsTabbedPane;
   private JPanel         storagePanel;
   private JPanel         categoriesPanel;
@@ -56,18 +61,18 @@ public class SettingsPanel extends JPanel {
   private JLabel         dbServerPortLabel;
   private JTextField     dbServerTextField;
   private JTextField     dbServerPortTextField;
-  private JButton        saveStorageButton;
+  private JButtonX       saveStorageButton;
   private JLabel         categoriesLabel;
   private JScrollPane    categoryScrollPane;
   private CategoryTree   categoryTree;
   private final Category categoryTreeElements = XMLUtil.getCategories();
-  private JButton        addCategoryButton;
-  private JButton        modifyCategoryButton;
-  private JButton        removeCategoryButton;
+  private JButtonX       addCategoryButton;
+  private JButtonX       modifyCategoryButton;
+  private JButtonX       removeCategoryButton;
   private JLabel         newCategoryLabel;
   private JTextField     newCategoryTextField;
   private JColorChooser  categoryColor;
-  private JButton        closeButton;
+  private JButtonX       closeButton;
   private JLabel         emailAddressLabel;
   private JLabel         emailHostLabel;
   private JLabel         emailPortLabel;
@@ -83,7 +88,7 @@ public class SettingsPanel extends JPanel {
   private JRadioButton   emailTLSRadioButton;
   private JRadioButton   emailSMTPRadioButton;
   private JRadioButton   emailSMTPSRadioButton;
-  private JButton        emailSaveButton;
+  private JButtonX       emailSaveButton;
   // End of UI variables declaration
 
   // Properties variables declaration
@@ -103,7 +108,7 @@ public class SettingsPanel extends JPanel {
   private void initComponents() {
     emailRadioGroup       = new ButtonGroup();
     storageRadioGroup     = new ButtonGroup();
-    headerLabel           = new JLabel();
+    headerLabel           = new JLabelX(5, 0, 5, 0);
     settingsTabbedPane    = new JTabbedPane();
     storagePanel          = new JPanel();
     emailPanel            = new JPanel();
@@ -117,16 +122,16 @@ public class SettingsPanel extends JPanel {
     dbServerPortTextField = new JTextField();
     dbUserTextField       = new JTextField();
     dbPasswordField       = new JPasswordField();
-    saveStorageButton     = new JButton();
+    saveStorageButton     = new JButtonX("save");
     categoriesPanel       = new JPanel();
     categoriesLabel       = new JLabel();
     categoryScrollPane    = new JScrollPane();
     categoryTree          = new CategoryTree(categoryTreeElements);
     newCategoryTextField  = new JTextField();
     newCategoryLabel      = new JLabel();
-    addCategoryButton     = new JButton();
-    removeCategoryButton  = new JButton();
-    modifyCategoryButton  = new JButton();
+    addCategoryButton     = new JButtonX("add");
+    removeCategoryButton  = new JButtonX("remove");
+    modifyCategoryButton  = new JButtonX("modify");
     categoryColor         = new JColorChooser();
     emailPanel            = new JPanel();
     emailAddressLabel     = new JLabel();
@@ -144,10 +149,12 @@ public class SettingsPanel extends JPanel {
     emailTLSRadioButton   = new JRadioButton();
     emailSMTPRadioButton  = new JRadioButton();
     emailSMTPSRadioButton = new JRadioButton();
-    emailSaveButton       = new JButton();
-    closeButton           = new JButton();
+    emailSaveButton       = new JButtonX("save");
+    closeButton           = new JButtonX("close");
 
-    setBorder(new MatteBorder(1, 1, 1, 1, Color.black));
+    headerLabel.setText("settings");
+    headerLabel.setHorizontalAlignment(JLabel.CENTER);
+    headerLabel.setFont(headerLabel.getFont().deriveFont(Font.BOLD).deriveFont(18f));
 
     categoryColor.setPreviewPanel(new JPanel());
     // remove chooser panel, except "RGB"
@@ -155,6 +162,18 @@ public class SettingsPanel extends JPanel {
     for(AbstractColorChooserPanel accp : colorPanel) {
       if(!accp.getDisplayName().equals("RGB")) {
          categoryColor.removeChooserPanel(accp);
+      }
+      else {
+        accp.setBackground(Constant.BG_COLOR);
+        for(Component component : accp.getComponents()) {
+          JComponent comp = (JComponent)component;
+          if(comp instanceof JPanel) {
+            for(Component c : comp.getComponents()) {
+              c.setBackground(Constant.BG_COLOR);
+            }
+          }
+          comp.setBackground(Constant.BG_COLOR);
+        }
       }
     }
     categoryColor.getSelectionModel().addChangeListener(new ChangeListener() {
@@ -165,15 +184,12 @@ public class SettingsPanel extends JPanel {
       }
     });
 
-    headerLabel.setFont(headerLabel.getFont().deriveFont(Font.BOLD));
-    headerLabel.setHorizontalAlignment(JLabel.CENTER);
-    headerLabel.setText("settings");
-
     storageRadioGroup.add(xmlRadio);
     storageRadioGroup.add(dbRadio);
 
     xmlRadio.setText("XML");
     xmlRadio.setFont(xmlRadio.getFont());
+    xmlRadio.setOpaque(false);
     xmlRadio.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
@@ -183,6 +199,7 @@ public class SettingsPanel extends JPanel {
 
     dbRadio.setText("database");
     dbRadio.setFont(dbRadio.getFont());
+    dbRadio.setOpaque(false);
     dbRadio.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
@@ -223,6 +240,7 @@ public class SettingsPanel extends JPanel {
       }
     });
 
+    storagePanel.setOpaque(false);
     GroupLayout storagePanelLayout = new GroupLayout(storagePanel);
     storagePanel.setLayout(storagePanelLayout);
     storagePanelLayout.setHorizontalGroup(
@@ -291,15 +309,6 @@ public class SettingsPanel extends JPanel {
       )
     );
 
-    settingsTabbedPane.addTab("storage", storagePanel);
-    settingsTabbedPane.setFont(settingsTabbedPane.getFont().deriveFont(Font.BOLD));
-
-    settingsTabbedPane.addTab("categories", categoriesPanel);
-    //settingsTabbedPane.setFont(settingsTabbedPane.getFont().deriveFont(Font.BOLD));
-
-    settingsTabbedPane.addTab("e-mail", emailPanel);
-    //settingsTabbedPane.setFont(settingsTabbedPane.getFont().deriveFont(Font.BOLD));
-
     categoriesLabel.setHorizontalAlignment(JLabel.RIGHT);
     categoriesLabel.setText("categories:");
     categoriesLabel.setFont(categoriesLabel.getFont().deriveFont(Font.BOLD));
@@ -315,7 +324,8 @@ public class SettingsPanel extends JPanel {
 
     categoryScrollPane.setFont(categoryScrollPane.getFont());
     categoryScrollPane.setViewportView(categoryTree);
-    //categoryScrollPane.setPreferredSize(new Dimension(categoryTree.getWidth(), .getFont()_SIZE * 6));
+    categoryScrollPane.getVerticalScrollBar().setUI(new JScrollBarX());
+    categoryScrollPane.getHorizontalScrollBar().setUI(new JScrollBarX());
 
     newCategoryTextField.setText("");
     newCategoryTextField.setFont(newCategoryTextField.getFont());
@@ -370,6 +380,7 @@ public class SettingsPanel extends JPanel {
       }
     });
 
+    categoriesPanel.setOpaque(false);
     GroupLayout categoriesPanelLayout = new GroupLayout(categoriesPanel);
     categoriesPanel.setLayout(categoriesPanelLayout);
     categoriesPanelLayout.setHorizontalGroup(
@@ -453,6 +464,7 @@ public class SettingsPanel extends JPanel {
     emailPasswordField.setFont(emailPasswordField.getFont());
 
     emailAuthCheckBox.setText("authentication");
+    emailAuthCheckBox.setOpaque(false);
     emailAuthCheckBox.setFont(emailAuthCheckBox.getFont());
 
     emailHostLabel.setHorizontalAlignment(JLabel.RIGHT);
@@ -475,12 +487,15 @@ public class SettingsPanel extends JPanel {
     emailRadioGroup.add(emailSMTPRadioButton);
 
     emailTLSRadioButton.setText("TLS");
+    emailTLSRadioButton.setOpaque(false);
     emailTLSRadioButton.setFont(emailTLSRadioButton.getFont());
 
     emailSMTPRadioButton.setText("SMTP");
+    emailSMTPRadioButton.setOpaque(false);
     emailSMTPRadioButton.setFont(emailSMTPRadioButton.getFont());
 
     emailSMTPSRadioButton.setText("SMTPS");
+    emailSMTPSRadioButton.setOpaque(false);
     emailSMTPSRadioButton.setFont(emailSMTPSRadioButton.getFont());
 
     emailSaveButton.setText("save");
@@ -492,6 +507,7 @@ public class SettingsPanel extends JPanel {
       }
     });
 
+    emailPanel.setOpaque(false);
     GroupLayout emailPanelLayout = new GroupLayout(emailPanel);
     emailPanel.setLayout(emailPanelLayout);
     emailPanelLayout.setHorizontalGroup(
@@ -568,15 +584,23 @@ public class SettingsPanel extends JPanel {
       }
     });
 
+    settingsTabbedPane.setBackground(Constant.BG_COLOR);
+    settingsTabbedPane.setFont(settingsTabbedPane.getFont());
+    settingsTabbedPane.addTab("storage", storagePanel);
+    settingsTabbedPane.addTab("categories", categoriesPanel);
+    settingsTabbedPane.addTab("e-mail", emailPanel);
+
     GroupLayout layout = new GroupLayout(this);
     this.setLayout(layout);
     layout.setHorizontalGroup(
       layout.createParallelGroup(GroupLayout.Alignment.LEADING)
       .addComponent(headerLabel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-      .addComponent(settingsTabbedPane)
-      .addGroup(GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+      .addGroup(layout.createSequentialGroup()
         .addContainerGap()
-        .addComponent(closeButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+          .addComponent(settingsTabbedPane)
+          .addComponent(closeButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        )
         .addContainerGap()
       )
     );
@@ -665,7 +689,7 @@ public class SettingsPanel extends JPanel {
   //<editor-fold defaultstate="collapsed" desc=" Button events ">
   private void categoryAddButtonActionPerformed(ActionEvent e) {
     int id = Category.getLastID((Category)categoryTree.getModel().getRoot(), 0);
-    Category c = new Category(++id, newCategoryTextField.getText(), categoryColor.getColor(), false);
+    Category c = new Category(++id, escapeHtml(newCategoryTextField.getText()), categoryColor.getColor(), false);
     Category.addCategory(c, categoryTree.getSelected());
     XMLUtil.createCategoriesXML(categoryTreeElements);
     categoryTree.updateUI();

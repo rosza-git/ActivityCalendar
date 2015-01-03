@@ -4,9 +4,6 @@
  * @author Szalay Roland
  * 
  */
-/* TO-DO
-      - JDOM? - http://www.mkyong.com/java/how-to-read-xml-file-in-java-jdom-example/
-*/
 /* XML helpings:
     http://www.mkyong.com/java/how-to-create-xml-file-in-java-dom/
     http://stackoverflow.com/questions/6445828/how-do-i-append-a-node-to-an-existing-xml-file-in-java

@@ -7,6 +7,10 @@
 package rosza.activitycalendar;
 
 //<editor-fold defaultstate="collapsed" desc=" Import ">
+import rosza.xcomponents.JLabelX;
+import rosza.xcomponents.JPanelX;
+import rosza.xcomponents.JButtonX;
+import rosza.xcomponents.JScrollBarX;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -30,35 +34,32 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMultipart;
 import javax.swing.GroupLayout;
 import javax.swing.InputVerifier;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle;
 import javax.swing.UIManager;
-import javax.swing.border.MatteBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 //</editor-fold>
 
-public class ReportPanel extends JPanel{
+public class ReportPanel extends JPanelX {
   //<editor-fold defaultstate="collapsed" desc=" Variables declaration ">
   // UI variables declaration
-  private JButton closeButton;
-  private JLabel dateLabel;
+  private JButtonX    closeButton;
+  private JLabel      dateLabel;
   private JScrollPane editorScrollPane;
-  private JLabel headerLabel;
-  private JButton sendButton;
-  private JLabel sendToLabel;
-  private JTextField sendToTextField;
-  private JLabel subjectLabel;
-  private JTextField subjectTextField;
+  private JLabelX     headerLabel;
+  private JButtonX    sendButton;
+  private JLabel      sendToLabel;
+  private JTextField  sendToTextField;
+  private JLabel      subjectLabel;
+  private JTextField  subjectTextField;
   private JEditorPane summaryEditorPane;
-  private JLabel summaryLabel;
+  private JLabel      summaryLabel;
   // End of UI variables declaration
   private static int selectedYear;
   private static int selectedMonth;
@@ -72,7 +73,7 @@ public class ReportPanel extends JPanel{
   // End of properties variables declaration
   //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Report panel ">
+  //<editor-fold defaultstate="collapsed" desc=" Create report panel ">
   public ReportPanel(int y, int m, int d) {
     selectedYear = y;
     selectedMonth = m;
@@ -94,7 +95,7 @@ public class ReportPanel extends JPanel{
   //<editor-fold defaultstate="collapsed" desc=" Initialize UI components ">
   @SuppressWarnings("unchecked")
   private void initComponents() {
-    headerLabel       = new JLabel();
+    headerLabel       = new JLabelX(5, 0, 5, 0);
     summaryLabel      = new JLabel();
     editorScrollPane  = new JScrollPane();
     summaryEditorPane = new JEditorPane();
@@ -102,15 +103,13 @@ public class ReportPanel extends JPanel{
     subjectLabel      = new JLabel();
     sendToTextField   = new JTextField();
     subjectTextField  = new JTextField();
-    sendButton        = new JButton();
+    sendButton        = new JButtonX("send");
     dateLabel         = new JLabel();
-    closeButton       = new JButton();
+    closeButton       = new JButtonX("close");
 
-    setBorder(new MatteBorder(1, 1, 1, 1, Color.black));
-
-    headerLabel.setHorizontalAlignment(JLabel.CENTER);
     headerLabel.setText("report");
-    headerLabel.setFont(headerLabel.getFont().deriveFont(Font.BOLD).deriveFont(22f));
+    headerLabel.setHorizontalAlignment(JLabel.CENTER);
+    headerLabel.setFont(headerLabel.getFont().deriveFont(Font.BOLD).deriveFont(18f));
 
     summaryLabel.setFont(summaryLabel.getFont().deriveFont(Font.BOLD));
     summaryLabel.setText("summary: ");
@@ -125,6 +124,8 @@ public class ReportPanel extends JPanel{
     summaryEditorPane.setPreferredSize(new Dimension(600, 500));
 
     editorScrollPane.setViewportView(summaryEditorPane);
+    editorScrollPane.getVerticalScrollBar().setUI(new JScrollBarX());
+    editorScrollPane.getHorizontalScrollBar().setUI(new JScrollBarX());
 
     sendToLabel.setFont(sendToLabel.getFont().deriveFont(Font.BOLD));
     sendToLabel.setText("send to: ");
@@ -237,14 +238,16 @@ public class ReportPanel extends JPanel{
   }
   //</editor-fold>
 
+  //<editor-fold defaultstate="collapsed" desc=" Build summary ">
   private Summary[] buildSummary(Category c, ArrayList<Activity> activityList) {
     return visitCategories(c, activityList);
   }
+  //</editor-fold>
 
+  //<editor-fold defaultstate="collapsed" desc=" Visit categories ">
   private Summary[] visitCategories(Category c, ArrayList<Activity> activityList) {
     ArrayList<Summary> sum = new ArrayList<>();
 
-    //Summary s = new Summary(c.getName());
     Summary s = activityCategoryMatch(c.getName(), activityList);
     if(s == null) {
       s = new Summary(c.getName());
@@ -263,7 +266,9 @@ public class ReportPanel extends JPanel{
 
     return tempSum;
   }
+  //</editor-fold>
 
+  //<editor-fold defaultstate="collapsed" desc=" Link together all members of a summary ">
   public static void linkSummary(Summary parent, Summary[] children) {
     for(Summary sum : children) {
       parent.children.add(sum);
@@ -273,7 +278,9 @@ public class ReportPanel extends JPanel{
       }
     }
   }
+  //</editor-fold>
 
+  //<editor-fold defaultstate="collapsed" desc=" Activity-Category match ">
   private Summary activityCategoryMatch(String cat, ArrayList<Activity> activities) {
     Summary s = new Summary(cat);
     for(Activity a : activities) {
@@ -287,6 +294,7 @@ public class ReportPanel extends JPanel{
 
     return s;
   }
+  //</editor-fold>
 
   //<editor-fold defaultstate="collapsed" desc=" Generate HTML summary ">
   private void generateHTMLSummary() {
@@ -298,6 +306,7 @@ public class ReportPanel extends JPanel{
   }
   //</editor-fold>
 
+  //<editor-fold defaultstate="collapsed" desc=" Generate parenthetic representation of summary class in HTML format">
   private void parentheticRepresentation(Summary sum, String indent) {
     html.append(indent);
     if(sum.comment.isEmpty()) {
@@ -326,10 +335,10 @@ public class ReportPanel extends JPanel{
       }
     }
   }
+  //</editor-fold>
 
   //<editor-fold defaultstate="collapsed" desc=" Send e-mail ">
   private void sendMail(String to, String subject, String body) {
-    System.out.println(props);
     Properties eMailProps = new Properties();
 
 		eMailProps.put("mail.smtp.host", props.getProperty(Constant.PROPS_EMAIL_SMTP_HOST));
@@ -360,8 +369,6 @@ public class ReportPanel extends JPanel{
     }
 
     Session session = Session.getDefaultInstance(eMailProps, authenticator);
-
-    System.out.println(eMailProps);
 
     try {
       Message message = new MimeMessage(session);
@@ -405,7 +412,6 @@ public class ReportPanel extends JPanel{
     @Override
     public boolean verify(JComponent input) {
       String email = ((JTextField)input).getText();
-      System.out.println(email);
       final String singleValidExpression = "[\\w\\.-]+@([\\w\\-]+\\.)+[A-Z]{2,4}";  
       final String validExpression = "^" + singleValidExpression + "(\\s*,\\s*" + singleValidExpression + ")*$";  
 
@@ -445,6 +451,7 @@ public class ReportPanel extends JPanel{
   }
   //</editor-fold>
 
+  //<editor-fold defaultstate="collapsed" desc=" Summary class ">
   public class Summary {
     public ArrayList<String> comment = new ArrayList<>();
     public ArrayList<String> category = new ArrayList<>();
@@ -467,4 +474,5 @@ public class ReportPanel extends JPanel{
       this.children = new ArrayList<>();
     }
   }
+  //</editor-fold>
 }
