@@ -14,9 +14,9 @@ import javax.swing.JComponent;
 import javax.swing.plaf.basic.BasicArrowButton;
 import javax.swing.plaf.basic.BasicScrollBarUI;
 import rosza.activitycalendar.Constant;
-import static sun.swing.SwingUtilities2.drawHLine;
-import static sun.swing.SwingUtilities2.drawRect;
-import static sun.swing.SwingUtilities2.drawVLine;
+//import static sun.swing.SwingUtilities2.drawHLine;
+//import static sun.swing.SwingUtilities2.drawRect;
+//import static sun.swing.SwingUtilities2.drawVLine;
 
 public class JScrollBarX extends BasicScrollBarUI {
   @Override
@@ -48,7 +48,8 @@ public class JScrollBarX extends BasicScrollBarUI {
 
     //g.setColor(thumbDarkShadowColor);
     g.setColor(Constant.BG_DARKER_BLUE.darker());
-    drawRect(g, 0, 0, w - 1, h - 1);
+    g.drawRect(0, 0, w - 1, h - 1);
+    //drawRect(g, 0, 0, w - 1, h - 1);    // drawRect(Graphics g, int x, int y, int w, int h)
     //g.setColor(thumbColor);
     GradientPaint gp = new GradientPaint(0, 0, Constant.BG_DARKER_BLUE, 0, h, Constant.BG_BLUE);
     g2d.setPaint(gp);
@@ -56,13 +57,17 @@ public class JScrollBarX extends BasicScrollBarUI {
 
     //g.setColor(thumbHighlightColor);
     g.setColor(Constant.BG_BLUE);
-    drawVLine(g, 1, 1, h - 2);
-    drawHLine(g, 2, w - 3, 1);
+    //drawVLine(g, 1, 1, h - 2);    // drawVLine(Graphics g, int x, int y1, int y2)
+    g.drawLine(1, 1, 1, h - 2);
+    //drawHLine(g, 2, w - 3, 1);    // drawHLine(Graphics g, int x1, int x2, int y)
+    g.drawLine(2, 1, w - 3, 1);
 
     //g.setColor(thumbLightShadowColor);
     g.setColor(Constant.BG_DARKER_BLUE);
-    drawHLine(g, 2, w - 2, h - 2);
-    drawVLine(g, w - 2, 1, h - 3);
+    g.drawLine(2, h - 2, w - 2, h - 2);
+    //drawHLine(g, 2, w - 2, h - 2);    // drawHLine(Graphics g, int x1, int x2, int y)
+    g.drawLine(w - 2, 1, w - 2, h - 3);
+    //drawVLine(g, w - 2, 1, h - 3);    // drawVLine(Graphics g, int x, int y1, int y2)
 
     g.translate(-thumbBounds.x, -thumbBounds.y);
   }
