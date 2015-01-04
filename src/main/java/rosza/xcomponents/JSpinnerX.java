@@ -21,12 +21,18 @@ public class JSpinnerX extends BasicSpinnerUI {
 
   @Override
   protected Component createNextButton() {
-    return new BasicArrowButton(SwingConstants.NORTH, Constant.BG_DARKER_BLUE, Constant.BG_DARKER_BLUE, Constant.TEXT_COLOR, Constant.BG_BLUE);
+    Component c = new BasicArrowButton(SwingConstants.NORTH, Constant.BG_DARKER_BLUE, Constant.BG_DARKER_BLUE, Constant.TEXT_COLOR, Constant.BG_BLUE);
+    c.setName("Spinner.nextButton");
+    installNextButtonListeners(c);
+    return c;
   }
 
   @Override
   protected Component createPreviousButton() {
-    return new BasicArrowButton(SwingConstants.SOUTH, Constant.BG_DARKER_BLUE, Constant.BG_DARKER_BLUE, Constant.TEXT_COLOR, Constant.BG_BLUE);
+    Component c = new BasicArrowButton(SwingConstants.SOUTH, Constant.BG_DARKER_BLUE, Constant.BG_DARKER_BLUE, Constant.TEXT_COLOR, Constant.BG_BLUE);
+    c.setName("Spinner.previousButton");
+    installPreviousButtonListeners(c);
+    return c;
   }
 
   @Override  

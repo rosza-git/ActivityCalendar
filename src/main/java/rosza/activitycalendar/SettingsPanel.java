@@ -9,6 +9,9 @@ package rosza.activitycalendar;
 //<editor-fold defaultstate="collapsed" desc=" Import ">
 import rosza.xcomponents.JLabelX;
 import rosza.xcomponents.JPanelX;
+import rosza.xcomponents.JButtonX;
+import rosza.xcomponents.JScrollBarX;
+import rosza.xcomponents.JTabbedPaneX;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
@@ -37,8 +40,6 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
-import rosza.xcomponents.JButtonX;
-import rosza.xcomponents.JScrollBarX;
 //</editor-fold>
 
 public class SettingsPanel extends JPanelX {
@@ -240,7 +241,8 @@ public class SettingsPanel extends JPanelX {
       }
     });
 
-    storagePanel.setOpaque(false);
+    storagePanel.setOpaque(true);
+    storagePanel.setBackground(Constant.BG_COLOR);
     GroupLayout storagePanelLayout = new GroupLayout(storagePanel);
     storagePanel.setLayout(storagePanelLayout);
     storagePanelLayout.setHorizontalGroup(
@@ -322,6 +324,7 @@ public class SettingsPanel extends JPanelX {
       }
     });
 
+    categoryScrollPane.setBackground(Constant.BG_COLOR);
     categoryScrollPane.setFont(categoryScrollPane.getFont());
     categoryScrollPane.setViewportView(categoryTree);
     categoryScrollPane.getVerticalScrollBar().setUI(new JScrollBarX());
@@ -380,7 +383,8 @@ public class SettingsPanel extends JPanelX {
       }
     });
 
-    categoriesPanel.setOpaque(false);
+    categoriesPanel.setOpaque(true);
+    categoriesPanel.setBackground(Constant.BG_COLOR);
     GroupLayout categoriesPanelLayout = new GroupLayout(categoriesPanel);
     categoriesPanel.setLayout(categoriesPanelLayout);
     categoriesPanelLayout.setHorizontalGroup(
@@ -450,18 +454,21 @@ public class SettingsPanel extends JPanelX {
     emailAddressLabel.setFont(emailAddressLabel.getFont().deriveFont(Font.BOLD));
 
     emailAddressTextField.setFont(emailAddressTextField.getFont());
+    emailAddressTextField.getDocument().addDocumentListener(documentListener);
 
     emailUserLabel.setHorizontalAlignment(JLabel.RIGHT);
     emailUserLabel.setText("username:");
     emailUserLabel.setFont(emailUserLabel.getFont().deriveFont(Font.BOLD));
 
     emailUserTextField.setFont(emailUserTextField.getFont());
+    emailUserTextField.getDocument().addDocumentListener(documentListener);
 
     emailPasswordLabel.setHorizontalAlignment(JLabel.RIGHT);
     emailPasswordLabel.setText("password:");
     emailPasswordLabel.setFont(emailPasswordLabel.getFont().deriveFont(Font.BOLD));
 
     emailPasswordField.setFont(emailPasswordField.getFont());
+    emailPasswordField.getDocument().addDocumentListener(documentListener);
 
     emailAuthCheckBox.setText("authentication");
     emailAuthCheckBox.setOpaque(false);
@@ -472,12 +479,14 @@ public class SettingsPanel extends JPanelX {
     emailHostLabel.setFont(emailHostLabel.getFont().deriveFont(Font.BOLD));
 
     emailHostTextField.setFont(emailHostTextField.getFont());
+    emailHostTextField.getDocument().addDocumentListener(documentListener);
 
     emailPortLabel.setHorizontalAlignment(JLabel.RIGHT);
     emailPortLabel.setText("port:");
     emailPortLabel.setFont(emailPortLabel.getFont().deriveFont(Font.BOLD));
 
     emailPortTextField.setFont(emailPortTextField.getFont());
+    emailPortTextField.getDocument().addDocumentListener(documentListener);
 
     emailProtocolLabel.setText("protocol:");
     emailProtocolLabel.setFont(emailProtocolLabel.getFont().deriveFont(Font.BOLD));
@@ -489,17 +498,36 @@ public class SettingsPanel extends JPanelX {
     emailTLSRadioButton.setText("TLS");
     emailTLSRadioButton.setOpaque(false);
     emailTLSRadioButton.setFont(emailTLSRadioButton.getFont());
+    emailTLSRadioButton.addChangeListener(new ChangeListener() {
+      @Override
+      public void stateChanged(ChangeEvent e) {
+        emailSaveButton.setEnabled(enableEmailSaveButton());
+      }
+    });
 
     emailSMTPRadioButton.setText("SMTP");
     emailSMTPRadioButton.setOpaque(false);
     emailSMTPRadioButton.setFont(emailSMTPRadioButton.getFont());
+    emailSMTPRadioButton.addChangeListener(new ChangeListener() {
+      @Override
+      public void stateChanged(ChangeEvent e) {
+        emailSaveButton.setEnabled(enableEmailSaveButton());
+      }
+    });
 
     emailSMTPSRadioButton.setText("SMTPS");
     emailSMTPSRadioButton.setOpaque(false);
     emailSMTPSRadioButton.setFont(emailSMTPSRadioButton.getFont());
+    emailSMTPSRadioButton.addChangeListener(new ChangeListener() {
+      @Override
+      public void stateChanged(ChangeEvent e) {
+        emailSaveButton.setEnabled(enableEmailSaveButton());
+      }
+    });
 
     emailSaveButton.setText("save");
     emailSaveButton.setFont(emailSaveButton.getFont().deriveFont(Font.BOLD));
+    emailSaveButton.setEnabled(enableEmailSaveButton());
     emailSaveButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
@@ -507,7 +535,8 @@ public class SettingsPanel extends JPanelX {
       }
     });
 
-    emailPanel.setOpaque(false);
+    emailPanel.setOpaque(true);
+    emailPanel.setBackground(Constant.BG_COLOR);
     GroupLayout emailPanelLayout = new GroupLayout(emailPanel);
     emailPanel.setLayout(emailPanelLayout);
     emailPanelLayout.setHorizontalGroup(
@@ -520,13 +549,16 @@ public class SettingsPanel extends JPanelX {
             .addComponent(emailSaveButton))
           .addGroup(emailPanelLayout.createSequentialGroup()
             .addGroup(emailPanelLayout.createParallelGroup(GroupLayout.Alignment.TRAILING)
+              .addComponent(emailAddressLabel)
               .addComponent(emailPortLabel)
               .addComponent(emailHostLabel)
               .addComponent(emailPasswordLabel)
               .addComponent(emailUserLabel)
-              .addComponent(emailProtocolLabel))
+              .addComponent(emailProtocolLabel)
+            )
             .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
             .addGroup(emailPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+              .addComponent(emailAddressTextField)
               .addComponent(emailUserTextField)
               .addComponent(emailHostTextField)
               .addComponent(emailPortTextField)
@@ -539,40 +571,58 @@ public class SettingsPanel extends JPanelX {
                     .addGap(18, 18, 18)
                     .addComponent(emailSMTPSRadioButton)
                     .addGap(18, 18, 18)
-                    .addComponent(emailSMTPRadioButton)))
-                .addGap(0, 126, Short.MAX_VALUE)))))
-        .addContainerGap())
+                    .addComponent(emailSMTPRadioButton)
+                  )
+                )
+                .addGap(0, 126, Short.MAX_VALUE)
+              )
+            )
+          )
+        )
+        .addContainerGap()
+      )
     );
     emailPanelLayout.setVerticalGroup(
       emailPanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
       .addGroup(emailPanelLayout.createSequentialGroup()
         .addContainerGap()
         .addGroup(emailPanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+          .addComponent(emailAddressLabel)
+          .addComponent(emailAddressTextField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+        )
+        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+        .addGroup(emailPanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
           .addComponent(emailUserLabel)
-          .addComponent(emailUserTextField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+          .addComponent(emailUserTextField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+        )
         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
         .addGroup(emailPanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
           .addComponent(emailPasswordLabel)
-          .addComponent(emailPasswordField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+          .addComponent(emailPasswordField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+        )
         .addGap(18, 18, 18)
         .addGroup(emailPanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
           .addComponent(emailHostLabel)
-          .addComponent(emailHostTextField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+          .addComponent(emailHostTextField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+        )
         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
         .addGroup(emailPanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
           .addComponent(emailPortLabel)
-          .addComponent(emailPortTextField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+          .addComponent(emailPortTextField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+        )
         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
         .addGroup(emailPanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
           .addComponent(emailProtocolLabel)
           .addComponent(emailTLSRadioButton)
           .addComponent(emailSMTPSRadioButton)
-          .addComponent(emailSMTPRadioButton))
+          .addComponent(emailSMTPRadioButton)
+        )
         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(emailAuthCheckBox)
         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, 114, Short.MAX_VALUE)
         .addComponent(emailSaveButton)
-        .addContainerGap())
+        .addContainerGap()
+      )
     );
 
     closeButton.setText("close");
@@ -584,8 +634,10 @@ public class SettingsPanel extends JPanelX {
       }
     });
 
+    settingsTabbedPane.setUI(new JTabbedPaneX());
+    settingsTabbedPane.setTabPlacement(JTabbedPane.TOP);
     settingsTabbedPane.setBackground(Constant.BG_COLOR);
-    settingsTabbedPane.setFont(settingsTabbedPane.getFont());
+    settingsTabbedPane.setFont(settingsTabbedPane.getFont().deriveFont(Font.BOLD));
     settingsTabbedPane.addTab("storage", storagePanel);
     settingsTabbedPane.addTab("categories", categoriesPanel);
     settingsTabbedPane.addTab("e-mail", emailPanel);
@@ -683,6 +735,26 @@ public class SettingsPanel extends JPanelX {
     }
     catch(NullPointerException e) {
     }
+  }
+  //</editor-fold>
+
+  //<editor-fold defaultstate="collapsed" desc=" E-mail save button state ">
+  private boolean enableEmailSaveButton() {
+    boolean state = true;
+    state &= !emailAddressTextField.getText().equals("");
+    state &= !emailUserTextField.getText().equals("");
+    state &= emailPasswordField.getPassword().length != 0;
+    state &= !emailHostTextField.getText().equals("");  
+    state &= !emailPortTextField.getText().equals("");
+    state &= (emailTLSRadioButton.isSelected() | emailSMTPRadioButton.isSelected() | emailSMTPSRadioButton.isSelected());
+
+    return state;
+  }
+  //</editor-fold>
+
+  //<editor-fold defaultstate="collapsed" desc=" Add category button state ">
+  private boolean enableAddCategoryButton() {
+    return !(newCategoryTextField.getText().equals("") && (categoryTree.getSelected().getID() == 0));
   }
   //</editor-fold>
 
@@ -810,8 +882,22 @@ public class SettingsPanel extends JPanelX {
   }
   //</editor-fold>
 
-  private boolean enableAddCategoryButton() {
-    return !(newCategoryTextField.getText().equals("") && (categoryTree.getSelected().getID() == 0));
-  }
+  //<editor-fold defaultstate="collapsed" desc=" Document Listener ">
+  DocumentListener documentListener = new DocumentListener() {
+      @Override
+      public void insertUpdate(DocumentEvent e) {
+        emailSaveButton.setEnabled(enableEmailSaveButton());
+      }
 
+      @Override
+      public void removeUpdate(DocumentEvent e) {
+        emailSaveButton.setEnabled(enableEmailSaveButton());
+      }
+
+      @Override
+      public void changedUpdate(DocumentEvent e) {
+        emailSaveButton.setEnabled(enableEmailSaveButton());
+      }
+    };
+  //</editor-fold>
 }

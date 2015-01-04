@@ -3,17 +3,15 @@
   <category color="#000000" id="0" name="categories" predefined="true">
     <category color="#ff0000" id="1" name="personal" parent="0" predefined="true">
       <category color="#ffff00" id="3" name="birthday" parent="1" predefined="false"/>
-      <category color="#ffc800" id="4" name="anniversary" parent="1" predefined="false">
-        <category color="#ff3bb0" id="10" name="wedding" parent="4" predefined="false"/>
-      </category>
+      <category color="#ffc800" id="4" name="anniversary" parent="1" predefined="false"/>
     </category>
     <category color="#0000ff" id="2" name="business" parent="0" predefined="true">
-      <category color="#ffb5a1" id="5" name="boss" parent="2" predefined="false">
-        <category color="#5eb432" id="7" name="meeting" parent="5" predefined="false"/>
+      <category color="#ff00ff" id="5" name="boss" parent="2" predefined="false">
+        <category color="#00ff00" id="7" name="meeting" parent="5" predefined="false"/>
       </category>
       <category color="#ffafaf" id="6" name="employee" parent="2" predefined="false">
-        <category color="#55af3a" id="8" name="coding" parent="6" predefined="false"/>
-        <category color="#4b43af" id="9" name="testing" parent="6" predefined="false"/>
+        <category color="#00ffff" id="8" name="testing" parent="6" predefined="false"/>
+        <category color="#808080" id="9" name="coding" parent="6" predefined="false"/>
       </category>
     </category>
   </category>

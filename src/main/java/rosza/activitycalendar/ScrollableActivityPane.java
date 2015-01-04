@@ -199,7 +199,6 @@ public class ScrollableActivityPane extends JLayeredPane implements Scrollable {
           firePropertyChange(Constant.MODIFY_ACTIVITY, null, al.getActivity());
         }
         else {
-          System.out.println("itt is váltsunk dátumot??");
         }
       }
       else if(e.getSource() instanceof JLabel) {

@@ -308,10 +308,12 @@ public class AddActivity extends JPanelX {
     Activity a = new Activity(escapeHtml(comment), category, start, end);
 
     ArrayList<Activity> activityList = XMLUtil.getActivityByDate(sdate.getYear(), sdate.getMonthOfYear(), sdate.getDayOfMonth());
-    for(Activity act : activityList) {
-      if(checkOverlaps(a.getStartDate(), a.getEndDate(), act.getStartDate(), act.getEndDate())) {
-        JOptionPane.showMessageDialog(this, "Overlapping activities are not allowed!", "Error", JOptionPane.ERROR_MESSAGE);
-        return;
+    if(activityList != null) {
+      for(Activity act : activityList) {
+        if(checkOverlaps(a.getStartDate(), a.getEndDate(), act.getStartDate(), act.getEndDate())) {
+          JOptionPane.showMessageDialog(this, "Overlapping activities are not allowed!", "Error", JOptionPane.ERROR_MESSAGE);
+          return;
+        }
       }
     }
 
@@ -361,6 +363,7 @@ public class AddActivity extends JPanelX {
   }
   //</editor-fold>
 
+  //<editor-fold defaultstate="collapsed" desc=" Change events ">
   private void startDateSpinnerStateChanged(ChangeEvent e) {
     Date sd = new Date();
     sd.setYear(((Date)startDateSpinner.getValue()).getYear());
@@ -429,6 +432,7 @@ public class AddActivity extends JPanelX {
     //TreePath path = categoryTree.getSelectionPath();
     //System.out.println(path);
   }
+  //</editor-fold>
 
   //<editor-fold defaultstate="collapsed" desc=" Checks time conflicts ">
   /**

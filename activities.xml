@@ -1,110 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <ActivityCalendarActivities>
   <activity id="1">
-    <comment>comment</comment>
+    <comment>ooops</comment>
     <category>1</category>
-    <start>2014-12-31T21:45:42.591+01:00</start>
-    <end>2014-12-31T23:44:42.591+01:00</end>
+    <start>2015-01-04T10:12:00.000+01:00</start>
+    <end>2015-01-04T10:12:00.000+01:00</end>
   </activity>
 <activity id="2">
-    <comment>comment</comment>
-    <category>5</category>
-    <start>2014-12-31T16:43:00.000+01:00</start>
-    <end>2014-12-31T20:43:00.000+01:00</end>
-  </activity>
-<activity id="3">
-    <comment>semmi</comment>
-    <category>7</category>
-    <start>2014-12-31T05:25:00.000+01:00</start>
-    <end>2014-12-31T06:22:00.000+01:00</end>
-  </activity>
-
-
-
-<activity id="7">
-    <comment>overlap</comment>
-    <category>3</category>
-    <start>2014-12-31T15:15:00.000+01:00</start>
-    <end>2014-12-31T15:56:00.000+01:00</end>
-  </activity>
-<activity id="8">
-    <comment>overlap mod.</comment>
-    <category>4</category>
-    <start>2014-12-31T01:41:00.000+01:00</start>
-    <end>2014-12-31T03:27:00.000+01:00</end>
-  </activity>
-<activity id="9">
-    <comment>overlap</comment>
-    <category>4</category>
-    <start>2014-12-31T03:31:00.000+01:00</start>
-    <end>2014-12-31T04:31:00.000+01:00</end>
-  </activity>
-<activity id="10">
-    <comment>overlap sokadik</comment>
+    <comment>ok :)</comment>
     <category>1</category>
-    <start>2014-12-31T10:06:00.000+01:00</start>
-    <end>2014-12-31T11:35:00.000+01:00</end>
-  </activity>
-<activity id="11">
-    <comment>category tree test</comment>
-    <category>5</category>
-    <start>2015-01-02T08:18:00.000+01:00</start>
-    <end>2015-01-02T10:18:00.000+01:00</end>
-  </activity>
-<activity id="12">
-    <comment>29.</comment>
-    <category>1</category>
-    <start>2014-12-29T01:00:00.000+01:00</start>
-    <end>2014-12-29T02:00:00.000+01:00</end>
-  </activity>
-<activity id="13">
-    <comment>30.</comment>
-    <category>1</category>
-    <start>2014-12-30T02:00:00.000+01:00</start>
-    <end>2014-12-30T04:00:00.000+01:00</end>
-  </activity>
-<activity id="14">
-    <comment>01.</comment>
-    <category>8</category>
-    <start>2015-01-01T04:00:00.000+01:00</start>
-    <end>2015-01-01T04:09:00.000+01:00</end>
-  </activity>
-
-<activity id="16">
-    <comment/>
-    <category>5</category>
-    <start>2015-01-04T11:00:00.000+01:00</start>
-    <end>2015-01-04T11:00:00.000+01:00</end>
-  </activity>
-
-<activity id="18">
-    <comment>05</comment>
-    <category>1</category>
-    <start>2015-01-05T05:00:00.000+01:00</start>
-    <end>2015-01-05T10:00:00.000+01:00</end>
-  </activity>
-<activity id="19">
-    <comment>update &gt;</comment>
-    <category>7</category>
-    <start>2015-01-03T06:00:00.000+01:00</start>
-    <end>2015-01-03T07:10:00.000+01:00</end>
-  </activity>
-<activity id="20">
-    <comment>wedding</comment>
-    <category>10</category>
-    <start>2015-01-02T11:41:00.000+01:00</start>
-    <end>2015-01-02T14:41:00.000+01:00</end>
-  </activity>
-<activity id="21">
-    <comment>&lt; time</comment>
-    <category>6</category>
-    <start>2015-01-03T00:00:00.000+01:00</start>
-    <end>2015-01-03T00:59:00.000+01:00</end>
-  </activity>
-<activity id="22">
-    <comment>accident :)</comment>
-    <category>1</category>
-    <start>2015-01-03T17:16:00.000+01:00</start>
-    <end>2015-01-03T19:16:00.000+01:00</end>
+    <start>2016-01-07T14:23:00.000+01:00</start>
+    <end>2016-01-07T17:23:00.000+01:00</end>
   </activity>
 </ActivityCalendarActivities>
