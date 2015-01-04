@@ -6,6 +6,7 @@
  */
 package rosza.activitycalendar;
 
+//<editor-fold defaultstate="collapsed" desc=" Import ">
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Cursor;
@@ -21,14 +22,17 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+//</editor-fold>
 
 public class ActivityLabel extends JPanel {
+  //<editor-fold defaultstate="collapsed" desc=" Variables declaration ">
   private final Activity activity;
   private int w;
   private int h;
   JLabel timeLabel;
   JLabel commentLabel;
   JLabel categoryLabel;
+  //</editor-fold>
 
   public ActivityLabel(Activity a) {
     activity = a;

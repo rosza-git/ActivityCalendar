@@ -23,6 +23,7 @@ import rosza.xcomponents.JScrollBarX;
 //</editor-fold>
 
 public class ActivityPane extends JPanel  {
+  //<editor-fold defaultstate="collapsed" desc=" Variables declaration ">
   private static Bars daysBar;
   private static Bars hoursBar;
 
@@ -38,6 +39,7 @@ public class ActivityPane extends JPanel  {
 
   private final int currentView;
   private final int cellWidth;
+  //</editor-fold>
 
   public ActivityPane(int view, int year, int month, int day) {
     setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));

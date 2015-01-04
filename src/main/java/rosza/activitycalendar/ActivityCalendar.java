@@ -3,6 +3,17 @@
  * 
  * @author Szalay Roland
  * 
+ * used 3rd-party libraries:
+ *   - jaspyt-1.9.2.jar - http://www.jasypt.org/
+ *   - javax.mail.1.5.2.jar - https://java.net/projects/javamail/pages/Home
+ *   - activation-1.1jar (via javax.mail)
+ *   - joda-time.2.6.jar - http://www.joda.org/joda-time/
+ *   - org.apache.commons.lang-2.6.jar - http://commons.apache.org/proper/commons-lang/download_lang.cgi
+ *   - commons-lang-2.6.jar (via org.apache.commons.lang)
+ * 
+ * additional requirements:
+ *   - JCE - http://www.oracle.com/technetwork/java/javase/downloads/jce8-download-2133166.html
+ * 
  */
 package rosza.activitycalendar;
 

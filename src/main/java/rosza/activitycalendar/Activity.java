@@ -6,14 +6,17 @@
  */
 package rosza.activitycalendar;
 
+//<editor-fold defaultstate="collapsed" desc=" Import ">
 import java.awt.Color;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import org.joda.time.DateTime;
 import org.joda.time.Minutes;
+//</editor-fold>
 
 public class Activity {
+  //<editor-fold defaultstate="collapsed" desc=" Variables declaration ">
   private int id;
   private String comment;
   private Category category;
@@ -21,6 +24,7 @@ public class Activity {
   private DateTime end;
   private int duration;
   private Color color;
+  //</editor-fold>
 
   public Activity(String comment, Category category, DateTime sdate, DateTime edate) {
     this(0, comment, category, sdate, edate);

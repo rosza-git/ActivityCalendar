@@ -40,6 +40,8 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
+import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
+import org.jasypt.util.text.StrongTextEncryptor;
 //</editor-fold>
 
 public class SettingsPanel extends JPanelX {
@@ -94,10 +96,13 @@ public class SettingsPanel extends JPanelX {
 
   // Properties variables declaration
   private Properties props;
+  private final StrongTextEncryptor textEncryptor;      // http://technofes.blogspot.in/2011/10/orgjasyptexceptionsencryptionoperationn.html
   // End of properties variables declaration
   //</editor-fold>
 
   public SettingsPanel() {
+    textEncryptor = new StrongTextEncryptor();
+    textEncryptor.setPassword("FAdxtvEFa8EiX}kWSmB*DkjHy.)Q~wT A.k;-,eL{>J`~3G}Z48P#Au~)C@z}-%T");
     props = XMLUtil.getProperties();
 
     initComponents();
@@ -697,7 +702,16 @@ public class SettingsPanel extends JPanelX {
         dbUserTextField.setText(props.getProperty(Constant.PROPS_DB_USERNAME));
 
         dbPasswordField.setEnabled(true);
-        dbPasswordField.setText(props.getProperty(Constant.PROPS_DB_PASSWORD));
+        String pwd = props.getProperty(Constant.PROPS_DB_PASSWORD);
+        try {
+          dbPasswordField.setText(textEncryptor.decrypt(pwd));
+        }
+        catch(EncryptionOperationNotPossibleException e) {
+          dbPasswordField.setText(pwd);
+        }
+        catch(Exception e) {
+          JOptionPane.showMessageDialog(this, "Error in jaspyt!\n" + e.toString(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
       }
     }
     catch(NullPointerException e) {
@@ -714,7 +728,16 @@ public class SettingsPanel extends JPanelX {
       emailHostTextField.setText(props.getProperty(Constant.PROPS_EMAIL_SMTP_HOST));
       emailPortTextField.setText(props.getProperty(Constant.PROPS_EMAIL_SMTP_PORT));
       emailUserTextField.setText(props.getProperty(Constant.PROPS_EMAIL_USERNAME));
-      emailPasswordField.setText(props.getProperty(Constant.PROPS_EMAIL_PASSWORD));
+      String pwd = props.getProperty(Constant.PROPS_EMAIL_PASSWORD);
+      try {
+        emailPasswordField.setText(textEncryptor.decrypt(pwd));
+      }
+      catch(EncryptionOperationNotPossibleException e) {
+        emailPasswordField.setText(pwd);
+      }
+      catch(Exception e) {
+        JOptionPane.showMessageDialog(this, "Error in jaspyt!\n" + e.toString(), "Error", JOptionPane.ERROR_MESSAGE);
+      }
       if(props.getProperty(Constant.PROPS_EMAIL_AUTHENTICATION) == null) {
         emailAuthCheckBox.setSelected(false);
       }
@@ -806,8 +829,8 @@ public class SettingsPanel extends JPanelX {
       props.setProperty(Constant.PROPS_DB_SERVER, dbServerTextField.getText());
       props.setProperty(Constant.PROPS_DB_SERVER_PORT, dbServerPortTextField.getText());
       props.setProperty(Constant.PROPS_DB_USERNAME, dbUserTextField.getText());
-      char[] pwd = dbPasswordField.getPassword();
-      props.setProperty(Constant.PROPS_DB_PASSWORD, new String(pwd));
+      String pwd = new String(dbPasswordField.getPassword());
+      props.setProperty(Constant.PROPS_DB_PASSWORD, textEncryptor.encrypt(pwd));
     }
     else {
       props.setProperty(Constant.PROPS_STORAGE, Constant.PROPS_XML_STORAGE);
@@ -823,8 +846,8 @@ public class SettingsPanel extends JPanelX {
 
     props.setProperty(Constant.PROPS_EMAIL_ADDRESS, emailAddressTextField.getText());
     props.setProperty(Constant.PROPS_EMAIL_USERNAME, emailUserTextField.getText());
-    char[] pwd = this.emailPasswordField.getPassword();
-    props.setProperty(Constant.PROPS_EMAIL_PASSWORD, new String(pwd));
+    String pwd = new String(emailPasswordField.getPassword());
+    props.setProperty(Constant.PROPS_EMAIL_PASSWORD, textEncryptor.encrypt(pwd));
     props.setProperty(Constant.PROPS_EMAIL_SMTP_HOST, emailHostTextField.getText());
     props.setProperty(Constant.PROPS_EMAIL_SMTP_PORT, emailPortTextField.getText());
     String protocol;
