@@ -102,7 +102,7 @@ public class SettingsPanel extends JPanelX {
 
   public SettingsPanel() {
     textEncryptor = new StrongTextEncryptor();
-    textEncryptor.setPassword("FAdxtvEFa8EiX}kWSmB*DkjHy.)Q~wT A.k;-,eL{>J`~3G}Z48P#Au~)C@z}-%T");
+    textEncryptor.setPassword(Constant.SALT);
     props = XMLUtil.getProperties();
 
     initComponents();
@@ -473,7 +473,6 @@ public class SettingsPanel extends JPanelX {
     emailPasswordLabel.setFont(emailPasswordLabel.getFont().deriveFont(Font.BOLD));
 
     emailPasswordField.setFont(emailPasswordField.getFont());
-    emailPasswordField.getDocument().addDocumentListener(documentListener);
 
     emailAuthCheckBox.setText("authentication");
     emailAuthCheckBox.setOpaque(false);
@@ -766,7 +765,6 @@ public class SettingsPanel extends JPanelX {
     boolean state = true;
     state &= !emailAddressTextField.getText().equals("");
     state &= !emailUserTextField.getText().equals("");
-    state &= emailPasswordField.getPassword().length != 0;
     state &= !emailHostTextField.getText().equals("");  
     state &= !emailPortTextField.getText().equals("");
     state &= (emailTLSRadioButton.isSelected() | emailSMTPRadioButton.isSelected() | emailSMTPSRadioButton.isSelected());
@@ -830,7 +828,12 @@ public class SettingsPanel extends JPanelX {
       props.setProperty(Constant.PROPS_DB_SERVER_PORT, dbServerPortTextField.getText());
       props.setProperty(Constant.PROPS_DB_USERNAME, dbUserTextField.getText());
       String pwd = new String(dbPasswordField.getPassword());
-      props.setProperty(Constant.PROPS_DB_PASSWORD, textEncryptor.encrypt(pwd));
+      try {
+        props.setProperty(Constant.PROPS_DB_PASSWORD, textEncryptor.encrypt(pwd));
+      }
+      catch(EncryptionOperationNotPossibleException ex) {
+        JOptionPane.showMessageDialog(this, "Error in jaspyt!\n" + ex.toString(), "Error", JOptionPane.ERROR_MESSAGE);
+      }
     }
     else {
       props.setProperty(Constant.PROPS_STORAGE, Constant.PROPS_XML_STORAGE);
@@ -847,7 +850,12 @@ public class SettingsPanel extends JPanelX {
     props.setProperty(Constant.PROPS_EMAIL_ADDRESS, emailAddressTextField.getText());
     props.setProperty(Constant.PROPS_EMAIL_USERNAME, emailUserTextField.getText());
     String pwd = new String(emailPasswordField.getPassword());
-    props.setProperty(Constant.PROPS_EMAIL_PASSWORD, textEncryptor.encrypt(pwd));
+    try {
+      props.setProperty(Constant.PROPS_EMAIL_PASSWORD, textEncryptor.encrypt(pwd));
+    }
+    catch(EncryptionOperationNotPossibleException ex) {
+      JOptionPane.showMessageDialog(this, "Error in jaspyt!\n" + ex.toString(), "Error", JOptionPane.ERROR_MESSAGE);
+    }
     props.setProperty(Constant.PROPS_EMAIL_SMTP_HOST, emailHostTextField.getText());
     props.setProperty(Constant.PROPS_EMAIL_SMTP_PORT, emailPortTextField.getText());
     String protocol;

@@ -44,6 +44,8 @@ import javax.swing.LayoutStyle;
 import javax.swing.UIManager;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
+import org.jasypt.util.text.StrongTextEncryptor;
 //</editor-fold>
 
 public class ReportPanel extends JPanelX {
@@ -283,12 +285,14 @@ public class ReportPanel extends JPanelX {
   //<editor-fold defaultstate="collapsed" desc=" Activity-Category match ">
   private Summary activityCategoryMatch(String cat, ArrayList<Activity> activities) {
     Summary s = new Summary(cat);
-    for(Activity a : activities) {
-      if(a.getCategory().getName().equals(cat)) {
-        s.category.add(a.getCategory().getName());
-        s.comment.add(a.getComment());
-        s.duration.add(a.getDuration());
-        s.total += a.getDuration();
+    if(activities != null) {
+      for(Activity a : activities) {
+        if(a.getCategory().getName().equals(cat)) {
+          s.category.add(a.getCategory().getName());
+          s.comment.add(a.getComment());
+          s.duration.add(a.getDuration());
+          s.total += a.getDuration();
+        }
       }
     }
 
@@ -339,6 +343,8 @@ public class ReportPanel extends JPanelX {
 
   //<editor-fold defaultstate="collapsed" desc=" Send e-mail ">
   private void sendMail(String to, String subject, String body) {
+    StrongTextEncryptor textEncryptor = new StrongTextEncryptor();
+    textEncryptor.setPassword(Constant.SALT);
     Properties eMailProps = new Properties();
 
 		eMailProps.put("mail.smtp.host", props.getProperty(Constant.PROPS_EMAIL_SMTP_HOST));
@@ -354,7 +360,15 @@ public class ReportPanel extends JPanelX {
 
     final String from = props.getProperty(Constant.PROPS_EMAIL_ADDRESS);
     final String username = props.getProperty(Constant.PROPS_EMAIL_USERNAME);
-		final String password = props.getProperty(Constant.PROPS_EMAIL_PASSWORD);
+    final String password;
+    String pwd = props.getProperty(Constant.PROPS_EMAIL_PASSWORD);
+    try {
+      pwd = textEncryptor.decrypt(pwd);
+    }
+    catch(EncryptionOperationNotPossibleException e) {
+      JOptionPane.showMessageDialog(this, "Error in jaspyt!\n" + e.toString(), "Error", JOptionPane.ERROR_MESSAGE);
+    }
+    password = pwd;
 
     Authenticator authenticator = null;
     if(props.getProperty(Constant.PROPS_EMAIL_AUTHENTICATION).equals("true")) {
