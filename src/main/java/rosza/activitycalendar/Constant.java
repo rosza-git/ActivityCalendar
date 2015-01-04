@@ -24,6 +24,7 @@ public class Constant {
   public static final String APP_DISPLAY_NAME     = "Activity Calendar";
   public static final String APP_NAME             = "ActivityCalendar";
   public static final String SALT                 = "FAdxtvEFa8EiX}kWSmB*DkjHy.)Q~wT A.k;-,eL{>J`~3G}Z48P#Au~)C@z}-%T";
+  public static final int    REFRESH_TIME         = 60000;     // 1 min.
   // icons source: https://www.iconfinder.com/iconsets/windows-8-metro-style
   public static final String CLOSE_ICON           = "images/close.png";
   public static final String MINIMIZE_ICON        = "images/minimize.png";

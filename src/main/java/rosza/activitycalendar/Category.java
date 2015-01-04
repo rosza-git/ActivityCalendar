@@ -6,9 +6,11 @@
  */
 package rosza.activitycalendar;
 
+//<editor-fold defaultstate="collapsed" desc=" Import ">
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Objects;
+//</editor-fold>
 
 public class Category {
   //<editor-fold defaultstate="collapsed" desc=" Variables declaration ">

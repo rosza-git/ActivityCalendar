@@ -44,6 +44,7 @@ import javax.swing.LayoutStyle;
 import javax.swing.UIManager;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
 import org.jasypt.util.text.StrongTextEncryptor;
 //</editor-fold>
@@ -314,19 +315,19 @@ public class ReportPanel extends JPanelX {
   private void parentheticRepresentation(Summary sum, String indent) {
     html.append(indent);
     if(sum.comment.isEmpty()) {
-      html.append("<b>").append(sum.category.get(0)).append("</b>");
+      html.append("<b>").append(escapeHtml(sum.category.get(0))).append("</b>");
       html.append(" - total: ").append(Activity.getDurationInHM(sum.total));
       html.append(" - ").append(Activity.time2fraction(sum.total));
       html.append("<br>");
     }
     else {
-      html.append("<b>").append(sum.category.get(0)).append("</b>");
+      html.append("<b>").append(escapeHtml(sum.category.get(0))).append("</b>");
       html.append(" - total: ").append(Activity.getDurationInHM(sum.total));
       html.append(" - ").append(Activity.time2fraction(sum.total));
       html.append("<br>");
       for(int i = 0, size = sum.comment.size(); i < size; i++) {
         html.append(indent).append(indent);
-        html.append(sum.comment.get(i));
+        html.append(escapeHtml(sum.comment.get(i)));
         html.append(" - time: ").append(Activity.getDurationInHM(sum.duration.get(i)));
         html.append(" - ").append(Activity.time2fraction(sum.duration.get(i)));
         html.append("<br>");

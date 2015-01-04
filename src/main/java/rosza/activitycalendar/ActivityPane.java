@@ -28,9 +28,9 @@ public class ActivityPane extends JPanel  {
   private static Bars hoursBar;
 
   private final DateTime now = new DateTime();
-  private DateTime tempCalendar = new DateTime(now);
-  private final int currentHour = now.getHourOfDay();
-  private final int currentMinute = now.getMinuteOfHour();
+  private DateTime  tempCalendar = new DateTime(now);
+  private int       currentHour  = now.getHourOfDay();
+  private int       currentMinute = now.getMinuteOfHour();
   private final int selectedYear = ActivityCalendar.selectedDate.getYear();
   private final int selectedMonth = ActivityCalendar.selectedDate.getMonthOfYear();
   private final int selectedDayOfMonth = ActivityCalendar.selectedDate.getDayOfMonth();
@@ -39,6 +39,10 @@ public class ActivityPane extends JPanel  {
 
   private final int currentView;
   private final int cellWidth;
+
+  private volatile Thread thread;
+  private volatile boolean running = true;
+  private static int count = 0;
   //</editor-fold>
 
   public ActivityPane(int view, int year, int month, int day) {
@@ -72,6 +76,9 @@ public class ActivityPane extends JPanel  {
     scrollPane.setCorner(JScrollPane.UPPER_RIGHT_CORNER, new Corner());
 
     add(scrollPane);
+
+    thread = new TimeLine("AP_TimeLine" + count++);
+    thread.start();
   }
 
   PropertyChangeListener propertyChangeListener = new PropertyChangeListener() {
@@ -103,6 +110,34 @@ public class ActivityPane extends JPanel  {
       setBackground(Constant.BG_COLOR);
       setOpaque(true);
       setBorder(new MatteBorder(0, 0, 1, 1, Constant.CELL_BORDER_COLOR));
+    }
+  }
+
+  public void stopRunning() {
+    scrollableActivityPane.stopRunning();
+    thread.interrupt();
+    running = false;
+    thread = null;
+  }
+
+  class TimeLine extends Thread {
+    TimeLine(String n) {
+      super(n);
+    }
+
+    @Override
+    public void run() {
+      while(!thread.isInterrupted() | !running) {
+        DateTime d = new DateTime();
+        currentHour = d.getHourOfDay();
+        currentMinute = d.getMinuteOfHour();
+        repaint();
+        try {
+          Thread.sleep(10);
+        }
+        catch (InterruptedException ex) {
+        }
+      }
     }
   }
 

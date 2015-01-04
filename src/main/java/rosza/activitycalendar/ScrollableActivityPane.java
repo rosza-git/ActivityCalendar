@@ -7,14 +7,24 @@
 package rosza.activitycalendar;
 
 //<editor-fold defaultstate="collapsed" desc=" Import ">
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.BasicStroke;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.*;
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
+import javax.swing.JPanel;
+import javax.swing.Scrollable;
+import javax.swing.SwingConstants;
 import javax.swing.border.MatteBorder;
-import org.joda.time.*;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeConstants;
 //</editor-fold>
 
 public class ScrollableActivityPane extends JLayeredPane implements Scrollable {
@@ -26,12 +36,16 @@ public class ScrollableActivityPane extends JLayeredPane implements Scrollable {
   private final int selectedYear       = ActivityCalendar.selectedDate.getYear();
   private final int selectedMonth      = ActivityCalendar.selectedDate.getMonthOfYear();
   private final int selectedDayOfMonth = ActivityCalendar.selectedDate.getDayOfMonth();
-  private int       currentHourOfDay;
-  private int       currentMinuteOfHour;
+  private int       currentHour        = tempCalendar.getHourOfDay();
+  private int       currentMinute      = tempCalendar.getMinuteOfHour();
 
   private int dayPaneHeight;
 
   private int unitIncrement = 1;
+
+  private volatile Thread thread;
+  private volatile boolean running = true;
+  private static int count = 0;
 
 	//private MouseEvent pressed;
 	//private Point      location;
@@ -69,6 +83,36 @@ public class ScrollableActivityPane extends JLayeredPane implements Scrollable {
           j++;
         }
         tempCalendar = tempCalendar.plusDays(1);
+      }
+    }
+
+    thread = new TimeLine("SAP_TimeLine" + count++);
+    thread.start();
+  }
+
+  public void stopRunning() {
+    thread.interrupt();
+    running = false;
+    thread = null;
+  }
+
+  class TimeLine extends Thread {
+    TimeLine(String n) {
+      super(n);
+    }
+
+    @Override
+    public void run() {
+      while(!thread.isInterrupted() | !running) {
+        DateTime d = new DateTime();
+        currentHour = d.getHourOfDay();
+        currentMinute = d.getMinuteOfHour();
+        repaint();
+        try {
+          Thread.sleep(10);
+        }
+        catch (InterruptedException ex) {
+        }
       }
     }
   }
@@ -154,33 +198,13 @@ public class ScrollableActivityPane extends JLayeredPane implements Scrollable {
         add(l);
       }
       setSize(view == Constant.DAY_VIEW ? Constant.DAY_CELL_WIDTH : Constant.WEEK_CELL_WIDTH, dHeight);
-      timeLine();
-    }
-
-    private void timeLine() {
-      new Thread() {
-        @Override
-        public void run() {
-          while(true) {
-            DateTime d = new DateTime();
-            currentHourOfDay = d.getHourOfDay();
-            currentMinuteOfHour = d.getMinuteOfHour();
-            try {
-              Thread.sleep(300000);
-            } catch (InterruptedException ex) {
-              Logger.getLogger(ScrollableActivityPane.class.getName()).log(Level.SEVERE, null, ex);
-            }
-          }
-        }
-      }.start();
-
     }
 
     @Override
     public void paint(Graphics g) {
       super.paint(g);
 
-      double minutes = currentHourOfDay* 60 + currentMinuteOfHour;
+      double minutes = currentHour * 60 + currentMinute;
       double maxMinutes = 24 * 60;
       double currentState = getHeight() * minutes / maxMinutes;
       Graphics2D g2d = (Graphics2D)g;

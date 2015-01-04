@@ -20,6 +20,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 //</editor-fold>
@@ -67,11 +68,11 @@ public class ActivityLabel extends JPanel {
 
   private String creatToolTip() {
     StringBuilder toolTip = new StringBuilder("<html><body>");
-    toolTip.append("<b>comment:</b> ").append(activity.getComment()).append("<br>");
+    toolTip.append("<b>comment:</b> ").append(escapeHtml(activity.getComment())).append("<br>");
     DateTimeFormatter start = DateTimeFormat.forPattern("yyyy.MM.dd. HH:mm");
     DateTimeFormatter end = DateTimeFormat.forPattern("HH:mm");
     toolTip.append("<b>date:</b> ").append(start.print(activity.getStartDate())).append(" - ").append(end.print(activity.getEndDate())).append("<br>");
-    toolTip.append("<b>category:</b> ").append(activity.getCategory().getName());
+    toolTip.append("<b>category:</b> ").append(escapeHtml(activity.getCategory().getName()));
     toolTip.append("</body></html>");
 
     return toolTip.toString();

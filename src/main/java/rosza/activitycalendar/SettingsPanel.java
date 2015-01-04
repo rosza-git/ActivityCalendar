@@ -39,7 +39,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
 import org.jasypt.util.text.StrongTextEncryptor;
 //</editor-fold>
@@ -642,7 +641,7 @@ public class SettingsPanel extends JPanelX {
     settingsTabbedPane.setTabPlacement(JTabbedPane.TOP);
     settingsTabbedPane.setBackground(Constant.BG_COLOR);
     settingsTabbedPane.setFont(settingsTabbedPane.getFont().deriveFont(Font.BOLD));
-    settingsTabbedPane.addTab("storage", storagePanel);
+    //settingsTabbedPane.addTab("storage", storagePanel);
     settingsTabbedPane.addTab("categories", categoriesPanel);
     settingsTabbedPane.addTab("e-mail", emailPanel);
 
@@ -782,7 +781,7 @@ public class SettingsPanel extends JPanelX {
   //<editor-fold defaultstate="collapsed" desc=" Button events ">
   private void categoryAddButtonActionPerformed(ActionEvent e) {
     int id = Category.getLastID((Category)categoryTree.getModel().getRoot(), 0);
-    Category c = new Category(++id, escapeHtml(newCategoryTextField.getText()), categoryColor.getColor(), false);
+    Category c = new Category(++id, newCategoryTextField.getText(), categoryColor.getColor(), false);
     Category.addCategory(c, categoryTree.getSelected());
     XMLUtil.createCategoriesXML(categoryTreeElements);
     categoryTree.updateUI();

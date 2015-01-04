@@ -34,7 +34,6 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreePath;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
-import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 //</editor-fold>
 
 public class AddActivity extends JPanelX {
@@ -135,7 +134,12 @@ public class AddActivity extends JPanelX {
     commentLabel.setLabelFor(commentTextField);
     commentLabel.setText("comment:");
 
-    commentTextField.setText(activity == null ? "" : activity.getComment());
+    String ctf = "";
+    if(activity != null) {
+      ctf = activity.getComment();
+    }
+    commentTextField.setText(ctf);
+    //commentTextField.setText(activity == null ? "" : ctf);
 
     startLabel.setFont(startLabel.getFont().deriveFont(Font.BOLD));
     startLabel.setLabelFor(startDateSpinner);
@@ -305,7 +309,7 @@ public class AddActivity extends JPanelX {
     DateTime start = new DateTime(sdate.getYear(), sdate.getMonthOfYear(), sdate.getDayOfMonth(), stime.getHourOfDay(), stime.getMinuteOfHour());
     DateTime end = new DateTime(edate.getYear(), edate.getMonthOfYear(), edate.getDayOfMonth(), etime.getHourOfDay(), etime.getMinuteOfHour());
 
-    Activity a = new Activity(escapeHtml(comment), category, start, end);
+    Activity a = new Activity(comment, category, start, end);
 
     ArrayList<Activity> activityList = XMLUtil.getActivityByDate(sdate.getYear(), sdate.getMonthOfYear(), sdate.getDayOfMonth());
     if(activityList != null) {

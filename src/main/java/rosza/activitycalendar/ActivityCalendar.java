@@ -326,6 +326,7 @@ public class ActivityCalendar extends JFrame {
    */
   private void updateActivityUI() {
     bottomLayer.remove(activityPane);
+    activityPane.stopRunning();
     activityPane = new ActivityPane(Constant.WEEK_VIEW, selectedDate.getYear(), selectedDate.getMonthOfYear(), selectedDate.getDayOfMonth());
     activityPane.addPropertyChangeListener(propertyChangeListener);
     bottomLayer.add(activityPane);

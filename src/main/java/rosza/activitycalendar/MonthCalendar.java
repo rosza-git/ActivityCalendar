@@ -35,6 +35,7 @@ public class MonthCalendar extends JPanelX {
   private JPanel    calendarControlPanel;
   private JPanel    weekLabelsPanel;
   private JPanel    dayLabelsPanel;
+  private JButtonX  closeButton;
 
   private DateTime selectedDate;
   //</editor-fold>
@@ -71,11 +72,22 @@ public class MonthCalendar extends JPanelX {
   //<editor-fold defaultstate="collapsed" desc=" Initialize UI components ">
   private void init() {
     headerLabel          = new JLabelX();
+    closeButton          = new JButtonX("close");
     calendarControlPanel = new MonthControllerPane();   
     weekLabelsPanel      = new JPanel();
     dayLabelsPanel       = new JPanel();
 
     setOpaque(false);
+
+
+    closeButton.setText("close");
+    closeButton.setFont(closeButton.getFont().deriveFont(Font.BOLD));
+    closeButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        closeButtonActionPerformed(e);
+      }
+    });
 
     headerLabel.setText("month calendar");
     headerLabel.setHorizontalAlignment(JLabel.CENTER);
@@ -156,35 +168,39 @@ public class MonthCalendar extends JPanelX {
       dayLabelsPanel.setLayout(new BoxLayout(dayLabelsPanel, BoxLayout.Y_AXIS));
       dayLabelsPanel.setOpaque(false);
       dayLabelsPanel.add(p);
-
-      GroupLayout layout = new GroupLayout(this);
-      this.setLayout(layout);
-      layout.setHorizontalGroup(
-        layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-        .addComponent(headerLabel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        .addGroup(GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-          .addContainerGap()
-          .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
-            .addComponent(dayLabelsPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(weekLabelsPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(calendarControlPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-          .addContainerGap()
-        )
-      );
-      layout.setVerticalGroup(
-        layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-        .addGroup(layout.createSequentialGroup()
-          .addComponent(headerLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
-          .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-          .addComponent(calendarControlPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-          .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-          .addComponent(weekLabelsPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-          .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-          .addComponent(dayLabelsPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-          .addContainerGap()
-        )
-      );
     }
+
+    GroupLayout layout = new GroupLayout(this);
+    this.setLayout(layout);
+    layout.setHorizontalGroup(
+      layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+      .addComponent(headerLabel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+      .addGroup(GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+        .addContainerGap()
+        .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
+          .addComponent(dayLabelsPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+          .addComponent(weekLabelsPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+          .addComponent(calendarControlPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+          .addComponent(closeButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        )
+        .addContainerGap()
+      )
+    );
+    layout.setVerticalGroup(
+      layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+      .addGroup(layout.createSequentialGroup()
+        .addComponent(headerLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(calendarControlPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(weekLabelsPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(dayLabelsPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        .addContainerGap()
+        .addComponent(closeButton)
+        .addContainerGap()
+      )
+    );
   }
   //</editor-fold>
 
@@ -347,6 +363,12 @@ public class MonthCalendar extends JPanelX {
       return temp;
     }
     //</editor-fold>
+  }
+  //</editor-fold>
+
+  //<editor-fold defaultstate="collapsed" desc=" Close button action ">
+  private void closeButtonActionPerformed(ActionEvent e) {
+    firePropertyChange(Constant.CLOSE_PANE, null, this);
   }
   //</editor-fold>
 }
