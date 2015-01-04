@@ -46,9 +46,10 @@ public class XMLUtil {
     try(OutputStream output = new FileOutputStream(Constant.PROPERTIES_FILE)) {
       // save properties to file
       props.store(output, null);
+      JOptionPane.showMessageDialog(null, "Settings saved!", "Information", JOptionPane.INFORMATION_MESSAGE);
     }
     catch(IOException e) {
-      JOptionPane.showConfirmDialog(null, "Error saving properties to file!", "Error - IOException", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, "Error saving properties to file!", "Error - IOException", JOptionPane.ERROR_MESSAGE);
     }
   }
   //</editor-fold>
@@ -64,7 +65,7 @@ public class XMLUtil {
       return props;
     }
     catch(IOException e) {
-      JOptionPane.showConfirmDialog(null, "No configuration file found, using default values.", "Information", JOptionPane.PLAIN_MESSAGE);
+      JOptionPane.showMessageDialog(null, "No configuration file found, using default values.", "Information", JOptionPane.PLAIN_MESSAGE);
     }
 
     return null;
@@ -89,7 +90,7 @@ public class XMLUtil {
         doc = docBuilder.parse(Constant.XML_ACTIVITIES_FILE);
       }
       catch(SAXException e) {
-        JOptionPane.showConfirmDialog(null, e.getMessage(), "Error - SAXException", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, e.getMessage(), "Error - SAXException", JOptionPane.ERROR_MESSAGE);
         return false;
       }
       catch (IOException e) {
@@ -109,12 +110,12 @@ public class XMLUtil {
           doc = docBuilder.parse(Constant.XML_ACTIVITIES_FILE);
         }
         catch(SAXException ex) {
-          JOptionPane.showConfirmDialog(null, ex.getMessage(), "Error - SAXException", JOptionPane.ERROR_MESSAGE);
+          JOptionPane.showMessageDialog(null, ex.getMessage(), "Error - SAXException", JOptionPane.ERROR_MESSAGE);
           return false;
         }
         catch(IOException ex) {
           // still no luck with "activities.xml", giving up
-          JOptionPane.showConfirmDialog(null, ex.getMessage(), "Error - IOException", JOptionPane.ERROR_MESSAGE);
+          JOptionPane.showMessageDialog(null, ex.getMessage(), "Error - IOException", JOptionPane.ERROR_MESSAGE);
           return false;
         }
       }
@@ -148,13 +149,13 @@ public class XMLUtil {
       return true;
     }
     catch(ParserConfigurationException e) {
-      JOptionPane.showConfirmDialog(null, e.getMessage(), "Error - ParserConfigurationException", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, e.getMessage(), "Error - ParserConfigurationException", JOptionPane.ERROR_MESSAGE);
     }
     catch(NumberFormatException e) {
-      JOptionPane.showConfirmDialog(null, e.getMessage(), "Error - NumberFormatException", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, e.getMessage(), "Error - NumberFormatException", JOptionPane.ERROR_MESSAGE);
     }
     catch(DOMException e) {
-      JOptionPane.showConfirmDialog(null, e.getMessage(), "Error - DOMException", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, e.getMessage(), "Error - DOMException", JOptionPane.ERROR_MESSAGE);
     }
 
 
@@ -198,19 +199,19 @@ public class XMLUtil {
       }
     }
     catch(ParserConfigurationException e) {
-      JOptionPane.showConfirmDialog(null, e.getMessage(), "Error - ParserConfigurationException", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, e.getMessage(), "Error - ParserConfigurationException", JOptionPane.ERROR_MESSAGE);
     }
     catch(SAXException e) {
-      JOptionPane.showConfirmDialog(null, e.getMessage(), "Error - SAXException", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, e.getMessage(), "Error - SAXException", JOptionPane.ERROR_MESSAGE);
     }
     catch(IOException e) {
-      JOptionPane.showConfirmDialog(null, e.getMessage(), "Error - IOException", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, e.getMessage(), "Error - IOException", JOptionPane.ERROR_MESSAGE);
     }
     catch(NumberFormatException e) {
-      JOptionPane.showConfirmDialog(null, e.getMessage(), "Error - NumberFormatException", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, e.getMessage(), "Error - NumberFormatException", JOptionPane.ERROR_MESSAGE);
     }
     catch(DOMException e) {
-      JOptionPane.showConfirmDialog(null, e.getMessage(), "Error - DOMException", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, e.getMessage(), "Error - DOMException", JOptionPane.ERROR_MESSAGE);
     }
 
     return false;
@@ -261,20 +262,20 @@ public class XMLUtil {
       }
     }
     catch(ParserConfigurationException e) {
-      JOptionPane.showConfirmDialog(null, e.getMessage(), "Error - ParserConfigurationException", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, e.getMessage(), "Error - ParserConfigurationException", JOptionPane.ERROR_MESSAGE);
     }
     catch(SAXException e) {
-      JOptionPane.showConfirmDialog(null, e.getMessage(), "Error - SAXException", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, e.getMessage(), "Error - SAXException", JOptionPane.ERROR_MESSAGE);
     }
     catch(IOException e) {
       //System.out.println("nincs fájl, nincs olvasás se");
       //e.printStackTrace();
     }
     catch(NumberFormatException e) {
-      JOptionPane.showConfirmDialog(null, e.getMessage(), "Error - NumberFormatException", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, e.getMessage(), "Error - NumberFormatException", JOptionPane.ERROR_MESSAGE);
     }
     catch(DOMException e) {
-      JOptionPane.showConfirmDialog(null, e.getMessage(), "Error - DOMException", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, e.getMessage(), "Error - DOMException", JOptionPane.ERROR_MESSAGE);
     }
 
     return false;
@@ -317,20 +318,20 @@ public class XMLUtil {
       return activityList;
     }
     catch(ParserConfigurationException e) {
-      JOptionPane.showConfirmDialog(null, e.getMessage(), "Error - ParserConfigurationException", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, e.getMessage(), "Error - ParserConfigurationException", JOptionPane.ERROR_MESSAGE);
     }
     catch(SAXException e) {
-      JOptionPane.showConfirmDialog(null, e.getMessage(), "Error - SAXException", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, e.getMessage(), "Error - SAXException", JOptionPane.ERROR_MESSAGE);
     }
     catch(IOException e) {
       //System.out.println("nincs fájl, nincs olvasás se");
       //e.printStackTrace();
     }
     catch(NumberFormatException e) {
-      JOptionPane.showConfirmDialog(null, e.getMessage(), "Error - NumberFormatException", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, e.getMessage(), "Error - NumberFormatException", JOptionPane.ERROR_MESSAGE);
     }
     catch(DOMException e) {
-      JOptionPane.showConfirmDialog(null, e.getMessage(), "Error - DOMException", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, e.getMessage(), "Error - DOMException", JOptionPane.ERROR_MESSAGE);
     }
 
     return null;
@@ -401,20 +402,20 @@ public class XMLUtil {
       return activityList;
     }
     catch(ParserConfigurationException e) {
-      JOptionPane.showConfirmDialog(null, e.getMessage(), "Error - ParserConfigurationException", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, e.getMessage(), "Error - ParserConfigurationException", JOptionPane.ERROR_MESSAGE);
     }
     catch(SAXException e) {
-      JOptionPane.showConfirmDialog(null, e.getMessage(), "Error - SAXException", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, e.getMessage(), "Error - SAXException", JOptionPane.ERROR_MESSAGE);
     }
     catch(IOException e) {
       //System.out.println("nincs fájl, nincs olvasás se");
       //e.printStackTrace();
     }
     catch(NumberFormatException e) {
-      JOptionPane.showConfirmDialog(null, e.getMessage(), "Error - NumberFormatException", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, e.getMessage(), "Error - NumberFormatException", JOptionPane.ERROR_MESSAGE);
     }
     catch(DOMException e) {
-      JOptionPane.showConfirmDialog(null, e.getMessage(), "Error - DOMException", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, e.getMessage(), "Error - DOMException", JOptionPane.ERROR_MESSAGE);
     }
 
     return null;
@@ -456,7 +457,7 @@ public class XMLUtil {
       transformer = transformerFactory.newTransformer();
     }
     catch(TransformerConfigurationException e) {
-      JOptionPane.showConfirmDialog(null, e.getMessage(), "Error - TransformerConfigurationException", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, e.getMessage(), "Error - TransformerConfigurationException", JOptionPane.ERROR_MESSAGE);
       return false;
     }
     transformer.setOutputProperty(OutputKeys.INDENT, "yes");
@@ -471,7 +472,7 @@ public class XMLUtil {
       return true;
     }
     catch(TransformerException e) {
-      JOptionPane.showConfirmDialog(null, e.getMessage(), "Error - TransformerException", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, e.getMessage(), "Error - TransformerException", JOptionPane.ERROR_MESSAGE);
       return false;
     }
   }
@@ -519,7 +520,7 @@ public class XMLUtil {
         transformer = transformerFactory.newTransformer();
       }
       catch(TransformerConfigurationException e) {
-        JOptionPane.showConfirmDialog(null, e.getMessage(), "Error - TransformerConfigurationException", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, e.getMessage(), "Error - TransformerConfigurationException", JOptionPane.ERROR_MESSAGE);
         return false;
       }
       transformer.setOutputProperty(OutputKeys.INDENT, "yes");
@@ -534,15 +535,15 @@ public class XMLUtil {
         return true;
       }
       catch(TransformerException e) {
-        JOptionPane.showConfirmDialog(null, e.getMessage(), "Error - TransformerException", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, e.getMessage(), "Error - TransformerException", JOptionPane.ERROR_MESSAGE);
         return false;
       }
     }
     catch(ParserConfigurationException e) {
-      JOptionPane.showConfirmDialog(null, e.getMessage(), "Error - ParserConfigurationException", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, e.getMessage(), "Error - ParserConfigurationException", JOptionPane.ERROR_MESSAGE);
     }
     catch(DOMException e) {
-      JOptionPane.showConfirmDialog(null, e.getMessage(), "Error - DOMException", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, e.getMessage(), "Error - DOMException", JOptionPane.ERROR_MESSAGE);
     }
 
     return false;
@@ -612,10 +613,10 @@ public class XMLUtil {
       }
     }
     catch(ParserConfigurationException e) {
-      JOptionPane.showConfirmDialog(null, e.getMessage(), "Error - ParserConfigurationException", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, e.getMessage(), "Error - ParserConfigurationException", JOptionPane.ERROR_MESSAGE);
     }
     catch(SAXException e) {
-      JOptionPane.showConfirmDialog(null, e.getMessage(), "Error - SAXException", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, e.getMessage(), "Error - SAXException", JOptionPane.ERROR_MESSAGE);
     }
     catch(IOException e) {
       if(createCategoriesXML(Category.getDefaultCategories())) {
@@ -623,10 +624,10 @@ public class XMLUtil {
       }
     }
     catch(NumberFormatException e) {
-      JOptionPane.showConfirmDialog(null, e.getMessage(), "Error - NumberFormatException", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, e.getMessage(), "Error - NumberFormatException", JOptionPane.ERROR_MESSAGE);
     }
     catch(DOMException e) {
-      JOptionPane.showConfirmDialog(null, e.getMessage(), "Error - DOMException", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, e.getMessage(), "Error - DOMException", JOptionPane.ERROR_MESSAGE);
     }
 
     return null;
@@ -669,10 +670,10 @@ public class XMLUtil {
       return null;
     }
     catch(ParserConfigurationException e) {
-      JOptionPane.showConfirmDialog(null, e.getMessage(), "Error - ParserConfigurationException", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, e.getMessage(), "Error - ParserConfigurationException", JOptionPane.ERROR_MESSAGE);
     }
     catch(SAXException e) {
-      JOptionPane.showConfirmDialog(null, e.getMessage(), "Error - SAXException", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, e.getMessage(), "Error - SAXException", JOptionPane.ERROR_MESSAGE);
     }
     catch(IOException e) {
       if(createCategoriesXML(Category.getDefaultCategories())) {
@@ -680,10 +681,10 @@ public class XMLUtil {
       }
     }
     catch(NumberFormatException e) {
-      JOptionPane.showConfirmDialog(null, e.getMessage(), "Error - NumberFormatException", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, e.getMessage(), "Error - NumberFormatException", JOptionPane.ERROR_MESSAGE);
     }
     catch(DOMException e) {
-      JOptionPane.showConfirmDialog(null, e.getMessage(), "Error - DOMException", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, e.getMessage(), "Error - DOMException", JOptionPane.ERROR_MESSAGE);
     }
 
     return null;
