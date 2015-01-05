@@ -20,7 +20,6 @@ package rosza.activitycalendar;
 //<editor-fold defaultstate="collapsed" desc=" Import ">
 import rosza.xcomponents.JLabelX;
 import java.awt.AWTException;
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -42,25 +41,21 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.Collections;
-import java.util.List;
 import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.UIDefaults;
-import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 import org.joda.time.DateTime;
+import rosza.xcomponents.JComboBoxX;
 //</editor-fold>
 
 public class ActivityCalendar extends JFrame {
@@ -129,11 +124,10 @@ public class ActivityCalendar extends JFrame {
       }
     };
     setGlassPane(glass);
-    glass.setBorder(new EmptyBorder(100, 20, 20, 20));
+    //glass.setBorder(new EmptyBorder(100, 20, 20, 20));
     glass.setOpaque(false);
     glass.setVisible(false);
     
-
     activityPane.addPropertyChangeListener(propertyChangeListener);
 
     setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);

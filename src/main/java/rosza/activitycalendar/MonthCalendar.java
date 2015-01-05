@@ -79,7 +79,6 @@ public class MonthCalendar extends JPanelX {
 
     setOpaque(false);
 
-
     closeButton.setText("close");
     closeButton.setFont(closeButton.getFont().deriveFont(Font.BOLD));
     closeButton.addActionListener(new ActionListener() {
@@ -277,12 +276,12 @@ public class MonthCalendar extends JPanelX {
   }
   //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Month change action ">
+  //<editor-fold defaultstate="collapsed" desc=" Month controller pane ">
   private class MonthControllerPane extends JPanel {
     public MonthControllerPane() {
       yearSpinner     = new JSpinner();
       prevMonthButton = new JButtonX("<");
-      monthComboBox   = new JComboBox();
+      monthComboBox   = new JComboBox(getMonthsName(Constant.LONG_DISPLAY));
       nextMonthButton = new JButtonX(">");
 
       setOpaque(false);
@@ -310,9 +309,8 @@ public class MonthCalendar extends JPanelX {
         }
       });
 
-      monthComboBox.setFont(monthComboBox.getFont());
       monthComboBox.setUI(new JComboBoxX());
-      monthComboBox.setModel(new DefaultComboBoxModel(getMonthsName(Constant.LONG_DISPLAY)));
+      monthComboBox.setLightWeightPopupEnabled(false);
       monthComboBox.setSelectedIndex(selectedDate.getMonthOfYear() - 1);
       monthComboBox.setToolTipText("month");
       monthComboBox.addActionListener(new ActionListener() {
