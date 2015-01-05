@@ -282,7 +282,7 @@ public class MonthCalendar extends JPanelX {
     public MonthControllerPane() {
       yearSpinner     = new JSpinner();
       prevMonthButton = new JButtonX("<");
-      monthComboBox   = new JComboBoxX();
+      monthComboBox   = new JComboBox();
       nextMonthButton = new JButtonX(">");
 
       setOpaque(false);
@@ -311,6 +311,7 @@ public class MonthCalendar extends JPanelX {
       });
 
       monthComboBox.setFont(monthComboBox.getFont());
+      monthComboBox.setUI(new JComboBoxX());
       monthComboBox.setModel(new DefaultComboBoxModel(getMonthsName(Constant.LONG_DISPLAY)));
       monthComboBox.setSelectedIndex(selectedDate.getMonthOfYear() - 1);
       monthComboBox.setToolTipText("month");
