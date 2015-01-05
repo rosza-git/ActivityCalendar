@@ -106,7 +106,6 @@ public class ActivityCalendar extends JFrame {
 
   //<editor-fold defaultstate="collapsed" desc=" Create new form ActivityCalendar ">
   public ActivityCalendar() {
-    //setUIFont();
     initUIComponents();
     initSystemTray();
     XMLUtil.getCategories();
@@ -572,20 +571,6 @@ public class ActivityCalendar extends JFrame {
       }
     }
   };
-  //</editor-fold>
-
-  //<editor-fold defaultstate="collapsed" desc=" Change the UI font ">
-  private void setUIFont() {
-    UIDefaults defaults = UIManager.getDefaults( );
-    List<Object> list = Collections.list(defaults.keys());
-    for(Object key : list) {
-      if(key != null) {
-        if(key.toString().endsWith(".font")) {
-          UIManager.put(key.toString(), Constant.FONT);
-        }
-      }
-    }
-  }
   //</editor-fold>
 
   //<editor-fold defaultstate="collapsed" desc=" Activity header ">

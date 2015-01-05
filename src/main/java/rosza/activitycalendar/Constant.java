@@ -19,6 +19,8 @@ import javax.swing.UIManager;
 
 public class Constant {
 
+  private final ClassLoader cl = this.getClass().getClassLoader();
+
   // common constants
   public static final String PROPERTIES_FILE      = "properties.ini";
   public static final String APP_DISPLAY_NAME     = "Activity Calendar";
@@ -35,34 +37,16 @@ public class Constant {
   public static final String PREV_ICON            = "images/previous.png";
   public static final String ADD_ICON             = "images/add.png";
   public static final String TRAY_ICON            = "images/calendar16.png";
-  public static final File   FONTFILE             = new File("src/main/resources/font/Ubuntu-R.ttf");
-  public static Font         FONT;
-  public static float        FONT_SIZE;
   public static final Font   DEFAULT_FONT         = UIManager.getDefaults().getFont("Label.font");
   public static final int    DEFAULT_FONT_SIZE    = DEFAULT_FONT.getSize();
+  public static final Font   FONT                 = DEFAULT_FONT;
+  public static final int    FONT_SIZE            = DEFAULT_FONT_SIZE;
   public static final String ACTIVITY_EXIT        = "EXIT";
   public static final String ACTIVITY_SHOW_HIDE   = "SHOW_HIDE";
   public static final String CLOSE_PANE           = "close";
   public static final String MODIFY_ACTIVITY      = "modifyActivity";
   public static final int    LONG_DISPLAY         = 0;
   public static final int    SHORT_DISPLAY        = 1;
-
-  static {
-    try {
-      FONT = Font.createFont(Font.TRUETYPE_FONT, Constant.FONTFILE).deriveFont(14f);
-      FONT_SIZE = FONT.getSize() + 1;
-    }
-    catch (FontFormatException e) {
-      Logger.getLogger(Constant.class.getName()).log(Level.SEVERE, null, e);
-      FONT = Constant.DEFAULT_FONT;
-      FONT_SIZE = DEFAULT_FONT_SIZE;
-    }
-    catch (IOException e) {
-      Logger.getLogger(Constant.class.getName()).log(Level.SEVERE, null, e);
-      FONT = Constant.DEFAULT_FONT;
-      FONT_SIZE = DEFAULT_FONT_SIZE;
-    }
-  }
 
   // "ActivityPane" related constants
   public static final int DAY_VIEW  = 0;
