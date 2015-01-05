@@ -35,7 +35,7 @@ public class ActivityPane extends JPanel  {
   private final int selectedMonth = ActivityCalendar.selectedDate.getMonthOfYear();
   private final int selectedDayOfMonth = ActivityCalendar.selectedDate.getDayOfMonth();
   private final ScrollableActivityPane scrollableActivityPane;
-  private final JScrollPane scrollPane;
+  public final JScrollPane scrollPane;
 
   private final int currentView;
   private final int cellWidth;
@@ -127,16 +127,20 @@ public class ActivityPane extends JPanel  {
 
     @Override
     public void run() {
-      while(!thread.isInterrupted() | !running) {
-        DateTime d = new DateTime();
-        currentHour = d.getHourOfDay();
-        currentMinute = d.getMinuteOfHour();
-        repaint();
-        try {
-          Thread.sleep(10);
+      try {
+        while(!thread.isInterrupted() | !running) {
+          DateTime d = new DateTime();
+          currentHour = d.getHourOfDay();
+          currentMinute = d.getMinuteOfHour();
+          repaint();
+          try {
+            Thread.sleep(Constant.REFRESH_TIME);
+          }
+          catch (InterruptedException ex) {
+          }
         }
-        catch (InterruptedException ex) {
-        }
+      }
+      catch(NullPointerException e) {
       }
     }
   }

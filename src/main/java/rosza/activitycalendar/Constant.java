@@ -30,7 +30,7 @@ public class Constant {
   public static final String MINIMIZE_ICON        = "images/minimize.png";
   public static final String HIDE_ICON            = "images/hide.png";
   public static final String SETTINGS_ICON        = "images/settings.png";
-  public static final String REPORT_ICON          = "images/report.png";
+  public static final String SUMMARY_ICON         = "images/summary.png";
   public static final String NEXT_ICON            = "images/next.png";
   public static final String PREV_ICON            = "images/previous.png";
   public static final String ADD_ICON             = "images/add.png";

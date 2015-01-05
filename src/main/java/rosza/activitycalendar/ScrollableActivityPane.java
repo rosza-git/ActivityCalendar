@@ -103,16 +103,20 @@ public class ScrollableActivityPane extends JLayeredPane implements Scrollable {
 
     @Override
     public void run() {
-      while(!thread.isInterrupted() | !running) {
-        DateTime d = new DateTime();
-        currentHour = d.getHourOfDay();
-        currentMinute = d.getMinuteOfHour();
-        repaint();
-        try {
-          Thread.sleep(10);
+      try {
+        while(!thread.isInterrupted() | !running) {
+          DateTime d = new DateTime();
+          currentHour = d.getHourOfDay();
+          currentMinute = d.getMinuteOfHour();
+          repaint();
+          try {
+            Thread.sleep(Constant.REFRESH_TIME);
+          }
+          catch (InterruptedException ex) {
+          }
         }
-        catch (InterruptedException ex) {
-        }
+      }
+      catch(NullPointerException e) {
       }
     }
   }

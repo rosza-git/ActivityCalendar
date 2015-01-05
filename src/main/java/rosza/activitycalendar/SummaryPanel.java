@@ -1,5 +1,5 @@
 /**
- * Report Panel.
+ * Summary Panel.
  * 
  * @author Szalay Roland
  * 
@@ -49,7 +49,7 @@ import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
 import org.jasypt.util.text.StrongTextEncryptor;
 //</editor-fold>
 
-public class ReportPanel extends JPanelX {
+public class SummaryPanel extends JPanelX {
   //<editor-fold defaultstate="collapsed" desc=" Variables declaration ">
   // UI variables declaration
   private JButtonX    closeButton;
@@ -76,8 +76,8 @@ public class ReportPanel extends JPanelX {
   // End of properties variables declaration
   //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Create report panel ">
-  public ReportPanel(int y, int m, int d) {
+  //<editor-fold defaultstate="collapsed" desc=" Create summary panel ">
+  public SummaryPanel(int y, int m, int d) {
     selectedYear = y;
     selectedMonth = m;
     selectedDayOfMonth = d;
@@ -110,7 +110,7 @@ public class ReportPanel extends JPanelX {
     dateLabel         = new JLabel();
     closeButton       = new JButtonX("close");
 
-    headerLabel.setText("report");
+    headerLabel.setText("summary - " + String.format("%d.%02d.%02d.", selectedYear, selectedMonth, selectedDayOfMonth));
     headerLabel.setHorizontalAlignment(JLabel.CENTER);
     headerLabel.setFont(headerLabel.getFont().deriveFont(Font.BOLD).deriveFont(18f));
 
@@ -168,7 +168,7 @@ public class ReportPanel extends JPanelX {
       }
     });
 
-    dateLabel.setText(String.format("%d.%02d.%02d", selectedYear, selectedMonth, selectedDayOfMonth));
+    dateLabel.setText(String.format("%d.%02d.%02d.", selectedYear, selectedMonth, selectedDayOfMonth));
     dateLabel.setFont(dateLabel.getFont().deriveFont(Font.BOLD));
 
     closeButton.setText("close");

@@ -6,7 +6,7 @@
  * used 3rd-party libraries:
  *   - jaspyt-1.9.2.jar - http://www.jasypt.org/
  *   - javax.mail.1.5.2.jar - https://java.net/projects/javamail/pages/Home
- *   - activation-1.1jar (via javax.mail)
+ *   - activation-1.1.jar (via javax.mail)
  *   - joda-time.2.6.jar - http://www.joda.org/joda-time/
  *   - org.apache.commons.lang-2.6.jar - http://commons.apache.org/proper/commons-lang/download_lang.cgi
  *   - commons-lang-2.6.jar (via org.apache.commons.lang)
@@ -20,6 +20,7 @@ package rosza.activitycalendar;
 //<editor-fold defaultstate="collapsed" desc=" Import ">
 import rosza.xcomponents.JLabelX;
 import java.awt.AWTException;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -52,6 +53,8 @@ import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
@@ -61,6 +64,7 @@ import org.joda.time.DateTime;
 //</editor-fold>
 
 public class ActivityCalendar extends JFrame {
+  //<editor-fold defaultstate="collapsed" desc=" Variables declaration ">
   // UI variables declaration
   private JLayeredPane   baseLayer;
   private JPanel         topLayer;
@@ -69,7 +73,7 @@ public class ActivityCalendar extends JFrame {
   private ActivityHeader activityHeader;
   private ActivityMenu   activityMenu;
   private AddActivity    addActivity;
-  private ReportPanel    reportPanel;
+  private SummaryPanel   summaryPanel;
   private SettingsPanel  settingsPanel;
   private ActivityPane   activityPane;
   private MonthCalendar  monthCalendar;
@@ -93,7 +97,12 @@ public class ActivityCalendar extends JFrame {
   public static int      currentMonth       = now.getMonthOfYear();   // current month
   public static int      currentDayOfMonth  = now.getDayOfMonth();    // current day of the month
   public static DateTime selectedDate       = new DateTime(now);      // get new Joda-TIme for selected date
+  private int            currentHour        = now.getHourOfDay();
+  private int            currentMinute      = now.getMinuteOfHour();
   // End of calendar action variables declaration
+
+  private JPanel glass;
+  //</editor-fold>
 
   //<editor-fold defaultstate="collapsed" desc=" Create new form ActivityCalendar ">
   public ActivityCalendar() {
@@ -113,6 +122,18 @@ public class ActivityCalendar extends JFrame {
     activityHeader = new ActivityHeader();
     activityMenu   = new ActivityMenu();
     activityPane   = new ActivityPane(Constant.WEEK_VIEW, selectedDate.getYear(), selectedDate.getMonthOfYear(), selectedDate.getDayOfMonth());
+    glass = new JPanel() {
+      @Override
+      public void paintComponent(Graphics g) {
+        g.setColor(new Color(0, 0, 0, 0.2f));
+        g.fillRect(0, 0, this.getWidth(), this.getHeight());
+      }
+    };
+    setGlassPane(glass);
+    glass.setBorder(new EmptyBorder(100, 20, 20, 20));
+    glass.setOpaque(false);
+    glass.setVisible(false);
+    
 
     activityPane.addPropertyChangeListener(propertyChangeListener);
 
@@ -207,20 +228,19 @@ public class ActivityCalendar extends JFrame {
 
   //<editor-fold defaultstate="collapsed" desc=" Show/hide month calendar ">
   private void showHideMonthCalendar() {
-    if(settingsPanel != null || reportPanel != null || addActivity != null) {
+    if(settingsPanel != null || summaryPanel != null || addActivity != null) {
       return;
     }
     if(monthCalendar == null) {
       monthCalendar = new MonthCalendar(selectedDate.getYear(), selectedDate.getMonthOfYear(), selectedDate.getDayOfMonth());
-      monthCalendar.setBounds(baseLayer.getSize().width / 2 - monthCalendar.getPreferredSize().width / 2, baseLayer.getSize().height / 2 - monthCalendar.getPreferredSize().height / 2, monthCalendar.getPreferredSize().width, monthCalendar.getPreferredSize().height);
       monthCalendar.addPropertyChangeListener(propertyChangeListener);
       monthCalendar.addMouseListener(mouseListener);
-      baseLayer.add(monthCalendar);
-      baseLayer.setLayer(monthCalendar, JLayeredPane.MODAL_LAYER, 0);
+      glass.add(monthCalendar);
+      glass.setVisible(true);  
     }
     else {
-      baseLayer.remove(baseLayer.getIndexOf(monthCalendar));
-      baseLayer.repaint();
+      glass.setVisible(false);
+      glass.remove(monthCalendar);
       monthCalendar.removePropertyChangeListener(propertyChangeListener);
       monthCalendar.removeMouseListener(mouseListener);
       monthCalendar = null;
@@ -230,20 +250,19 @@ public class ActivityCalendar extends JFrame {
 
   //<editor-fold defaultstate="collapsed" desc=" Show/hide settings ">
   private void showHideSettings() {
-    if(monthCalendar != null || reportPanel != null || addActivity != null) {
+    if(monthCalendar != null || summaryPanel != null || addActivity != null) {
       return;
     }
     if(settingsPanel == null) {
       settingsPanel = new SettingsPanel();
-      settingsPanel.setBounds(baseLayer.getSize().width / 2 - settingsPanel.getPreferredSize().width / 2, baseLayer.getSize().height / 2 - settingsPanel.getPreferredSize().height / 2, settingsPanel.getPreferredSize().width, settingsPanel.getPreferredSize().height);
       settingsPanel.addPropertyChangeListener(propertyChangeListener);
       settingsPanel.addMouseListener(mouseListener);
-      baseLayer.add(settingsPanel, JLayeredPane.DRAG_LAYER, 0);
+      glass.add(settingsPanel);
+      glass.setVisible(true);  
     }
     else {
-      baseLayer.remove(baseLayer.getIndexOf(settingsPanel));
-      baseLayer.revalidate();
-      baseLayer.repaint();
+      glass.setVisible(false);
+      glass.remove(settingsPanel);
       settingsPanel.removePropertyChangeListener(propertyChangeListener);
       settingsPanel.removeMouseListener(mouseListener);
       settingsPanel = null;
@@ -251,32 +270,31 @@ public class ActivityCalendar extends JFrame {
   }
   //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Show/hide report ">
-  private void showHideReport() {
+  //<editor-fold defaultstate="collapsed" desc=" Show/hide summary ">
+  private void showHideSummary() {
     if(settingsPanel != null || monthCalendar != null || addActivity != null) {
       return;
     }
-    if(reportPanel == null) {
-      reportPanel = new ReportPanel(selectedDate.getYear(), selectedDate.getMonthOfYear(), selectedDate.getDayOfMonth());
-      reportPanel.setBounds(baseLayer.getSize().width / 2 - reportPanel.getPreferredSize().width / 2, baseLayer.getSize().height / 2 - reportPanel.getPreferredSize().height / 2, reportPanel.getPreferredSize().width, reportPanel.getPreferredSize().height);
-      reportPanel.addPropertyChangeListener(propertyChangeListener);
-      reportPanel.addMouseListener(mouseListener);
-      baseLayer.add(reportPanel);
-      baseLayer.setLayer(reportPanel, JLayeredPane.MODAL_LAYER, 0);
+    if(summaryPanel == null) {
+      summaryPanel = new SummaryPanel(selectedDate.getYear(), selectedDate.getMonthOfYear(), selectedDate.getDayOfMonth());
+      summaryPanel.addPropertyChangeListener(propertyChangeListener);
+      summaryPanel.addMouseListener(mouseListener);
+      glass.add(summaryPanel);
+      glass.setVisible(true);  
     }
     else {
-      baseLayer.remove(baseLayer.getIndexOf(reportPanel));
-      baseLayer.repaint();
-      reportPanel.removePropertyChangeListener(propertyChangeListener);
-      reportPanel.removeMouseListener(mouseListener);
-      reportPanel = null;
+      glass.setVisible(false);
+      glass.remove(summaryPanel);
+      summaryPanel.removePropertyChangeListener(propertyChangeListener);
+      summaryPanel.removeMouseListener(mouseListener);
+      summaryPanel = null;
     }
   }
   //</editor-fold>
 
   //<editor-fold defaultstate="collapsed" desc=" Show/hide add activity ">
   private void showHideAddActivity(Activity a) {
-    if(settingsPanel != null || reportPanel != null || monthCalendar != null) {
+    if(settingsPanel != null || summaryPanel != null || monthCalendar != null) {
       return;
     }
     if(addActivity == null) {
@@ -286,15 +304,14 @@ public class ActivityCalendar extends JFrame {
       else {
         addActivity = new AddActivity(a);
       }
-      addActivity.setBounds(baseLayer.getSize().width / 2 - addActivity.getPreferredSize().width / 2, baseLayer.getSize().height / 2 - addActivity.getPreferredSize().height / 2, addActivity.getPreferredSize().width, addActivity.getPreferredSize().height);
       addActivity.addPropertyChangeListener(propertyChangeListener);
       addActivity.addMouseListener(mouseListener);
-      baseLayer.add(addActivity);
-      baseLayer.setLayer(addActivity, JLayeredPane.MODAL_LAYER, 0);
+      glass.add(addActivity);
+      glass.setVisible(true);  
     }
     else {
-      baseLayer.remove(baseLayer.getIndexOf(addActivity));
-      baseLayer.repaint();
+      glass.setVisible(false);
+      glass.remove(addActivity);
       addActivity.removePropertyChangeListener(propertyChangeListener);
       addActivity.removeMouseListener(mouseListener);
       addActivity = null;
@@ -333,8 +350,8 @@ public class ActivityCalendar extends JFrame {
     if(settingsPanel != null) {
       baseLayer.setLayer(settingsPanel, JLayeredPane.MODAL_LAYER, 0);
     }
-    else if(reportPanel != null) {
-      baseLayer.setLayer(reportPanel, JLayeredPane.MODAL_LAYER, 0);
+    else if(summaryPanel != null) {
+      baseLayer.setLayer(summaryPanel, JLayeredPane.MODAL_LAYER, 0);
     }
     else if(monthCalendar != null) {
       updateMonthCalendarUI();
@@ -355,13 +372,13 @@ public class ActivityCalendar extends JFrame {
     if(monthCalendar == null) {
       return;
     }
-    baseLayer.remove(monthCalendar);
+    glass.remove(monthCalendar);
     monthCalendar = new MonthCalendar(selectedDate.getYear(), selectedDate.getMonthOfYear(), selectedDate.getDayOfMonth());
-    monthCalendar.setBounds(baseLayer.getSize().width / 2 - monthCalendar.getPreferredSize().width / 2, baseLayer.getSize().height / 2 - monthCalendar.getPreferredSize().height / 2, monthCalendar.getPreferredSize().width, monthCalendar.getPreferredSize().height);
+    //monthCalendar.setBounds(baseLayer.getSize().width / 2 - monthCalendar.getPreferredSize().width / 2, baseLayer.getSize().height / 2 - monthCalendar.getPreferredSize().height / 2, monthCalendar.getPreferredSize().width, monthCalendar.getPreferredSize().height);
     monthCalendar.addPropertyChangeListener(propertyChangeListener);
     monthCalendar.addMouseListener(mouseListener);
-    baseLayer.add(monthCalendar);
-    baseLayer.setLayer(monthCalendar, JLayeredPane.MODAL_LAYER, 0);
+    glass.add(monthCalendar);
+    //baseLayer.setLayer(monthCalendar, JLayeredPane.MODAL_LAYER, 0);
     revalidate();
     repaint();
   }
@@ -404,8 +421,8 @@ public class ActivityCalendar extends JFrame {
     showHideSettings();
   }
 
-  private void reportButtonMouseClicked(MouseEvent e) {
-    showHideReport();
+  private void summaryButtonMouseClicked(MouseEvent e) {
+    showHideSummary();
   }
   //</editor-fold>
 
@@ -519,9 +536,9 @@ public class ActivityCalendar extends JFrame {
           showHideSettings();
         }
       }
-      else if(e.getSource() instanceof ReportPanel) {
+      else if(e.getSource() instanceof SummaryPanel) {
         if(e.getPropertyName().equals(Constant.CLOSE_PANE)) {
-          showHideReport();
+          showHideSummary();
         }
       }
       else if(e.getSource() instanceof MonthCalendar) {
@@ -685,7 +702,7 @@ public class ActivityCalendar extends JFrame {
     private JLabel prevButton;
     private JLabel nextButton;
     private JLabel settingsButton;
-    private JLabel reportButton;
+    private JLabel summaryButton;
     private JLabelX selectedDateLabel;
     private JLabel addButton;
 
@@ -700,7 +717,7 @@ public class ActivityCalendar extends JFrame {
       prevButton         = new JLabel();
       nextButton         = new JLabel();
       settingsButton     = new JLabel();
-      reportButton       = new JLabel();
+      summaryButton       = new JLabel();
       selectedDateLabel  = new JLabelX(Constant.WHITE);
       addButton          = new JLabel();
       Dimension iconSize = new Dimension(40, 40);
@@ -774,15 +791,15 @@ public class ActivityCalendar extends JFrame {
         }
       });
 
-      reportButton.setHorizontalAlignment(JButton.CENTER);
-      reportButton.setIcon(new ImageIcon(cl.getResource(Constant.REPORT_ICON)));
-      reportButton.setMinimumSize(iconSize);
-      reportButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-      reportButton.setToolTipText("reports");
-      reportButton.addMouseListener(new MouseAdapter() {
+      summaryButton.setHorizontalAlignment(JButton.CENTER);
+      summaryButton.setIcon(new ImageIcon(cl.getResource(Constant.SUMMARY_ICON)));
+      summaryButton.setMinimumSize(iconSize);
+      summaryButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+      summaryButton.setToolTipText("summary");
+      summaryButton.addMouseListener(new MouseAdapter() {
         @Override
         public void mouseClicked(MouseEvent e) {
-          reportButtonMouseClicked(e);
+          summaryButtonMouseClicked(e);
         }
       });
 
@@ -819,7 +836,7 @@ public class ActivityCalendar extends JFrame {
           .addGap(50)
           .addComponent(addButton)
           .addGap(50)
-          .addComponent(reportButton)
+          .addComponent(summaryButton)
           .addGap(50)
           .addComponent(settingsButton)
         )
@@ -832,7 +849,7 @@ public class ActivityCalendar extends JFrame {
         .addComponent(selectedDateLabel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         .addComponent(nextButton)
         .addComponent(addButton)
-        .addComponent(reportButton)
+        .addComponent(summaryButton)
         .addComponent(settingsButton)
       );
     }
