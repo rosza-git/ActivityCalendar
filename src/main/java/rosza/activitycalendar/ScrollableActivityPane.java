@@ -41,19 +41,16 @@ public class ScrollableActivityPane extends JLayeredPane implements Scrollable {
 
   private int dayPaneHeight;
 
-  private int unitIncrement = 1;
+  private int unitIncrement = Constant.FONT_SIZE;
 
   private volatile Thread thread;
   private volatile boolean running = true;
   private static int count = 0;
-
-	//private MouseEvent pressed;
-	//private Point      location;
   //</editor-fold>
 
   public ScrollableActivityPane(int view, int year, int month, int day) {
-    setAutoscrolls(true);               //enable synthetic drag events
-    addMouseMotionListener(mouseMotionListener);       //handle mouse drags
+    setAutoscrolls(true);
+    addMouseMotionListener(mouseMotionListener);
     setBackground(Constant.CELL_BG_COLOR);
     setOpaque(true);
 

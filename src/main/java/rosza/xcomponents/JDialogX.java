@@ -56,7 +56,7 @@ public class JDialogX extends JDialog {
 
     setUndecorated(true);
 
-    rootPane.setBackground(Color.black);
+    rootPane.setBackground(Constant.BORDER_COLOR);
     rootPane.setBorder(new EmptyBorder(2, 2, 2, 2));
     rootPane.setLayout(new BorderLayout());
 

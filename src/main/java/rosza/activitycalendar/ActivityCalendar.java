@@ -20,6 +20,7 @@ package rosza.activitycalendar;
 //<editor-fold defaultstate="collapsed" desc=" Import ">
 import rosza.xcomponents.JLabelX;
 import java.awt.AWTException;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -30,6 +31,7 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
+import java.awt.Rectangle;
 import java.awt.SystemTray;
 import java.awt.Toolkit;
 import java.awt.TrayIcon;
@@ -59,7 +61,6 @@ import org.joda.time.DateTime;
 public class ActivityCalendar extends JFrame {
   //<editor-fold defaultstate="collapsed" desc=" Variables declaration ">
   // UI variables declaration
-  private JLayeredPane   baseLayer;
   private JPanel         topLayer;
   private JPanel         bottomLayer;
   // // customized components
@@ -85,84 +86,73 @@ public class ActivityCalendar extends JFrame {
   // End of mouse action variables declaration
 
   //Calendar variables declaration
-  public static DateTime now                = new DateTime();         // get new Joda-Time for actual date
-  public static int      currentYear        = now.getYear();          // current year
-  public static int      currentMonth       = now.getMonthOfYear();   // current month
-  public static int      currentDayOfMonth  = now.getDayOfMonth();    // current day of the month
-  public static DateTime selectedDate       = new DateTime(now);      // get new Joda-TIme for selected date
-  private int            currentHour        = now.getHourOfDay();
-  private int            currentMinute      = now.getMinuteOfHour();
+  public static DateTime now = new DateTime();  // get new Joda-Time for actual date
+  public static int      currentYear;           // current year
+  public static int      currentMonth;          // current month
+  public static int      currentDayOfMonth;     // current day of the month
+  public static DateTime selectedDate;          // selected date
   // End of calendar action variables declaration
-
-  private JPanel glass;
   //</editor-fold>
 
   //<editor-fold defaultstate="collapsed" desc=" Create new form ActivityCalendar ">
   public ActivityCalendar() {
-    initUIComponents();
+    currentYear       = now.getYear();          // current year
+    currentMonth      = now.getMonthOfYear();   // current month
+    currentDayOfMonth = now.getDayOfMonth();    // current day of the month
+    selectedDate      = new DateTime(now);
+
+    createUI();
     initSystemTray();
     XMLUtil.getCategories();
   }
   //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Initialize UI components ">
+  //<editor-fold defaultstate="collapsed" desc=" Create UI components ">
   @SuppressWarnings("unchecked")
-  private void initUIComponents() {
+  private void createUI() {
     topLayer       = new JPanel();
     bottomLayer    = new JPanel();
-    baseLayer      = new JLayeredPane();
     activityHeader = new ActivityHeader();
     activityMenu   = new ActivityMenu();
     activityPane   = new ActivityPane(Constant.WEEK_VIEW, selectedDate.getYear(), selectedDate.getMonthOfYear(), selectedDate.getDayOfMonth());
-    glass = new JPanel() {
-      @Override
-      public void paintComponent(Graphics g) {
-        g.setColor(new Color(0, 0, 0, 0.2f));
-        g.fillRect(0, 0, this.getWidth(), this.getHeight());
-      }
-    };
-    setGlassPane(glass);
-    glass.setBorder(new EmptyBorder(100, 20, 20, 20));
-    glass.setOpaque(false);
-    glass.setVisible(false);
     
-    activityPane.addPropertyChangeListener(propertyChangeListener);
-
     setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
     setTitle(Constant.APP_DISPLAY_NAME);
     setUndecorated(true);
     setResizable(false);
-    getContentPane().setBackground(new Color(0, 0, 0));
+    setLayout(new BorderLayout());
+    setBackground(Constant.BORDER_COLOR);
+    rootPane.setBorder(new EmptyBorder(2, 2, 2, 2));
 
     activityHeader.addMouseMotionListener(new MouseMotionAdapter() {
       @Override
       public void mouseDragged(MouseEvent e) {
-        headerPanelMouseDragged(e);
+        headerDragged(e);
       }
     });
     activityHeader.addMouseListener(new MouseAdapter() {
       @Override
       public void mousePressed(MouseEvent e) {
-        headerPanelMousePressed(e);
+        headerPressed(e);
       }
     });
 
-    add(baseLayer);
+    activityPane.addPropertyChangeListener(propertyChangeListener);
+    activityPane.scrollToVisibleRect(new Rectangle(0, Constant.CELL_HEIGHT * now.getHourOfDay(), 100, 100));
 
     topLayer.setBackground(Constant.BG_COLOR);
-    bottomLayer.setBackground(Constant.BG_COLOR);
     topLayer.setLayout(new BoxLayout(topLayer, BoxLayout.Y_AXIS));
-
-    baseLayer.add(topLayer);
-    baseLayer.add(bottomLayer);
     topLayer.add(activityHeader);
     topLayer.add(activityMenu);
-    bottomLayer.add(activityPane);
-    topLayer.setBounds(2, 2, activityPane.getPreferredSize().width, topLayer.getPreferredSize().height);
-    bottomLayer.setBounds(2, 2 + topLayer.getPreferredSize().height, activityPane.getPreferredSize().width, bottomLayer.getPreferredSize().height);
-    activityPane.setBounds(2, 2 + topLayer.getPreferredSize().height + bottomLayer.getPreferredSize().height, activityPane.getPreferredSize().width, activityPane.getPreferredSize().height);
 
-    setSize(activityPane.getPreferredSize().width + 4, topLayer.getPreferredSize().height + bottomLayer.getPreferredSize().height + 4);
+    bottomLayer.setBackground(Constant.BG_COLOR);
+    bottomLayer.setLayout(new BorderLayout());
+    bottomLayer.add(activityPane, BorderLayout.CENTER);
+
+    getContentPane().add(topLayer, BorderLayout.NORTH);
+    getContentPane().add(bottomLayer, BorderLayout.CENTER);
+
+    pack();
     setLocationRelativeTo(null);
   }
   //</editor-fold>
@@ -176,14 +166,14 @@ public class ActivityCalendar extends JFrame {
       exitMenuItem.addActionListener(new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-          exitMenuActionPerformed(e);
+          exitApplication();
         }
       });
       showHideMenuItem.setActionCommand(Constant.ACTIVITY_SHOW_HIDE);
       showHideMenuItem.addActionListener(new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-          showHideMenuActionPerformed(e);
+          showHideApplication();
         }
       });
       popup.add(showHideMenuItem);
@@ -192,13 +182,16 @@ public class ActivityCalendar extends JFrame {
       systemTray = SystemTray.getSystemTray();
       Dimension iconSize = systemTray.getTrayIconSize();
       int iconHeight = iconSize.height;
-      Image image = Toolkit.getDefaultToolkit().getImage(cl.getResource(Constant.TRAY_ICON));
+      Image image = Toolkit.getDefaultToolkit().getImage(cl.getResource(Constant.TRAY_ICON16));
       switch(iconHeight) {
+        case 24:
+          image = Toolkit.getDefaultToolkit().getImage(cl.getResource(Constant.TRAY_ICON24));
+          break;
         case 32:
-          image = Toolkit.getDefaultToolkit().getImage(cl.getResource(Constant.TRAY_ICON));
+          image = Toolkit.getDefaultToolkit().getImage(cl.getResource(Constant.TRAY_ICON32));
           break;
         case 48:
-          image = Toolkit.getDefaultToolkit().getImage(cl.getResource(Constant.TRAY_ICON));
+          image = Toolkit.getDefaultToolkit().getImage(cl.getResource(Constant.TRAY_ICON48));
           break;
       }
       trayIcon = new TrayIcon(image, Constant.APP_DISPLAY_NAME, popup);
@@ -217,10 +210,10 @@ public class ActivityCalendar extends JFrame {
   }
   //</editor-fold>
 
-  //<e ditor-fold defaultstate="collapsed" desc=" Show month dialog ">
+  //<editor-fold defaultstate="collapsed" desc=" Show month dialog ">
   private void showMonthDialog() {
     if(monthDialog == null || !monthDialog.isVisible()) {
-      monthDialog = new MonthDialog(this, baseLayer, "date selector", true, selectedDate.getYear(), selectedDate.getMonthOfYear(), selectedDate.getDayOfMonth());
+      monthDialog = new MonthDialog(this, this, "date selector", true, selectedDate.getYear(), selectedDate.getMonthOfYear(), selectedDate.getDayOfMonth());
       DateTime result = monthDialog.showDialog();
       if(result != null) {
         selectedDate = result;
@@ -232,12 +225,12 @@ public class ActivityCalendar extends JFrame {
       monthDialog.dispose();
     }
   }
-  //</e ditor-fold>
+  //</editor-fold>
 
   //<editor-fold defaultstate="collapsed" desc=" Show summary dialog ">
   private void showSummaryDialog() {
     if(summaryDialog == null || !summaryDialog.isVisible()) {
-      summaryDialog = new SummaryDialog(this, baseLayer, "summary", true, selectedDate.getYear(), selectedDate.getMonthOfYear(), selectedDate.getDayOfMonth());
+      summaryDialog = new SummaryDialog(this, this, "summary", true, selectedDate.getYear(), selectedDate.getMonthOfYear(), selectedDate.getDayOfMonth());
       summaryDialog.showDialog();
     }
     else {
@@ -250,7 +243,7 @@ public class ActivityCalendar extends JFrame {
   //<editor-fold defaultstate="collapsed" desc=" Show settings dialog ">
   private void showSettingsDialog() {
     if(settingsDialog == null || !settingsDialog.isVisible()) {
-      settingsDialog = new SettingsDialog(this, baseLayer, "settings", true);
+      settingsDialog = new SettingsDialog(this, this, "settings", true);
       settingsDialog.showDialog();
     }
     else {
@@ -263,7 +256,7 @@ public class ActivityCalendar extends JFrame {
   //<editor-fold defaultstate="collapsed" desc=" Show activity dialog ">
   private void showActivityDialog(Activity a) {
     if(activityDialog == null || !activityDialog.isVisible()) {
-      activityDialog = new ActivityDialog(this, baseLayer, "activity", true, a);
+      activityDialog = new ActivityDialog(this, this, "activity", true, a);
       ActivityAction aa = activityDialog.showDialog();
       if(aa == null || aa.getActivity() == null) {
         return;
@@ -289,14 +282,16 @@ public class ActivityCalendar extends JFrame {
   }
   //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" System tray menu actions ">
-  private void exitMenuActionPerformed(ActionEvent e) {
-    // Close application
+  //<editor-fold defaultstate="collapsed" desc=" Exit method ">
+  private void exitApplication() {
+    // Remove application from system-tray and close 
     systemTray.remove(trayIcon);
     System.exit(0);
   }
+  //</editor-fold>
 
-  private void showHideMenuActionPerformed(ActionEvent e) {
+  //<editor-fold defaultstate="collapsed" desc=" Show/hide method ">
+  private void showHideApplication() {
     // Show or hide Activity Calendar window
     if(this.isShowing()) {
       this.setVisible(false);
@@ -304,6 +299,33 @@ public class ActivityCalendar extends JFrame {
     else {
       this.setVisible(true);
     }
+  }
+  //</editor-fold>
+
+  //<editor-fold defaultstate="collapsed" desc=" Minimize method ">
+  private void minimizeApplication() {
+    setState(ActivityCalendar.ICONIFIED);
+  }
+  //</editor-fold>
+
+  //<editor-fold defaultstate="collapsed" desc=" Goto today method ">
+  private void gotoToday() {
+    selectedDate = now;
+    updateActivityUI();
+  }
+  //</editor-fold>
+
+  //<editor-fold defaultstate="collapsed" desc=" One day backward method ">
+  private void prevDay() {
+    selectedDate = selectedDate.minusDays(1);
+    updateActivityUI();
+  }
+  //</editor-fold>
+
+  //<editor-fold defaultstate="collapsed" desc=" One day forward method ">
+  private void nextDay() {
+    selectedDate = selectedDate.plusDays(1);
+    updateActivityUI();
   }
   //</editor-fold>
 
@@ -312,83 +334,30 @@ public class ActivityCalendar extends JFrame {
    * Update Activity UI with new date parameters.
    */
   private void updateActivityUI() {
+    Rectangle rect;
+    rect = activityPane.getVisibleRectangle();
     bottomLayer.remove(activityPane);
     activityPane.stopRunning();
     activityPane = new ActivityPane(Constant.WEEK_VIEW, selectedDate.getYear(), selectedDate.getMonthOfYear(), selectedDate.getDayOfMonth());
     activityPane.addPropertyChangeListener(propertyChangeListener);
     bottomLayer.add(activityPane);
+    activityPane.scrollToVisibleRect(rect);
     revalidate();
     repaint();
   }
   //</editor-fold>
 
-//  //<editor-fold defaultstate="collapsed" desc=" Update Month Calendar UI ">
-//  /**
-//   * Update MonthCalendar UI with new date parameters.
-//   */
-//  private void updateMonthCalendarUI() {
-//    if(monthCalendar == null) {
-//      return;
-//    }
-//    glass.remove(monthCalendar);
-//    monthCalendar = new MonthCalendar(selectedDate.getYear(), selectedDate.getMonthOfYear(), selectedDate.getDayOfMonth());
-//    //monthCalendar.setBounds(baseLayer.getSize().width / 2 - monthCalendar.getPreferredSize().width / 2, baseLayer.getSize().height / 2 - monthCalendar.getPreferredSize().height / 2, monthCalendar.getPreferredSize().width, monthCalendar.getPreferredSize().height);
-//    monthCalendar.addPropertyChangeListener(propertyChangeListener);
-//    monthCalendar.addMouseListener(mouseListener);
-//    glass.add(monthCalendar);
-//    //baseLayer.setLayer(monthCalendar, JLayeredPane.MODAL_LAYER, 0);
-//    revalidate();
-//    repaint();
-//  }
-//  //</editor-fold>
-
-  //<editor-fold defaultstate="collapsed" desc=" Button events ">
-  private void closeButtonMouseClicked(MouseEvent e) {
-    systemTray.remove(trayIcon);
-    System.exit(0);
-  }
-
-  private void minimizeButtonMouseClicked(MouseEvent e) {
-    setState(ActivityCalendar.ICONIFIED);
-  }
-
-  private void hideButtonMouseClicked(MouseEvent e) {
-    // Show or hide Activity Calendar window
-    if(this.isShowing()) {
-      this.setVisible(false);
-    }
-    else {
-      this.setVisible(true);
-    }
-  }
-
-  private void todayButtonMouseClicked(MouseEvent e) {
-    selectedDate = now;
-    updateActivityUI();
-  }
-  //</editor-fold>
-
-  //<editor-fold defaultstate="collapsed" desc=" Mouse events ">
-  private void headerPanelMouseDragged(MouseEvent e) {
+  //<editor-fold defaultstate="collapsed" desc=" Header move methods ">
+  private void headerDragged(MouseEvent e) {
     int x = e.getXOnScreen();
     int y = e.getYOnScreen();
 
     setLocation(x - mouseX, y - mouseY);
   }
 
-  private void headerPanelMousePressed(MouseEvent e) {
+  private void headerPressed(MouseEvent e) {
     mouseX = e.getX();
     mouseY = e.getY();
-  }
-
-  private void prevButtonMouseClicked(MouseEvent e) {
-    selectedDate = selectedDate.minusDays(1);
-    updateActivityUI();
-  }
-
-  private void nextButtonMouseClicked(MouseEvent e) {
-    selectedDate = selectedDate.plusDays(1);
-    updateActivityUI();
   }
   //</editor-fold>
 
@@ -434,7 +403,7 @@ public class ActivityCalendar extends JFrame {
     public void mouseClicked(MouseEvent e) {
       if(e.getSource() instanceof TrayIcon) {
         if(SwingUtilities.isLeftMouseButton(e)) {
-          hideButtonMouseClicked(e);
+          showHideApplication();
         }
       }
     }
@@ -474,7 +443,6 @@ public class ActivityCalendar extends JFrame {
           case Constant.MONTH_CHANGE:
           case Constant.YEAR_CHANGE:
             selectedDate = new DateTime(e.getNewValue());
-            //updateMonthCalendarUI();
             updateActivityUI();
             break;
         }
@@ -517,7 +485,6 @@ public class ActivityCalendar extends JFrame {
 
       setOpaque(false);
       
-      headerLabel.setFont(headerLabel.getFont());
       headerLabel.setFont(headerLabel.getFont().deriveFont(Font.BOLD).deriveFont(22f));
       headerLabel.setText(Constant.APP_DISPLAY_NAME);
       headerLabel.setVerticalAlignment(JLabel.CENTER);
@@ -533,7 +500,7 @@ public class ActivityCalendar extends JFrame {
       closeButton.addMouseListener(new MouseAdapter() {
         @Override
         public void mouseClicked(MouseEvent e) {
-          closeButtonMouseClicked(e);
+          exitApplication();
         }
       });
 
@@ -546,7 +513,7 @@ public class ActivityCalendar extends JFrame {
       minimizeButton.addMouseListener(new MouseAdapter() {
         @Override
         public void mouseClicked(MouseEvent e) {
-          minimizeButtonMouseClicked(e);
+          minimizeApplication();
         }
       });
 
@@ -559,7 +526,7 @@ public class ActivityCalendar extends JFrame {
       hideButton.addMouseListener(new MouseAdapter() {
         @Override
         public void mouseClicked(MouseEvent e) {
-          hideButtonMouseClicked(e);
+          showHideApplication();
         }
       });
 
@@ -616,17 +583,17 @@ public class ActivityCalendar extends JFrame {
     private JLabel addButton;
 
     ActivityMenu() {
-      initMenuComponents();
+      createMenu();
       clock();
     }
 
-    private void initMenuComponents() {
+    private void createMenu() {
       timeLabel          = new JLabel();
       todayLabel         = new JLabelX(Constant.WHITE);
       prevButton         = new JLabel();
       nextButton         = new JLabel();
       settingsButton     = new JLabel();
-      summaryButton       = new JLabel();
+      summaryButton      = new JLabel();
       selectedDateLabel  = new JLabelX(Constant.WHITE);
       addButton          = new JLabel();
       Dimension iconSize = new Dimension(40, 40);
@@ -634,12 +601,10 @@ public class ActivityCalendar extends JFrame {
       setOpaque(false);
       setBorder(new EmptyBorder(5, 5, 5, 5));
 
-      timeLabel.setFont(timeLabel.getFont());
       timeLabel.setFont(timeLabel.getFont().deriveFont(Font.BOLD).deriveFont(34f));
       timeLabel.setForeground(Constant.TEXT_COLOR);
       timeLabel.setVerticalAlignment(JButton.CENTER);
 
-      todayLabel.setFont(todayLabel.getFont());
       todayLabel.setFont(todayLabel.getFont().deriveFont(Font.BOLD).deriveFont(14f));
       todayLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
       todayLabel.setVerticalAlignment(JButton.CENTER);
@@ -648,7 +613,7 @@ public class ActivityCalendar extends JFrame {
       todayLabel.addMouseListener(new MouseAdapter() {
         @Override
         public void mouseClicked(MouseEvent e) {
-          todayButtonMouseClicked(e);
+          gotoToday();
         }
       });
 
@@ -660,7 +625,7 @@ public class ActivityCalendar extends JFrame {
       prevButton.addMouseListener(new MouseAdapter() {
         @Override
         public void mouseClicked(MouseEvent e) {
-          prevButtonMouseClicked(e);
+          prevDay();
         }
       });
 
@@ -672,7 +637,7 @@ public class ActivityCalendar extends JFrame {
       nextButton.addMouseListener(new MouseAdapter() {
         @Override
         public void mouseClicked(MouseEvent e) {
-          nextButtonMouseClicked(e);
+          nextDay();
         }
       });
 
@@ -712,7 +677,6 @@ public class ActivityCalendar extends JFrame {
         }
       });
 
-      selectedDateLabel.setFont(selectedDateLabel.getFont());
       selectedDateLabel.setFont(selectedDateLabel.getFont().deriveFont(Font.BOLD).deriveFont(22f));
       selectedDateLabel.setHorizontalAlignment(JButton.CENTER);
       selectedDateLabel.setVerticalAlignment(JButton.CENTER);
@@ -733,13 +697,13 @@ public class ActivityCalendar extends JFrame {
         layout.createParallelGroup(GroupLayout.Alignment.LEADING)
         .addGroup(layout.createSequentialGroup()
           .addGap(10)
-          .addComponent(timeLabel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+          .addComponent(timeLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
           .addGap(10)
-          .addComponent(todayLabel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+          .addComponent(todayLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
           .addGap(50)
           .addComponent(prevButton)
           .addGap(10)
-          .addComponent(selectedDateLabel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+          .addComponent(selectedDateLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
           .addGap(10)
           .addComponent(nextButton)
           .addGap(50)
@@ -752,10 +716,10 @@ public class ActivityCalendar extends JFrame {
       );
       layout.setVerticalGroup(
         layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-        .addComponent(timeLabel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        .addComponent(todayLabel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        .addComponent(timeLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        .addComponent(todayLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         .addComponent(prevButton)
-        .addComponent(selectedDateLabel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        .addComponent(selectedDateLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         .addComponent(nextButton)
         .addComponent(addButton)
         .addComponent(summaryButton)

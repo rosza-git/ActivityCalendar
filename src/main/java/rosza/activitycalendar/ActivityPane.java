@@ -11,6 +11,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
@@ -63,7 +64,8 @@ public class ActivityPane extends JPanel  {
     scrollableActivityPane = new ScrollableActivityPane(currentView, selectedYear, selectedMonth, selectedDayOfMonth);
     scrollableActivityPane.addPropertyChangeListener(propertyChangeListener);
     scrollPane = new JScrollPane(scrollableActivityPane);
-    int paneWidth = 5 + scrollPane.getVerticalScrollBar().getMaximumSize().width + Constant.BAR_WIDTH + cellWidth * (currentView == Constant.DAY_VIEW ? 1 : 7);
+    scrollPane.setBorder(null);
+    int paneWidth = scrollPane.getVerticalScrollBar().getMaximumSize().width + Constant.BAR_WIDTH + cellWidth * (currentView == Constant.DAY_VIEW ? 1 : 7);
     scrollPane.setPreferredSize(new Dimension(paneWidth, Constant.CELL_HEIGHT * 16));
     scrollPane.setColumnHeaderView(daysBar);
     scrollPane.setRowHeaderView(hoursBar);
@@ -85,15 +87,25 @@ public class ActivityPane extends JPanel  {
     @Override
     public void propertyChange(PropertyChangeEvent e) {
       if(e.getPropertyName().equals(Constant.SELECTION_CHANGE)) {
-        firePropertyChange(Constant.SELECTION_CHANGE, null, (String)e.getNewValue());
+        firePropertyChange(Constant.SELECTION_CHANGE, e.getOldValue(), e.getNewValue());
       }
       if(e.getSource() instanceof ScrollableActivityPane) {
         if(e.getPropertyName().equals(Constant.MODIFY_ACTIVITY)) {
-          firePropertyChange(Constant.MODIFY_ACTIVITY, null, e.getNewValue());
+          firePropertyChange(Constant.MODIFY_ACTIVITY, e.getOldValue(), e.getNewValue());
         }
       }
     }
   };
+
+  public Rectangle getVisibleRectangle() {
+    Rectangle rect = new Rectangle();
+    scrollableActivityPane.computeVisibleRect(rect);
+    return rect;
+  }
+
+  public void scrollToVisibleRect(Rectangle rect) {
+    scrollableActivityPane.scrollRectToVisible(rect);
+  }
 
   private class Corner extends JLabel {
     private Corner() {
@@ -136,7 +148,7 @@ public class ActivityPane extends JPanel  {
           try {
             Thread.sleep(Constant.REFRESH_TIME);
           }
-          catch (InterruptedException ex) {
+          catch(InterruptedException ex) {
           }
         }
       }

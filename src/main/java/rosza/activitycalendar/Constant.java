@@ -13,40 +13,52 @@ import javax.swing.UIManager;
 //</editor-fold>
 
 public class Constant {
+  // common
+  public static final String APP_DISPLAY_NAME = "Activity Calendar";
+  public static final String APP_NAME         = "ActivityCalendar";
+  public static final String PROPERTIES_FILE  = "properties.ini";
+  public static final String SALT             = "FAdxtvEFa8EiX}kWSmB*DkjHy.)Q~wT A.k;-,eL{>J`~3G}Z48P#Au~)C@z}-%T";
+  public static final int    REFRESH_TIME     = 5000;     // 5 sec.
 
-  private final ClassLoader cl = this.getClass().getClassLoader();
+  // icons (source: https://www.iconfinder.com/iconsets/windows-8-metro-style)
+  public static final String CLOSE_ICON    = "images/close.png";
+  public static final String MINIMIZE_ICON = "images/minimize.png";
+  public static final String HIDE_ICON     = "images/hide.png";
+  public static final String SETTINGS_ICON = "images/settings.png";
+  public static final String SUMMARY_ICON  = "images/summary.png";
+  public static final String NEXT_ICON     = "images/next.png";
+  public static final String PREV_ICON     = "images/previous.png";
+  public static final String ADD_ICON      = "images/add.png";
+  public static final String TRAY_ICON16   = "images/calendar16.png";
+  public static final String TRAY_ICON24   = "images/calendar24.png";
+  public static final String TRAY_ICON32   = "images/calendar32.png";
+  public static final String TRAY_ICON48   = "images/calendar48.png";
 
-  // common constants
-  public static final String PROPERTIES_FILE      = "properties.ini";
-  public static final String APP_DISPLAY_NAME     = "Activity Calendar";
-  public static final String APP_NAME             = "ActivityCalendar";
-  public static final String SALT                 = "FAdxtvEFa8EiX}kWSmB*DkjHy.)Q~wT A.k;-,eL{>J`~3G}Z48P#Au~)C@z}-%T";
-  public static final int    REFRESH_TIME         = 60000;     // 1 min.
-  // icons source: https://www.iconfinder.com/iconsets/windows-8-metro-style
-  public static final String CLOSE_ICON           = "images/close.png";
-  public static final String MINIMIZE_ICON        = "images/minimize.png";
-  public static final String HIDE_ICON            = "images/hide.png";
-  public static final String SETTINGS_ICON        = "images/settings.png";
-  public static final String SUMMARY_ICON         = "images/summary.png";
-  public static final String NEXT_ICON            = "images/next.png";
-  public static final String PREV_ICON            = "images/previous.png";
-  public static final String ADD_ICON             = "images/add.png";
-  public static final String TRAY_ICON            = "images/calendar16.png";
-  public static final Font   DEFAULT_FONT         = UIManager.getDefaults().getFont("Label.font");
-  public static final int    DEFAULT_FONT_SIZE    = DEFAULT_FONT.getSize();
-  public static final Font   FONT                 = DEFAULT_FONT;
-  public static final int    FONT_SIZE            = DEFAULT_FONT_SIZE;
-  public static final String ACTIVITY_EXIT        = "EXIT";
-  public static final String ACTIVITY_SHOW_HIDE   = "SHOW_HIDE";
-  public static final String CLOSE_PANE           = "close";
-  public static final String ADD_ACTIVITY         = "addActivity";
-  public static final String MODIFY_ACTIVITY      = "modifyActivity";
-  public static final String REMOVE_ACTIVITY      = "removeActivity";
-  public static final String CLOSE_DIALOG         = "closeDialog";
-  public static final int    LONG_DISPLAY         = 0;
-  public static final int    SHORT_DISPLAY        = 1;
+  // font
+  public static final Font   DEFAULT_FONT      = UIManager.getDefaults().getFont("Label.font");
+  public static final int    DEFAULT_FONT_SIZE = DEFAULT_FONT.getSize();
+  public static final Font   FONT              = DEFAULT_FONT;
+  public static final int    FONT_SIZE         = DEFAULT_FONT_SIZE;
 
-  // "ActivityPane" related constants
+  // action commands
+  public static final String ACTIVITY_EXIT      = "exit";
+  public static final String ACTIVITY_SHOW_HIDE = "showHide";
+  public static final String CLOSE_PANE         = "close";
+  public static final String ADD_ACTIVITY       = "addActivity";
+  public static final String MODIFY_ACTIVITY    = "modifyActivity";
+  public static final String REMOVE_ACTIVITY    = "removeActivity";
+  public static final String CLOSE_DIALOG       = "closeDialog";
+
+  // event commands
+  public static final String SELECTION_CHANGE = "SELECTION_CHANGE";
+  public static final String DAY_CHANGE       = "DAY_CHANGE";
+  public static final String MONTH_CHANGE     = "MONTH_CHANGE";
+  public static final String YEAR_CHANGE      = "YEAR_CHANGE";
+
+  public static final int    LONG_DISPLAY  = 0;
+  public static final int    SHORT_DISPLAY = 1;
+
+  // "ActivityPane" related
   public static final int DAY_VIEW  = 0;
   public static final int WEEK_VIEW = 1;
 
@@ -58,6 +70,7 @@ public class Constant {
   public static final int BAR_WIDTH       = DEFAULT_FONT_SIZE * 5;
   public static final int BAR_HEIGHT      = DEFAULT_FONT_SIZE * 3;
 
+  // colors
   public static final Color BG_COLOR                  = new Color(250, 250, 250);
   public static final Color BG_DARKER_COLOR           = new Color(200, 200, 200);
   public static final Color BG_BLUE                   = new Color(76, 160, 201);
@@ -75,12 +88,6 @@ public class Constant {
   public static final int   WHITE                     = 0;
   public static final int   BLUE                      = 1;
 
-  // event constants
-  public static final String SELECTION_CHANGE = "SELECTION_CHANGE";
-  public static final String DAY_CHANGE       = "DAY_CHANGE";
-  public static final String MONTH_CHANGE     = "MONTH_CHANGE";
-  public static final String YEAR_CHANGE      = "YEAR_CHANGE";
-  
   // XML constants
   public static final String XML_ACTIVITIES_FILE = "activities.xml";
   public static final String XML_CATEGORIES_FILE = "categories.xml";
