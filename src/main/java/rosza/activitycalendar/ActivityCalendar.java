@@ -158,10 +158,12 @@ public class ActivityCalendar extends JFrame {
   }
   //</editor-fold>
 
+  //<editor-fold defaultstate="collapsed" desc=" Set application icon ">
   private void setAppIcon() {
     Image image = Toolkit.getDefaultToolkit().getImage(cl.getResource(Constant.APP_ICON));
     setIconImage(image);
   }
+  //</editor-fold>
 
   //<editor-fold defaultstate="collapsed" desc=" System tray ">
   private void initSystemTray() {
