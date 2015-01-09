@@ -21,6 +21,7 @@ public class Constant {
   public static final int    REFRESH_TIME     = 5000;     // 5 sec.
 
   // icons (source: https://www.iconfinder.com/iconsets/windows-8-metro-style)
+  public static final String APP_ICON      = "images/calendar48.png";
   public static final String CLOSE_ICON    = "images/close.png";
   public static final String MINIMIZE_ICON = "images/minimize.png";
   public static final String HIDE_ICON     = "images/hide.png";

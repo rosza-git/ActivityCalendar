@@ -101,6 +101,7 @@ public class ActivityCalendar extends JFrame {
     currentDayOfMonth = now.getDayOfMonth();    // current day of the month
     selectedDate      = new DateTime(now);
 
+    setAppIcon();
     createUI();
     initSystemTray();
     XMLUtil.getCategories();
@@ -156,6 +157,11 @@ public class ActivityCalendar extends JFrame {
     setLocationRelativeTo(null);
   }
   //</editor-fold>
+
+  private void setAppIcon() {
+    Image image = Toolkit.getDefaultToolkit().getImage(cl.getResource(Constant.APP_ICON));
+    setIconImage(image);
+  }
 
   //<editor-fold defaultstate="collapsed" desc=" System tray ">
   private void initSystemTray() {
