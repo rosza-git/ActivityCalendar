@@ -1,19 +1,16 @@
 /**
- * Add Activity.
+ * Activity dialog.
  * 
  * @author Szalay Roland
  * 
  */
 package rosza.activitycalendar;
 
-//<editor-fold defaultstate="collapsed" desc=" Import ">
-import rosza.xcomponents.JLabelX;
-import rosza.xcomponents.JPanelX;
-import rosza.xcomponents.JButtonX;
-import rosza.xcomponents.JScrollBarX;
-import rosza.xcomponents.JSpinnerX;
+// Import 
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -27,55 +24,60 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle;
 import javax.swing.SpinnerDateModel;
+import javax.swing.border.MatteBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreePath;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
-//</editor-fold>
+import rosza.xcomponents.JButtonX;
+import rosza.xcomponents.JDialogX;
+import rosza.xcomponents.JScrollBarX;
+import rosza.xcomponents.JSpinnerX;
 
-@Deprecated
-public class AddActivity extends JPanelX {
-  //<editor-fold defaultstate="collapsed" desc=" Variables declaration ">
-  private JLabelX      headerLabel;
-  private JLabel       categoryLabel;
-  private JLabel       commentLabel;
-  private JTextField   commentTextField;
-  private JLabel       startLabel;
-  private JSpinner     startDateSpinner;
-  private JSpinner     startTimeSpinner;
-  private JLabel       endLabel;
-  private JSpinner     endDateSpinner;
-  private JSpinner     endTimeSpinner;
-  private CategoryTree categoryTree;
-  private JButtonX     addActivityButton;
-  private JButtonX     modifyActivityButton;
-  private JButtonX     removeActivityButton;
-  private JButtonX     cancelButton;
-  private Category     categoryTreeElements = XMLUtil.getCategories();
-  private JScrollPane  categoryScrollPane;
-  private Activity     activity;
-  //</editor-fold>
+public class ActivityDialog extends JDialogX {
+  // ActivityDialog variables
+  private static ActivityDialog dialog;
+  private static Activity       activity;
+  private static ActivityAction activityAction;
+  // UI variables
+  private JLabel         categoryLabel;
+  private JLabel         commentLabel;
+  private JTextField     commentTextField;
+  private JLabel         startLabel;
+  private JSpinner       startDateSpinner;
+  private JSpinner       startTimeSpinner;
+  private JLabel         endLabel;
+  private JSpinner       endDateSpinner;
+  private JSpinner       endTimeSpinner;
+  private CategoryTree   categoryTree;
+  private JButtonX       addActivityButton;
+  private JButtonX       modifyActivityButton;
+  private JButtonX       removeActivityButton;
+  private JButtonX       cancelButton;
+  private final Category categoryTreeElements = XMLUtil.getCategories();
+  private JScrollPane    categoryScrollPane;
 
-  //<editor-fold defaultstate="collapsed" desc=" Create new Add Activity panel ">
-  public AddActivity() {
-    initComponents();
+  private ActivityDialog(Frame frame, Component locationComp, String title, boolean modal, Activity initialValue) {
+    super(frame, title, modal);
+
+    // Set initial value.
+    activity = initialValue;
+    activityAction = new ActivityAction(Constant.MODIFY_ACTIVITY, activity);
+
+    // Create UI.
+    createUI(locationComp);
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Create new Add Activity panel with initial values ">
-  public AddActivity(Activity a) {
-    activity = a;
-    initComponents();
-  }
-  //</editor-fold>
-
-  //<editor-fold defaultstate="collapsed" desc=" Initialize UI components ">
+  /**
+   * Create dialog UI.
+   * 
+   * @param locationComp null if you want the dialog to come up with its left
+   *                     corner in the center of the screen; otherwise, it should
+   *                     be the component on top of which the dialog should appear
+   */
   @SuppressWarnings("unchecked")
-  private void initComponents() {
-    headerLabel          = new JLabelX(5, 0, 5, 0);
+  private void createUI(Component locationComp) {
     addActivityButton    = new JButtonX("add");
     modifyActivityButton = new JButtonX("modify");
     removeActivityButton = new JButtonX("remove");
@@ -92,55 +94,32 @@ public class AddActivity extends JPanelX {
     categoryTree         = new CategoryTree(categoryTreeElements);
     categoryScrollPane   = new JScrollPane();
 
-    headerLabel.setText("add activity");
-    headerLabel.setHorizontalAlignment(JLabel.CENTER);
-    headerLabel.setFont(headerLabel.getFont().deriveFont(Font.BOLD).deriveFont(18f));
+    setUndecorated(true);
 
     modifyActivityButton.setText("modify");
-    modifyActivityButton.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        modifyActivityButtonActionPerformed(e);
-      }
-    });
-    modifyActivityButton.setEnabled((activity != null));
+    modifyActivityButton.setActionCommand(Constant.MODIFY_ACTIVITY);
+    modifyActivityButton.addActionListener(actionListener);
+    modifyActivityButton.setEnabled(activity != null);
 
     addActivityButton.setText("add");
-    addActivityButton.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        addActivityButtonActionPerformed(e);
-      }
-    });
-    addActivityButton.setEnabled((activity == null));
+    addActivityButton.setActionCommand(Constant.ADD_ACTIVITY);
+    addActivityButton.addActionListener(actionListener);
+    addActivityButton.setEnabled(activity == null);
 
     removeActivityButton.setText("remove");
-    removeActivityButton.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        removeActivityButtonActionPerformed(e);
-      }
-    });
+    removeActivityButton.setActionCommand(Constant.REMOVE_ACTIVITY);
+    removeActivityButton.addActionListener(actionListener);
     removeActivityButton.setEnabled((activity != null));
 
     cancelButton.setText("cancel");
-    cancelButton.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        cancelButtonActionPerformed(e);
-      }
-    });
+    cancelButton.addActionListener(actionListener);
+    cancelButton.setActionCommand(Constant.CLOSE_DIALOG);
 
     commentLabel.setFont(commentLabel.getFont().deriveFont(Font.BOLD));
     commentLabel.setLabelFor(commentTextField);
     commentLabel.setText("comment:");
 
-    String ctf = "";
-    if(activity != null) {
-      ctf = activity.getComment();
-    }
-    commentTextField.setText(ctf);
-    //commentTextField.setText(activity == null ? "" : ctf);
+    commentTextField.setText(activity == null ? "" : activity.getComment());
 
     startLabel.setFont(startLabel.getFont().deriveFont(Font.BOLD));
     startLabel.setLabelFor(startDateSpinner);
@@ -149,6 +128,7 @@ public class AddActivity extends JPanelX {
     startDateSpinner.setModel(new SpinnerDateModel(activity == null ? new Date(ActivityCalendar.selectedDate.getMillis()) : new Date(activity.getStartDate().getMillis()), null, null, Calendar.DAY_OF_MONTH));
     startDateSpinner.setEditor(new JSpinner.DateEditor(startDateSpinner, "yyyy.MM.dd."));
     startDateSpinner.setUI(new JSpinnerX());
+    startDateSpinner.setBorder(new MatteBorder(1, 1, 1, 1, Constant.BG_DARKER_BLUE));
     startDateSpinner.addChangeListener(new ChangeListener() {
       @Override
       public void stateChanged(ChangeEvent e) {
@@ -159,6 +139,7 @@ public class AddActivity extends JPanelX {
     startTimeSpinner.setModel(new SpinnerDateModel(activity == null ? new Date(ActivityCalendar.selectedDate.getMillis()) : new Date(activity.getStartDate().getMillis()), null, null, Calendar.MINUTE));
     startTimeSpinner.setEditor(new JSpinner.DateEditor(startTimeSpinner, "HH:mm"));
     startTimeSpinner.setUI(new JSpinnerX());
+    startTimeSpinner.setBorder(new MatteBorder(1, 1, 1, 1, Constant.BG_DARKER_BLUE));
     startTimeSpinner.addChangeListener(new ChangeListener() {
       @Override
       public void stateChanged(ChangeEvent e) {
@@ -173,6 +154,7 @@ public class AddActivity extends JPanelX {
     endDateSpinner.setModel(new SpinnerDateModel(activity == null ? new Date(ActivityCalendar.selectedDate.getMillis()) : new Date(activity.getEndDate().getMillis()), null, null, Calendar.DAY_OF_MONTH));
     endDateSpinner.setEditor(new JSpinner.DateEditor(endDateSpinner, "yyyy.MM.dd."));
     endDateSpinner.setUI(new JSpinnerX());
+    endDateSpinner.setBorder(new MatteBorder(1, 1, 1, 1, Constant.BG_DARKER_BLUE));
     endDateSpinner.addChangeListener(new ChangeListener() {
       @Override
       public void stateChanged(ChangeEvent e) {
@@ -183,6 +165,7 @@ public class AddActivity extends JPanelX {
     endTimeSpinner.setModel(new SpinnerDateModel(activity == null ? new Date(ActivityCalendar.selectedDate.getMillis()) : new Date(activity.getEndDate().getMillis()), null, null, Calendar.MINUTE));
     endTimeSpinner.setEditor(new JSpinner.DateEditor(endTimeSpinner, "HH:mm"));
     endTimeSpinner.setUI(new JSpinnerX());
+    endTimeSpinner.setBorder(new MatteBorder(1, 1, 1, 1, Constant.BG_DARKER_BLUE));
     endTimeSpinner.addChangeListener(new ChangeListener() {
       @Override
       public void stateChanged(ChangeEvent e) {
@@ -190,18 +173,11 @@ public class AddActivity extends JPanelX {
       }
     });
 
-
     categoryLabel.setFont(categoryLabel.getFont().deriveFont(Font.BOLD));
     categoryLabel.setText("category:");
     categoryLabel.setLabelFor(categoryTree);
 
     categoryTree.setExpandsSelectedPaths(true);
-    categoryTree.addTreeSelectionListener(new TreeSelectionListener() {
-      @Override
-      public void valueChanged(TreeSelectionEvent e) {
-        categoryTreeSelectionChanged(e);
-      }
-    });
     try {
       categoryTree.setSelectionPath(rebuildCategoryPath(activity.getCategory()));
     }
@@ -214,17 +190,16 @@ public class AddActivity extends JPanelX {
     categoryScrollPane.getVerticalScrollBar().setUI(new JScrollBarX());
     categoryScrollPane.getHorizontalScrollBar().setUI(new JScrollBarX());
 
-    GroupLayout layout = new GroupLayout(this);
-    this.setLayout(layout);
+    GroupLayout layout = new GroupLayout(getContentPane());
+    getContentPane().setLayout(layout);
     layout.setHorizontalGroup(
       layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-      .addComponent(headerLabel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
       .addGroup(layout.createSequentialGroup()
         .addContainerGap()
         .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
           .addGroup(GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
             .addComponent(removeActivityButton)
-            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
             .addComponent(modifyActivityButton)
             .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
             .addComponent(addActivityButton)
@@ -242,16 +217,16 @@ public class AddActivity extends JPanelX {
             .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
               .addComponent(commentTextField)
               .addGroup(layout.createSequentialGroup()
-                .addComponent(startDateSpinner, GroupLayout.PREFERRED_SIZE, 82, GroupLayout.PREFERRED_SIZE)
+                .addComponent(startDateSpinner, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(startTimeSpinner, GroupLayout.PREFERRED_SIZE, 52, GroupLayout.PREFERRED_SIZE)
+                .addComponent(startTimeSpinner, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
               )
               .addGroup(layout.createSequentialGroup()
-                .addComponent(endDateSpinner, GroupLayout.PREFERRED_SIZE, 82, GroupLayout.PREFERRED_SIZE)
+                .addComponent(endDateSpinner, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(endTimeSpinner, GroupLayout.PREFERRED_SIZE, 52, GroupLayout.PREFERRED_SIZE)
+                .addComponent(endTimeSpinner, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
               )
-              .addComponent(categoryScrollPane, GroupLayout.PREFERRED_SIZE, 215, GroupLayout.PREFERRED_SIZE)
+              .addComponent(categoryScrollPane, GroupLayout.PREFERRED_SIZE, 250, GroupLayout.PREFERRED_SIZE)
             )
           )
         )
@@ -261,7 +236,7 @@ public class AddActivity extends JPanelX {
     layout.setVerticalGroup(
       layout.createParallelGroup(GroupLayout.Alignment.LEADING)
       .addGroup(layout.createSequentialGroup()
-        .addComponent(headerLabel)
+        .addContainerGap()
         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
         .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
           .addComponent(commentLabel)
@@ -270,7 +245,7 @@ public class AddActivity extends JPanelX {
         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
         .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
           .addComponent(categoryLabel)
-          .addComponent(categoryScrollPane, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+          .addComponent(categoryScrollPane, GroupLayout.PREFERRED_SIZE, 100, GroupLayout.PREFERRED_SIZE)
         )
         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
         .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
@@ -294,11 +269,60 @@ public class AddActivity extends JPanelX {
         .addGap(0, 14, Short.MAX_VALUE)
       )
     );
-  }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Button events ">
-  private void addActivityButtonActionPerformed(ActionEvent e) {
+    pack();
+    setLocationRelativeTo(locationComp);
+  }
+
+  /**
+   * Set up and show the dialog.
+   * 
+   * @param frameComp determines which frame the dialog depends on;
+   *                  it should be a component in the dialog's controlling frame
+   * @param locationComp null if you want the dialog to come up with its left
+   *                     corner in the center of the screen; otherwise, it should
+   *                     be the component on top of which the dialog should appear
+   * @param title the title of the dialog
+   * @param modal specifies whether dialog blocks user input to other top-level
+   *              windows when shown
+   * @param initialValue 
+   * @return a new ActivityAction class
+   */
+  public static ActivityAction showDialog(Component frameComp, Component locationComp, String title, boolean modal, Activity initialValue) {
+    Frame frame = JOptionPane.getFrameForComponent(frameComp);
+    dialog = new ActivityDialog(frame, locationComp, title, modal, initialValue);
+    dialog.setVisible(true);
+
+    return activityAction;
+  }
+
+  public static boolean getVisible() {
+    return dialog == null ? false : dialog.isVisible();
+  }
+
+  /**
+   * Build a TreePath from the root path to the Category 'c'
+   * 
+   * @param c Category "node"
+   * @return path to "c" Category node
+   */
+  private TreePath rebuildCategoryPath(Category c) {
+    ArrayList<Category> path = new ArrayList<>();
+    path.add(0, c);
+    while(categoryTreeElements.getCategoryByID(c.getID()).getParentCategory() != null) {
+      path.add(0, categoryTreeElements.getCategoryByID(c.getID()).getParentCategory());
+      c = categoryTreeElements.getCategoryByID(c.getID()).getParentCategory();
+    }
+
+    return new TreePath(path.toArray());
+  }
+
+  /**
+   * Create Activity class from user data.
+   * 
+   * @return true if the datas are suitable for add or modify Activity, otherwise false
+   */
+  private boolean createActivity(String command) {
     String comment = commentTextField.getText();
     Category category = categoryTree.getSelected();
     DateTime sdate = new DateTime(startDateSpinner.getValue());
@@ -310,63 +334,46 @@ public class AddActivity extends JPanelX {
     DateTime start = new DateTime(sdate.getYear(), sdate.getMonthOfYear(), sdate.getDayOfMonth(), stime.getHourOfDay(), stime.getMinuteOfHour());
     DateTime end = new DateTime(edate.getYear(), edate.getMonthOfYear(), edate.getDayOfMonth(), etime.getHourOfDay(), etime.getMinuteOfHour());
 
-    Activity a = new Activity(comment, category, start, end);
+    if(activity == null) {
+      activity = new Activity(comment, category, start, end);
+    }
+    else {
+      activity = new Activity(activity.getID(), comment, category, start, end);
+    }
 
-    ArrayList<Activity> activityList = XMLUtil.getActivityByDate(sdate.getYear(), sdate.getMonthOfYear(), sdate.getDayOfMonth());
-    if(activityList != null) {
-      for(Activity act : activityList) {
-        if(checkOverlaps(a.getStartDate(), a.getEndDate(), act.getStartDate(), act.getEndDate())) {
-          JOptionPane.showMessageDialog(this, "Overlapping activities are not allowed!", "Error", JOptionPane.ERROR_MESSAGE);
-          return;
+    if(command.equals(Constant.ADD_ACTIVITY) || command.equals(Constant.MODIFY_ACTIVITY)) {
+      ArrayList<Activity> activityList = XMLUtil.getActivityByDate(sdate.getYear(), sdate.getMonthOfYear(), sdate.getDayOfMonth());
+      if(activityList != null) {
+        for(Activity act : activityList) {
+          if(act.getID() == activity.getID()) {
+            continue;
+          }
+          if(checkOverlaps(activity.getStartDate(), activity.getEndDate(), act.getStartDate(), act.getEndDate())) {
+            JOptionPane.showMessageDialog(this, "Overlapping activities are not allowed!", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+          }
         }
+        return true;
       }
     }
-
-    XMLUtil.addActivity(a);
-    firePropertyChange(Constant.CLOSE_PANE, null, this);
+    return false;
   }
 
-  private void modifyActivityButtonActionPerformed(ActionEvent e) {
-    String comment = commentTextField.getText();
-    Category category = categoryTree.getSelected();
-    DateTime sdate = new DateTime(startDateSpinner.getValue());
-    DateTime edate = new DateTime(endDateSpinner.getValue());
+  /**
+   * Checks time interval conflicts.
+   * 
+   * @param start1 date 1 start
+   * @param end1   date 1 end
+   * @param start2 date 2 start
+   * @param end2   date 2 end
+   * @return true if overlapping, otherwise false
+   */
+  private boolean checkOverlaps(DateTime start1, DateTime end1, DateTime start2, DateTime end2) {
+    Interval firstI = new Interval(start1, end1);
+    Interval lastI = new Interval(start2, end2);
 
-    DateTime stime = new DateTime(startTimeSpinner.getValue());
-    DateTime etime = new DateTime(endTimeSpinner.getValue());
-
-    DateTime start = new DateTime(sdate.getYear(), sdate.getMonthOfYear(), sdate.getDayOfMonth(), stime.getHourOfDay(), stime.getMinuteOfHour());
-    DateTime end = new DateTime(edate.getYear(), edate.getMonthOfYear(), edate.getDayOfMonth(), etime.getHourOfDay(), etime.getMinuteOfHour());
-
-    Activity a = new Activity(activity.getID(), comment, category, start, end);
-
-    ArrayList<Activity> activityList = XMLUtil.getActivityByDate(sdate.getYear(), sdate.getMonthOfYear(), sdate.getDayOfMonth());
-    for(Activity act : activityList) {
-      if(act.getID() == a.getID()) {
-        continue;
-      }
-      if(checkOverlaps(a.getStartDate(), a.getEndDate(), act.getStartDate(), act.getEndDate())) {
-        JOptionPane.showMessageDialog(this, "Overlapping activities are not allowed!", "Error", JOptionPane.ERROR_MESSAGE);
-        return;
-      }
-    }
-
-    XMLUtil.updateActivity(a);
-    firePropertyChange(Constant.CLOSE_PANE, null, this);
+    return firstI.overlaps(lastI);
   }
-
-  private void removeActivityButtonActionPerformed(ActionEvent e) {
-    int reply = JOptionPane.showConfirmDialog(this, "Are you sure you want to remove '" + activity.getComment() + "'?", "Question", JOptionPane.YES_NO_OPTION);
-    if(reply == JOptionPane.YES_OPTION) {
-      XMLUtil.removeActivity(activity);
-      firePropertyChange(Constant.CLOSE_PANE, null, this);
-    }
-  }
-
-  private void cancelButtonActionPerformed(ActionEvent e) {
-    firePropertyChange(Constant.CLOSE_PANE, null, null);
-  }
-  //</editor-fold>
 
   //<editor-fold defaultstate="collapsed" desc=" Change events ">
   private void startDateSpinnerStateChanged(ChangeEvent e) {
@@ -433,45 +440,37 @@ public class AddActivity extends JPanelX {
     }
   }
 
-  private void categoryTreeSelectionChanged(TreeSelectionEvent e) {
-    //TreePath path = categoryTree.getSelectionPath();
-    //System.out.println(path);
-  }
-  //</editor-fold>
-
-  //<editor-fold defaultstate="collapsed" desc=" Checks time conflicts ">
-  /**
-   * Checks time conflicts.
-   * 
-   * @param first date has to be before "last"
-   * @param last date hast to be after "first"
-   * @return true if first precedes last, otherwise dalse
-   */
-  private boolean checkOverlaps(DateTime firstStart, DateTime firstEnd, DateTime lastStart, DateTime lastEnd) {
-    Interval firstI = new Interval(firstStart, firstEnd);
-    Interval lastI = new Interval(lastStart, lastEnd);
-
-    return firstI.overlaps(lastI);
-  }
-  //</editor-fold>
-
-  //<editor-fold defaultstate="collapsed" desc=" Rebuild Category path">
-  /**
-   * Build a TreePath from the root path to the Category "c"
-   * 
-   * @param c Category "node"
-   * @return path to "c" Category node
-   */
-  private TreePath rebuildCategoryPath(Category c) {
-    ArrayList<Category> path = new ArrayList<>();
-    path.add(0, c);
-    while(categoryTreeElements.getCategoryByID(c.getID()).getParentCategory() != null) {
-      path.add(0, categoryTreeElements.getCategoryByID(c.getID()).getParentCategory());
-      c = categoryTreeElements.getCategoryByID(c.getID()).getParentCategory();
+  // Handle button clicks.
+  ActionListener actionListener = new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      if(null != e.getActionCommand()) {
+        switch (e.getActionCommand()) {
+          case Constant.ADD_ACTIVITY:
+            if(createActivity(Constant.ADD_ACTIVITY)) {
+              activityAction = new ActivityAction(Constant.ADD_ACTIVITY, activity);
+              dialog.setVisible(false);
+            }
+            break;
+          case Constant.MODIFY_ACTIVITY:
+            if(createActivity(Constant.MODIFY_ACTIVITY)) {
+              activityAction = new ActivityAction(Constant.MODIFY_ACTIVITY, activity);
+              dialog.setVisible(false);
+            }
+            break;
+          case Constant.REMOVE_ACTIVITY:
+            int result = JOptionPane.showConfirmDialog((Component)e.getSource(), "Are you sure to remove this Activity?", "Question", JOptionPane.YES_NO_CANCEL_OPTION);
+            if(result == JOptionPane.YES_OPTION) {
+              createActivity(Constant.REMOVE_ACTIVITY);
+              activityAction = new ActivityAction(Constant.REMOVE_ACTIVITY, activity);
+              dialog.setVisible(false);
+            }
+            break;
+          case Constant.CLOSE_DIALOG:
+            dialog.setVisible(false);
+            break;
+        }
+      }
     }
-
-    return new TreePath(path.toArray());
-    //return path.toArray(new Category[path.size()]);
-  }
-  //</editor-fold>
+  };
 }

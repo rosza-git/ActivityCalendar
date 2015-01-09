@@ -1,19 +1,18 @@
 /**
- * Summary Panel.
+ * Summary dialog.
  * 
  * @author Szalay Roland
  * 
  */
 package rosza.activitycalendar;
 
-//<editor-fold defaultstate="collapsed" desc=" Import ">
-import rosza.xcomponents.JLabelX;
-import rosza.xcomponents.JPanelX;
 import rosza.xcomponents.JButtonX;
 import rosza.xcomponents.JScrollBarX;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -47,16 +46,14 @@ import javax.swing.event.DocumentListener;
 import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
 import org.jasypt.util.text.StrongTextEncryptor;
-//</editor-fold>
+import rosza.xcomponents.JDialogX;
 
-@Deprecated
-public class SummaryPanel extends JPanelX {
-  //<editor-fold defaultstate="collapsed" desc=" Variables declaration ">
+public class SummaryDialog extends JDialogX {
+  private static SummaryDialog dialog;
   // UI variables declaration
   private JButtonX    closeButton;
   private JLabel      dateLabel;
   private JScrollPane editorScrollPane;
-  private JLabelX     headerLabel;
   private JButtonX    sendButton;
   private JLabel      sendToLabel;
   private JTextField  sendToTextField;
@@ -73,19 +70,17 @@ public class SummaryPanel extends JPanelX {
   private Summary summary;
   
   // Properties variables declaration
-  private final Properties props;
+  private final Properties props = XMLUtil.getProperties();
   // End of properties variables declaration
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Create summary panel ">
-  public SummaryPanel(int y, int m, int d) {
+  public SummaryDialog(Frame owner, Component locationComp, String title, boolean modal, int y, int m, int d) {
+    super(owner, title, modal);
+
     selectedYear = y;
     selectedMonth = m;
     selectedDayOfMonth = d;
 
-    props = XMLUtil.getProperties();
-
-    initComponents();
+    createUI(locationComp);
     ArrayList<Activity> activityList = XMLUtil.getActivityByDate(y, m, d);
     Category category = XMLUtil.getCategories();
     summary = buildSummary(category, activityList)[0];
@@ -94,12 +89,35 @@ public class SummaryPanel extends JPanelX {
     }
     generateHTMLSummary();
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Initialize UI components ">
+  /**
+   * Set up and show the dialog.
+   * 
+   * @param frameComp determines which frame the dialog depends on;
+   *                  it should be a component in the dialog's controlling frame
+   * @param locationComp null if you want the dialog to come up with its left
+   *                     corner in the center of the screen; otherwise, it should
+   *                     be the component on top of which the dialog should appear
+   * @param title the title of the dialog
+   * @param modal specifies whether dialog blocks user input to other top-level
+   *              windows when shown
+   * @param y selected year
+   * @param m selected month
+   * @param d selected day of month
+   */
+  public static void showDialog(Component frameComp, Component locationComp, String title, boolean modal, int y, int m, int d) {
+    Frame frame = JOptionPane.getFrameForComponent(frameComp);
+    dialog = new SummaryDialog(frame, locationComp, title, modal, y, m, d);
+    dialog.setVisible(true);
+  }
+
+  public static boolean getVisible() {
+    return dialog == null ? false : dialog.isVisible();
+  }
+
+  //<editor-fold defaultstate="collapsed" desc=" Create UI components ">
   @SuppressWarnings("unchecked")
-  private void initComponents() {
-    headerLabel       = new JLabelX(5, 0, 5, 0);
+  private void createUI(Component locationComp) {
     summaryLabel      = new JLabel();
     editorScrollPane  = new JScrollPane();
     summaryEditorPane = new JEditorPane();
@@ -110,10 +128,6 @@ public class SummaryPanel extends JPanelX {
     sendButton        = new JButtonX("send");
     dateLabel         = new JLabel();
     closeButton       = new JButtonX("close");
-
-    headerLabel.setText("summary - " + String.format("%d.%02d.%02d.", selectedYear, selectedMonth, selectedDayOfMonth));
-    headerLabel.setHorizontalAlignment(JLabel.CENTER);
-    headerLabel.setFont(headerLabel.getFont().deriveFont(Font.BOLD).deriveFont(18f));
 
     summaryLabel.setFont(summaryLabel.getFont().deriveFont(Font.BOLD));
     summaryLabel.setText("summary: ");
@@ -174,18 +188,13 @@ public class SummaryPanel extends JPanelX {
 
     closeButton.setText("close");
     closeButton.setFont(closeButton.getFont().deriveFont(Font.BOLD));
-    closeButton.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        closeButtonActionPerformed(e);
-      }
-    });
+    closeButton.addActionListener(actionListener);
+    closeButton.setActionCommand(Constant.CLOSE_DIALOG);
 
-    GroupLayout layout = new GroupLayout(this);
-    this.setLayout(layout);
+    GroupLayout layout = new GroupLayout(getContentPane());
+    getContentPane().setLayout(layout);
     layout.setHorizontalGroup(
       layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-      .addComponent(headerLabel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
       .addGroup(layout.createSequentialGroup()
         .addContainerGap()
         .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
@@ -213,8 +222,8 @@ public class SummaryPanel extends JPanelX {
     layout.setVerticalGroup(
       layout.createParallelGroup(GroupLayout.Alignment.LEADING)
       .addGroup(layout.createSequentialGroup()
-        .addComponent(headerLabel)
-        .addGap(18, 18, 18)
+        //.addGap(18, 18, 18)
+        .addContainerGap()
         .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
           .addComponent(summaryLabel)
           .addComponent(dateLabel)
@@ -239,6 +248,9 @@ public class SummaryPanel extends JPanelX {
         .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
       )
     );
+
+    pack();
+    setLocationRelativeTo(locationComp);
   }
   //</editor-fold>
 
@@ -457,15 +469,25 @@ public class SummaryPanel extends JPanelX {
   }
   //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Button events ">
+  // Handle button clicks.
+  ActionListener actionListener = new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      if(null != e.getActionCommand()) {
+        switch (e.getActionCommand()) {
+          case Constant.CLOSE_DIALOG:
+            dialog.setVisible(false);
+            break;
+        }
+      }
+    }
+  };
+
+  //<e ditor-fold defaultstate="collapsed" desc=" Button events ">
   private void sendButtonActionPerformed(ActionEvent e) {
     sendMail(sendToTextField.getText(), subjectTextField.getText(), summaryEditorPane.getText());
   }
-
-  private void closeButtonActionPerformed(ActionEvent e) {
-    firePropertyChange(Constant.CLOSE_PANE, null, this);
-  }
-  //</editor-fold>
+  //</e ditor-fold>
 
   //<editor-fold defaultstate="collapsed" desc=" Summary class ">
   public class Summary {

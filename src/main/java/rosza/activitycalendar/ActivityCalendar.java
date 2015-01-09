@@ -217,7 +217,7 @@ public class ActivityCalendar extends JFrame {
   }
   //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Show/hide month calendar ">
+  //<e ditor-fold defaultstate="collapsed" desc=" Show/hide month calendar ">
   private void showHideMonthCalendar() {
     if(settingsPanel != null || summaryPanel != null || addActivity != null) {
       return;
@@ -237,76 +237,45 @@ public class ActivityCalendar extends JFrame {
       monthCalendar = null;
     }
   }
-  //</editor-fold>
+  //</e ditor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Show/hide settings ">
-  private void showHideSettings() {
-    if(monthCalendar != null || summaryPanel != null || addActivity != null) {
-      return;
-    }
-    if(settingsPanel == null) {
-      settingsPanel = new SettingsPanel();
-      settingsPanel.addPropertyChangeListener(propertyChangeListener);
-      settingsPanel.addMouseListener(mouseListener);
-      glass.add(settingsPanel);
-      glass.setVisible(true);  
-    }
-    else {
-      glass.setVisible(false);
-      glass.remove(settingsPanel);
-      settingsPanel.removePropertyChangeListener(propertyChangeListener);
-      settingsPanel.removeMouseListener(mouseListener);
-      settingsPanel = null;
+  //<editor-fold defaultstate="collapsed" desc=" Show summary dialog ">
+  private void showSummaryDialog() {
+    if(!SummaryDialog.getVisible()) {
+      SummaryDialog.showDialog(this, baseLayer, "settings", true, selectedDate.getYear(), selectedDate.getMonthOfYear(), selectedDate.getDayOfMonth());
     }
   }
   //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Show/hide summary ">
-  private void showHideSummary() {
-    if(settingsPanel != null || monthCalendar != null || addActivity != null) {
-      return;
-    }
-    if(summaryPanel == null) {
-      summaryPanel = new SummaryPanel(selectedDate.getYear(), selectedDate.getMonthOfYear(), selectedDate.getDayOfMonth());
-      summaryPanel.addPropertyChangeListener(propertyChangeListener);
-      summaryPanel.addMouseListener(mouseListener);
-      glass.add(summaryPanel);
-      glass.setVisible(true);  
-    }
-    else {
-      glass.setVisible(false);
-      glass.remove(summaryPanel);
-      summaryPanel.removePropertyChangeListener(propertyChangeListener);
-      summaryPanel.removeMouseListener(mouseListener);
-      summaryPanel = null;
+  //<editor-fold defaultstate="collapsed" desc=" Show settings dialog ">
+  private void showSettingsDialog() {
+    if(!SettingsDialog.getVisible()) {
+      SettingsDialog.showDialog(this, baseLayer, "settings", true);
     }
   }
   //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Show/hide add activity ">
-  private void showHideAddActivity(Activity a) {
-    if(settingsPanel != null || summaryPanel != null || monthCalendar != null) {
+  //<editor-fold defaultstate="collapsed" desc=" Show activity dialog ">
+  private void showActivityDialog(Activity a) {
+    if(ActivityDialog.getVisible()) {
       return;
     }
-    if(addActivity == null) {
-      if(a == null) {
-        addActivity = new AddActivity();
-      }
-      else {
-        addActivity = new AddActivity(a);
-      }
-      addActivity.addPropertyChangeListener(propertyChangeListener);
-      addActivity.addMouseListener(mouseListener);
-      glass.add(addActivity);
-      glass.setVisible(true);  
+    ActivityAction aa = ActivityDialog.showDialog(this, baseLayer, "activity", true, a);
+    if(aa.getActivity() == null) {
+      return;
     }
-    else {
-      glass.setVisible(false);
-      glass.remove(addActivity);
-      addActivity.removePropertyChangeListener(propertyChangeListener);
-      addActivity.removeMouseListener(mouseListener);
-      addActivity = null;
+    switch(aa.getActionCommand()) {
+      case Constant.ADD_ACTIVITY:
+        XMLUtil.addActivity(aa.getActivity());
+        break;
+      case Constant.MODIFY_ACTIVITY:
+        XMLUtil.updateActivity(aa.getActivity());
+        break;
+      case Constant.REMOVE_ACTIVITY:
+        XMLUtil.removeActivity(aa.getActivity());
+        break;
     }
+    updateActivityUI();
   }
   //</editor-fold>
 
@@ -402,18 +371,6 @@ public class ActivityCalendar extends JFrame {
 
   private void selectedDateMouseClicked(MouseEvent e) {
     showHideMonthCalendar();
-  }
-
-  private void addButtonMouseClicked(MouseEvent e) {
-    showHideAddActivity(null);
-  }
-
-  private void settingsButtonMouseClicked(MouseEvent e) {
-    showHideSettings();
-  }
-
-  private void summaryButtonMouseClicked(MouseEvent e) {
-    showHideSummary();
   }
   //</editor-fold>
 
@@ -514,25 +471,7 @@ public class ActivityCalendar extends JFrame {
   PropertyChangeListener propertyChangeListener = new PropertyChangeListener() {
     @Override
     public void propertyChange(PropertyChangeEvent e) {
-      if(e.getSource() instanceof AddActivity) {
-        if(e.getPropertyName().equals(Constant.CLOSE_PANE)) {
-          if(e.getNewValue() != null) {
-            updateActivityUI();
-          }
-          showHideAddActivity(null);
-        }
-      }
-      else if(e.getSource() instanceof SettingsPanel) {
-        if(e.getPropertyName().equals(Constant.CLOSE_PANE)) {
-          showHideSettings();
-        }
-      }
-      else if(e.getSource() instanceof SummaryPanel) {
-        if(e.getPropertyName().equals(Constant.CLOSE_PANE)) {
-          showHideSummary();
-        }
-      }
-      else if(e.getSource() instanceof MonthCalendar) {
+      if(e.getSource() instanceof MonthCalendar) {
         if(e.getPropertyName().equals(Constant.CLOSE_PANE)) {
           showHideMonthCalendar();
         }
@@ -552,7 +491,9 @@ public class ActivityCalendar extends JFrame {
       else if(e.getSource() instanceof ActivityPane) {
         switch (e.getPropertyName()) {
           case Constant.MODIFY_ACTIVITY:
-            showHideAddActivity((Activity)e.getNewValue());
+            if(e.getNewValue() instanceof Activity) {
+              showActivityDialog((Activity)e.getNewValue());
+            }
             break;
           case Constant.SELECTION_CHANGE:
             String s = (String)e.getNewValue();
@@ -700,7 +641,7 @@ public class ActivityCalendar extends JFrame {
       Dimension iconSize = new Dimension(40, 40);
 
       setOpaque(false);
-      this.setBorder(new EmptyBorder(5, 5, 5, 5));
+      setBorder(new EmptyBorder(5, 5, 5, 5));
 
       timeLabel.setFont(timeLabel.getFont());
       timeLabel.setFont(timeLabel.getFont().deriveFont(Font.BOLD).deriveFont(34f));
@@ -752,7 +693,7 @@ public class ActivityCalendar extends JFrame {
       settingsButton.addMouseListener(new MouseAdapter() {
         @Override
         public void mouseClicked(MouseEvent e) {
-          settingsButtonMouseClicked(e);
+          showSettingsDialog();
         }
       });
 
@@ -764,7 +705,7 @@ public class ActivityCalendar extends JFrame {
       addButton.addMouseListener(new MouseAdapter() {
         @Override
         public void mouseClicked(MouseEvent e) {
-          addButtonMouseClicked(e);
+          showActivityDialog(null);
         }
       });
 
@@ -776,7 +717,7 @@ public class ActivityCalendar extends JFrame {
       summaryButton.addMouseListener(new MouseAdapter() {
         @Override
         public void mouseClicked(MouseEvent e) {
-          summaryButtonMouseClicked(e);
+          showSummaryDialog();
         }
       });
 

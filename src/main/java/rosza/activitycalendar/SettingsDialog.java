@@ -1,36 +1,32 @@
 /**
- * Settings Panel.
+ * Settings dialog.
  * 
  * @author Szalay Roland
  * 
  */
 package rosza.activitycalendar;
 
-//<editor-fold defaultstate="collapsed" desc=" Import ">
-import rosza.xcomponents.JLabelX;
-import rosza.xcomponents.JPanelX;
-import rosza.xcomponents.JButtonX;
-import rosza.xcomponents.JScrollBarX;
-import rosza.xcomponents.JTabbedPaneX;
+// Import 
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Properties;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JColorChooser;
-import javax.swing.JRadioButton;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextField;
-import javax.swing.JPasswordField;
-import javax.swing.JScrollPane;
 import javax.swing.ButtonGroup;
 import javax.swing.GroupLayout;
 import javax.swing.JCheckBox;
+import javax.swing.JColorChooser;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextField;
 import javax.swing.LayoutStyle;
 import javax.swing.colorchooser.AbstractColorChooserPanel;
 import javax.swing.event.ChangeEvent;
@@ -41,13 +37,14 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
 import org.jasypt.util.text.StrongTextEncryptor;
-//</editor-fold>
+import rosza.xcomponents.JButtonX;
+import rosza.xcomponents.JDialogX;
+import rosza.xcomponents.JScrollBarX;
+import rosza.xcomponents.JTabbedPaneX;
 
-@Deprecated
-public class SettingsPanel extends JPanelX {
-  //<editor-fold defaultstate="collapsed" desc=" Variables declaration ">
+public class SettingsDialog extends JDialogX {
+  private static SettingsDialog dialog;
   // UI variables declaration
-  private JLabelX        headerLabel;
   private JTabbedPane    settingsTabbedPane;
   private JPanel         storagePanel;
   private JPanel         categoriesPanel;
@@ -97,24 +94,21 @@ public class SettingsPanel extends JPanelX {
   // Properties variables declaration
   private Properties props;
   private final StrongTextEncryptor textEncryptor;      // http://technofes.blogspot.in/2011/10/orgjasyptexceptionsencryptionoperationn.html
-  // End of properties variables declaration
-  //</editor-fold>
 
-  public SettingsPanel() {
+  private SettingsDialog(Frame frame, Component locationComp, String title, boolean modal) {
+    super(frame, title, modal);
+
     textEncryptor = new StrongTextEncryptor();
     textEncryptor.setPassword(Constant.SALT);
     props = XMLUtil.getProperties();
 
-    initComponents();
+    createUI(locationComp);
     setFieldValues();
   }
 
-  //<editor-fold defaultstate="collapsed" desc=" Initialize UI components ">
-  @SuppressWarnings("unchecked")
-  private void initComponents() {
+  private void createUI(Component locationComp) {
     emailRadioGroup       = new ButtonGroup();
     storageRadioGroup     = new ButtonGroup();
-    headerLabel           = new JLabelX(5, 0, 5, 0);
     settingsTabbedPane    = new JTabbedPane();
     storagePanel          = new JPanel();
     emailPanel            = new JPanel();
@@ -157,10 +151,6 @@ public class SettingsPanel extends JPanelX {
     emailSMTPSRadioButton = new JRadioButton();
     emailSaveButton       = new JButtonX("save");
     closeButton           = new JButtonX("close");
-
-    headerLabel.setText("settings");
-    headerLabel.setHorizontalAlignment(JLabel.CENTER);
-    headerLabel.setFont(headerLabel.getFont().deriveFont(Font.BOLD).deriveFont(18f));
 
     categoryColor.setPreviewPanel(new JPanel());
     // remove chooser panel, except "RGB"
@@ -631,12 +621,8 @@ public class SettingsPanel extends JPanelX {
 
     closeButton.setText("close");
     closeButton.setFont(closeButton.getFont().deriveFont(Font.BOLD));
-    closeButton.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        closeButtonActionPerformed(e);
-      }
-    });
+    closeButton.addActionListener(actionListener);
+    closeButton.setActionCommand(Constant.CLOSE_DIALOG);
 
     settingsTabbedPane.setUI(new JTabbedPaneX());
     settingsTabbedPane.setTabPlacement(JTabbedPane.TOP);
@@ -646,11 +632,10 @@ public class SettingsPanel extends JPanelX {
     settingsTabbedPane.addTab("categories", categoriesPanel);
     settingsTabbedPane.addTab("e-mail", emailPanel);
 
-    GroupLayout layout = new GroupLayout(this);
-    this.setLayout(layout);
+    GroupLayout layout = new GroupLayout(getContentPane());
+    getContentPane().setLayout(layout);
     layout.setHorizontalGroup(
       layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-      .addComponent(headerLabel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
       .addGroup(layout.createSequentialGroup()
         .addContainerGap()
         .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
@@ -663,16 +648,38 @@ public class SettingsPanel extends JPanelX {
     layout.setVerticalGroup(
       layout.createParallelGroup(GroupLayout.Alignment.LEADING)
       .addGroup(layout.createSequentialGroup()
-        .addComponent(headerLabel)
-        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+        //.addComponent(headerLabel)
+        .addContainerGap()
         .addComponent(settingsTabbedPane, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         .addComponent(closeButton)
         .addContainerGap()
       )
     );
+
+    pack();
+    setLocationRelativeTo(locationComp);
   }
-  //</editor-fold>
+
+  /**
+   * Set up and show the dialog.
+   * 
+   * @param frameComp determines which frame the dialog depends on;
+   *                  it should be a component in the dialog's controlling frame
+   * @param locationComp null if you want the dialog to come up with its left
+   *                     corner in the center of the screen; otherwise, it should
+   *                     be the component on top of which the dialog should appear
+   * @param title
+   */
+  public static void showDialog(Component frameComp, Component locationComp, String title, boolean modal) {
+    Frame frame = JOptionPane.getFrameForComponent(frameComp);
+    dialog = new SettingsDialog(frame, locationComp, title, modal);
+    dialog.setVisible(true);
+  }
+
+  public static boolean getVisible() {
+    return dialog == null ? false : dialog.isVisible();
+  }
 
   //<editor-fold defaultstate="collapsed" desc=" Set field values from properties ">
   private void setFieldValues() {
@@ -779,7 +786,21 @@ public class SettingsPanel extends JPanelX {
   }
   //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Button events ">
+  // Handle button clicks.
+  ActionListener actionListener = new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      if(null != e.getActionCommand()) {
+        switch (e.getActionCommand()) {
+          case Constant.CLOSE_DIALOG:
+            dialog.setVisible(false);
+            break;
+        }
+      }
+    }
+  };
+
+  //<e ditor-fold defaultstate="collapsed" desc=" Button events ">
   private void categoryAddButtonActionPerformed(ActionEvent e) {
     int id = Category.getLastID((Category)categoryTree.getModel().getRoot(), 0);
     Category c = new Category(++id, newCategoryTextField.getText(), categoryColor.getColor(), false);
@@ -874,11 +895,7 @@ public class SettingsPanel extends JPanelX {
 
     XMLUtil.setProperties(props);
   }
-
-  private void closeButtonActionPerformed(ActionEvent e) {
-    firePropertyChange(Constant.CLOSE_PANE, null, this);
-  }
-  //</editor-fold>
+  //</e ditor-fold>
 
   //<editor-fold defaultstate="collapsed" desc=" Radio button events ">
   private void storageRadioActionPerformed(ActionEvent e) {

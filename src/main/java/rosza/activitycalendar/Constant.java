@@ -9,11 +9,6 @@ package rosza.activitycalendar;
 //<editor-fold defaultstate="collapsed" desc=" Import ">
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.FontFormatException;
-import java.io.File;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.UIManager;
 //</editor-fold>
 
@@ -44,7 +39,10 @@ public class Constant {
   public static final String ACTIVITY_EXIT        = "EXIT";
   public static final String ACTIVITY_SHOW_HIDE   = "SHOW_HIDE";
   public static final String CLOSE_PANE           = "close";
+  public static final String ADD_ACTIVITY         = "addActivity";
   public static final String MODIFY_ACTIVITY      = "modifyActivity";
+  public static final String REMOVE_ACTIVITY      = "removeActivity";
+  public static final String CLOSE_DIALOG         = "closeDialog";
   public static final int    LONG_DISPLAY         = 0;
   public static final int    SHORT_DISPLAY        = 1;
 
@@ -74,8 +72,8 @@ public class Constant {
   public static final Color SELECTED_CELLBG_COLOR     = new Color(230, 230, 255);
   public static final Color CELL_TEXT_COLOR           = TEXT_COLOR;
   public static final Color TIMELINE_COLOR            = Color.red;
-  public static final int WHITE                       = 0;
-  public static final int BLUE                        = 1;
+  public static final int   WHITE                     = 0;
+  public static final int   BLUE                      = 1;
 
   // event constants
   public static final String SELECTION_CHANGE = "SELECTION_CHANGE";
