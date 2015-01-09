@@ -338,8 +338,8 @@ public class ActivityDialog extends JDialogX {
             return false;
           }
         }
-        return true;
       }
+      return true;
     }
     return false;
   }
