@@ -37,7 +37,6 @@ import rosza.xcomponents.JSpinnerX;
 
 public class ActivityDialog extends JDialogX {
   // ActivityDialog variables
-  private static ActivityDialog dialog;
   private static Activity       activity;
   private static ActivityAction activityAction;
   // UI variables
@@ -58,7 +57,7 @@ public class ActivityDialog extends JDialogX {
   private final Category categoryTreeElements = XMLUtil.getCategories();
   private JScrollPane    categoryScrollPane;
 
-  private ActivityDialog(Frame frame, Component locationComp, String title, boolean modal, Activity initialValue) {
+  public ActivityDialog(Frame frame, Component locationComp, String title, boolean modal, Activity initialValue) {
     super(frame, title, modal);
 
     // Set initial value.
@@ -95,6 +94,7 @@ public class ActivityDialog extends JDialogX {
     categoryScrollPane   = new JScrollPane();
 
     setUndecorated(true);
+    setTitle(activity == null ? "add " + getTitle() : "modify " + getTitle());
 
     modifyActivityButton.setText("modify");
     modifyActivityButton.setActionCommand(Constant.MODIFY_ACTIVITY);
@@ -275,29 +275,14 @@ public class ActivityDialog extends JDialogX {
   }
 
   /**
-   * Set up and show the dialog.
+   * Show the dialog.
    * 
-   * @param frameComp determines which frame the dialog depends on;
-   *                  it should be a component in the dialog's controlling frame
-   * @param locationComp null if you want the dialog to come up with its left
-   *                     corner in the center of the screen; otherwise, it should
-   *                     be the component on top of which the dialog should appear
-   * @param title the title of the dialog
-   * @param modal specifies whether dialog blocks user input to other top-level
-   *              windows when shown
-   * @param initialValue 
    * @return a new ActivityAction class
    */
-  public static ActivityAction showDialog(Component frameComp, Component locationComp, String title, boolean modal, Activity initialValue) {
-    Frame frame = JOptionPane.getFrameForComponent(frameComp);
-    dialog = new ActivityDialog(frame, locationComp, title, modal, initialValue);
-    dialog.setVisible(true);
+  public ActivityAction showDialog() {
+    setVisible(true);
 
     return activityAction;
-  }
-
-  public static boolean getVisible() {
-    return dialog == null ? false : dialog.isVisible();
   }
 
   /**
@@ -449,13 +434,15 @@ public class ActivityDialog extends JDialogX {
           case Constant.ADD_ACTIVITY:
             if(createActivity(Constant.ADD_ACTIVITY)) {
               activityAction = new ActivityAction(Constant.ADD_ACTIVITY, activity);
-              dialog.setVisible(false);
+              setVisible(false);
+              dispose();
             }
             break;
           case Constant.MODIFY_ACTIVITY:
             if(createActivity(Constant.MODIFY_ACTIVITY)) {
               activityAction = new ActivityAction(Constant.MODIFY_ACTIVITY, activity);
-              dialog.setVisible(false);
+              setVisible(false);
+              dispose();
             }
             break;
           case Constant.REMOVE_ACTIVITY:
@@ -463,11 +450,14 @@ public class ActivityDialog extends JDialogX {
             if(result == JOptionPane.YES_OPTION) {
               createActivity(Constant.REMOVE_ACTIVITY);
               activityAction = new ActivityAction(Constant.REMOVE_ACTIVITY, activity);
-              dialog.setVisible(false);
+              setVisible(false);
+              dispose();
             }
             break;
           case Constant.CLOSE_DIALOG:
-            dialog.setVisible(false);
+            activityAction = null;
+            setVisible(false);
+            dispose();
             break;
         }
       }

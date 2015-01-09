@@ -65,11 +65,11 @@ public class ActivityCalendar extends JFrame {
   // // customized components
   private ActivityHeader activityHeader;
   private ActivityMenu   activityMenu;
-  private AddActivity    addActivity;
-  private SummaryPanel   summaryPanel;
-  private SettingsPanel  settingsPanel;
+  private MonthDialog    monthDialog;
+  private ActivityDialog activityDialog;
+  private SettingsDialog settingsDialog;
+  private SummaryDialog  summaryDialog;
   private ActivityPane   activityPane;
-  private MonthCalendar  monthCalendar;
   // // end of customized components
   // End of UI variables declaration
 
@@ -217,65 +217,75 @@ public class ActivityCalendar extends JFrame {
   }
   //</editor-fold>
 
-  //<e ditor-fold defaultstate="collapsed" desc=" Show/hide month calendar ">
-  private void showHideMonthCalendar() {
-    if(settingsPanel != null || summaryPanel != null || addActivity != null) {
-      return;
-    }
-    if(monthCalendar == null) {
-      monthCalendar = new MonthCalendar(selectedDate.getYear(), selectedDate.getMonthOfYear(), selectedDate.getDayOfMonth());
-      monthCalendar.addPropertyChangeListener(propertyChangeListener);
-      monthCalendar.addMouseListener(mouseListener);
-      glass.add(monthCalendar);
-      glass.setVisible(true);  
+  //<e ditor-fold defaultstate="collapsed" desc=" Show month dialog ">
+  private void showMonthDialog() {
+    if(monthDialog == null || !monthDialog.isVisible()) {
+      monthDialog = new MonthDialog(this, baseLayer, "date selector", true, selectedDate.getYear(), selectedDate.getMonthOfYear(), selectedDate.getDayOfMonth());
+      DateTime result = monthDialog.showDialog();
+      if(result != null) {
+        selectedDate = result;
+        updateActivityUI();
+      }
     }
     else {
-      glass.setVisible(false);
-      glass.remove(monthCalendar);
-      monthCalendar.removePropertyChangeListener(propertyChangeListener);
-      monthCalendar.removeMouseListener(mouseListener);
-      monthCalendar = null;
+      monthDialog.setVisible(false);
+      monthDialog.dispose();
     }
   }
   //</e ditor-fold>
 
   //<editor-fold defaultstate="collapsed" desc=" Show summary dialog ">
   private void showSummaryDialog() {
-    if(!SummaryDialog.getVisible()) {
-      SummaryDialog.showDialog(this, baseLayer, "settings", true, selectedDate.getYear(), selectedDate.getMonthOfYear(), selectedDate.getDayOfMonth());
+    if(summaryDialog == null || !summaryDialog.isVisible()) {
+      summaryDialog = new SummaryDialog(this, baseLayer, "summary", true, selectedDate.getYear(), selectedDate.getMonthOfYear(), selectedDate.getDayOfMonth());
+      summaryDialog.showDialog();
+    }
+    else {
+      summaryDialog.setVisible(false);
+      summaryDialog.dispose();
     }
   }
   //</editor-fold>
 
   //<editor-fold defaultstate="collapsed" desc=" Show settings dialog ">
   private void showSettingsDialog() {
-    if(!SettingsDialog.getVisible()) {
-      SettingsDialog.showDialog(this, baseLayer, "settings", true);
+    if(settingsDialog == null || !settingsDialog.isVisible()) {
+      settingsDialog = new SettingsDialog(this, baseLayer, "settings", true);
+      settingsDialog.showDialog();
+    }
+    else {
+      settingsDialog.setVisible(false);
+      settingsDialog.dispose();
     }
   }
   //</editor-fold>
 
   //<editor-fold defaultstate="collapsed" desc=" Show activity dialog ">
   private void showActivityDialog(Activity a) {
-    if(ActivityDialog.getVisible()) {
-      return;
+    if(activityDialog == null || !activityDialog.isVisible()) {
+      activityDialog = new ActivityDialog(this, baseLayer, "activity", true, a);
+      ActivityAction aa = activityDialog.showDialog();
+      if(aa == null || aa.getActivity() == null) {
+        return;
+      }
+      switch(aa.getActionCommand()) {
+        case Constant.ADD_ACTIVITY:
+          XMLUtil.addActivity(aa.getActivity());
+          break;
+        case Constant.MODIFY_ACTIVITY:
+          XMLUtil.updateActivity(aa.getActivity());
+          break;
+        case Constant.REMOVE_ACTIVITY:
+          XMLUtil.removeActivity(aa.getActivity());
+          break;
+      }
+      selectedDate = aa.getActivity().getStartDate();
+      updateActivityUI();
     }
-    ActivityAction aa = ActivityDialog.showDialog(this, baseLayer, "activity", true, a);
-    if(aa.getActivity() == null) {
-      return;
+    else {
+      activityDialog.setVisible(false);
+      activityDialog.dispose();
     }
-    switch(aa.getActionCommand()) {
-      case Constant.ADD_ACTIVITY:
-        XMLUtil.addActivity(aa.getActivity());
-        break;
-      case Constant.MODIFY_ACTIVITY:
-        XMLUtil.updateActivity(aa.getActivity());
-        break;
-      case Constant.REMOVE_ACTIVITY:
-        XMLUtil.removeActivity(aa.getActivity());
-        break;
-    }
-    updateActivityUI();
   }
   //</editor-fold>
 
@@ -307,42 +317,30 @@ public class ActivityCalendar extends JFrame {
     activityPane = new ActivityPane(Constant.WEEK_VIEW, selectedDate.getYear(), selectedDate.getMonthOfYear(), selectedDate.getDayOfMonth());
     activityPane.addPropertyChangeListener(propertyChangeListener);
     bottomLayer.add(activityPane);
-    if(settingsPanel != null) {
-      baseLayer.setLayer(settingsPanel, JLayeredPane.MODAL_LAYER, 0);
-    }
-    else if(summaryPanel != null) {
-      baseLayer.setLayer(summaryPanel, JLayeredPane.MODAL_LAYER, 0);
-    }
-    else if(monthCalendar != null) {
-      updateMonthCalendarUI();
-    }
-    else if(addActivity != null) {
-      baseLayer.setLayer(addActivity, JLayeredPane.MODAL_LAYER, 0);
-    }
     revalidate();
     repaint();
   }
   //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Update Month Calendar UI ">
-  /**
-   * Update Activity UI with new date parameters.
-   */
-  private void updateMonthCalendarUI() {
-    if(monthCalendar == null) {
-      return;
-    }
-    glass.remove(monthCalendar);
-    monthCalendar = new MonthCalendar(selectedDate.getYear(), selectedDate.getMonthOfYear(), selectedDate.getDayOfMonth());
-    //monthCalendar.setBounds(baseLayer.getSize().width / 2 - monthCalendar.getPreferredSize().width / 2, baseLayer.getSize().height / 2 - monthCalendar.getPreferredSize().height / 2, monthCalendar.getPreferredSize().width, monthCalendar.getPreferredSize().height);
-    monthCalendar.addPropertyChangeListener(propertyChangeListener);
-    monthCalendar.addMouseListener(mouseListener);
-    glass.add(monthCalendar);
-    //baseLayer.setLayer(monthCalendar, JLayeredPane.MODAL_LAYER, 0);
-    revalidate();
-    repaint();
-  }
-  //</editor-fold>
+//  //<editor-fold defaultstate="collapsed" desc=" Update Month Calendar UI ">
+//  /**
+//   * Update MonthCalendar UI with new date parameters.
+//   */
+//  private void updateMonthCalendarUI() {
+//    if(monthCalendar == null) {
+//      return;
+//    }
+//    glass.remove(monthCalendar);
+//    monthCalendar = new MonthCalendar(selectedDate.getYear(), selectedDate.getMonthOfYear(), selectedDate.getDayOfMonth());
+//    //monthCalendar.setBounds(baseLayer.getSize().width / 2 - monthCalendar.getPreferredSize().width / 2, baseLayer.getSize().height / 2 - monthCalendar.getPreferredSize().height / 2, monthCalendar.getPreferredSize().width, monthCalendar.getPreferredSize().height);
+//    monthCalendar.addPropertyChangeListener(propertyChangeListener);
+//    monthCalendar.addMouseListener(mouseListener);
+//    glass.add(monthCalendar);
+//    //baseLayer.setLayer(monthCalendar, JLayeredPane.MODAL_LAYER, 0);
+//    revalidate();
+//    repaint();
+//  }
+//  //</editor-fold>
 
   //<editor-fold defaultstate="collapsed" desc=" Button events ">
   private void closeButtonMouseClicked(MouseEvent e) {
@@ -367,10 +365,6 @@ public class ActivityCalendar extends JFrame {
   private void todayButtonMouseClicked(MouseEvent e) {
     selectedDate = now;
     updateActivityUI();
-  }
-
-  private void selectedDateMouseClicked(MouseEvent e) {
-    showHideMonthCalendar();
   }
   //</editor-fold>
 
@@ -471,20 +465,17 @@ public class ActivityCalendar extends JFrame {
   PropertyChangeListener propertyChangeListener = new PropertyChangeListener() {
     @Override
     public void propertyChange(PropertyChangeEvent e) {
-      if(e.getSource() instanceof MonthCalendar) {
-        if(e.getPropertyName().equals(Constant.CLOSE_PANE)) {
-          showHideMonthCalendar();
-        }
+      if(e.getSource() instanceof MonthDialog) {
         switch (e.getPropertyName()) {
           case Constant.DAY_CHANGE:
             selectedDate = new DateTime(e.getNewValue());
             updateActivityUI();
-            showHideMonthCalendar();
             break;
           case Constant.MONTH_CHANGE:
           case Constant.YEAR_CHANGE:
             selectedDate = new DateTime(e.getNewValue());
-            updateMonthCalendarUI();
+            //updateMonthCalendarUI();
+            updateActivityUI();
             break;
         }
       }
@@ -732,7 +723,7 @@ public class ActivityCalendar extends JFrame {
       selectedDateLabel.addMouseListener(new MouseAdapter() {
         @Override
         public void mouseClicked(MouseEvent e) {
-          selectedDateMouseClicked(e);
+          showMonthDialog();
         }
       });
 

@@ -43,7 +43,6 @@ import rosza.xcomponents.JScrollBarX;
 import rosza.xcomponents.JTabbedPaneX;
 
 public class SettingsDialog extends JDialogX {
-  private static SettingsDialog dialog;
   // UI variables declaration
   private JTabbedPane    settingsTabbedPane;
   private JPanel         storagePanel;
@@ -95,7 +94,7 @@ public class SettingsDialog extends JDialogX {
   private Properties props;
   private final StrongTextEncryptor textEncryptor;      // http://technofes.blogspot.in/2011/10/orgjasyptexceptionsencryptionoperationn.html
 
-  private SettingsDialog(Frame frame, Component locationComp, String title, boolean modal) {
+  public SettingsDialog(Frame frame, Component locationComp, String title, boolean modal) {
     super(frame, title, modal);
 
     textEncryptor = new StrongTextEncryptor();
@@ -104,6 +103,13 @@ public class SettingsDialog extends JDialogX {
 
     createUI(locationComp);
     setFieldValues();
+  }
+
+  /**
+   * Show the dialog.
+   */
+  public void showDialog() {
+    setVisible(true);
   }
 
   private void createUI(Component locationComp) {
@@ -661,26 +667,6 @@ public class SettingsDialog extends JDialogX {
     setLocationRelativeTo(locationComp);
   }
 
-  /**
-   * Set up and show the dialog.
-   * 
-   * @param frameComp determines which frame the dialog depends on;
-   *                  it should be a component in the dialog's controlling frame
-   * @param locationComp null if you want the dialog to come up with its left
-   *                     corner in the center of the screen; otherwise, it should
-   *                     be the component on top of which the dialog should appear
-   * @param title
-   */
-  public static void showDialog(Component frameComp, Component locationComp, String title, boolean modal) {
-    Frame frame = JOptionPane.getFrameForComponent(frameComp);
-    dialog = new SettingsDialog(frame, locationComp, title, modal);
-    dialog.setVisible(true);
-  }
-
-  public static boolean getVisible() {
-    return dialog == null ? false : dialog.isVisible();
-  }
-
   //<editor-fold defaultstate="collapsed" desc=" Set field values from properties ">
   private void setFieldValues() {
     try {
@@ -793,7 +779,8 @@ public class SettingsDialog extends JDialogX {
       if(null != e.getActionCommand()) {
         switch (e.getActionCommand()) {
           case Constant.CLOSE_DIALOG:
-            dialog.setVisible(false);
+            setVisible(false);
+            dispose();
             break;
         }
       }

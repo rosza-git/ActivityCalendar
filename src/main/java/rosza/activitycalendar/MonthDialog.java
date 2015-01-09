@@ -1,14 +1,12 @@
 /**
- * Month Calendar.
+ * Month dialog.
  * 
  * @author Szalay Roland
  * 
  */
 package rosza.activitycalendar;
 
-//<editor-fold defaultstate="collapsed" desc=" Import ">
-import rosza.xcomponents.JLabelX;
-import rosza.xcomponents.JPanelX;
+import rosza.xcomponents.JDialogX;
 import rosza.xcomponents.JButtonX;
 import rosza.xcomponents.JComboBoxX;
 import rosza.xcomponents.JSpinnerX;
@@ -23,29 +21,33 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
-//</editor-fold>
 
-@Deprecated
-public class MonthCalendar extends JPanelX {
+public class MonthDialog extends JDialogX {
   //<editor-fold defaultstate="collapsed" desc=" Variables declaration ">
   private JSpinner  yearSpinner;
   private JButton   prevMonthButton;
   private JComboBox monthComboBox;
   private JButton   nextMonthButton;
-  private JLabelX   headerLabel;
   private JPanel    calendarControlPanel;
   private JPanel    weekLabelsPanel;
   private JPanel    dayLabelsPanel;
+  private JPanel    monthView;
+  private JPanel    monthPane;
   private JButtonX  closeButton;
+  private final Component relativeTo;
 
-  private DateTime selectedDate;
+  private static DateTime selectedDate;
   //</editor-fold>
 
   //<editor-fold defaultstate="collapsed" desc=" Create new MonthCalendar ">
-  public MonthCalendar(int y, int m, int d) {
-    selectedDate = new DateTime(y, m, d, 0, 0);
 
-    init();
+  public MonthDialog(Frame owner, Component locationComp, String title, boolean modal, int y, int m, int d) {
+    super(owner, title, modal);
+
+    selectedDate = new DateTime(y, m, d, 0, 0);
+    relativeTo = locationComp;
+
+    createUI();
   }
   //</editor-fold>
 
@@ -70,117 +72,31 @@ public class MonthCalendar extends JPanelX {
   }
   //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Initialize UI components ">
-  private void init() {
-    headerLabel          = new JLabelX();
+  //<editor-fold defaultstate="collapsed" desc=" Create UI ">
+  private void createUI() {
     closeButton          = new JButtonX("close");
+    monthPane            = new JPanel();
     calendarControlPanel = new MonthControllerPane();   
-    weekLabelsPanel      = new JPanel();
-    dayLabelsPanel       = new JPanel();
+    monthView            = new MonthView();
 
-    setOpaque(false);
+    monthPane.setLayout(new BoxLayout(monthPane, BoxLayout.Y_AXIS));
+    monthPane.setOpaque(false);
+    monthPane.add(calendarControlPanel);
+    monthPane.add(monthView);
 
     closeButton.setText("close");
     closeButton.setFont(closeButton.getFont().deriveFont(Font.BOLD));
-    closeButton.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        closeButtonActionPerformed(e);
-      }
-    });
+    closeButton.addActionListener(actionListener);
+    closeButton.setActionCommand(Constant.CLOSE_DIALOG);
 
-    headerLabel.setText("month calendar");
-    headerLabel.setHorizontalAlignment(JLabel.CENTER);
-    headerLabel.setFont(headerLabel.getFont().deriveFont(Font.BOLD).deriveFont(18f));
-
-    setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-    GridLayout gLayout = new GridLayout(1, 7, 2, 2);
-    EmptyBorder pBorder = new EmptyBorder(1, 2, 2, 2);
-    CompoundBorder labelBorder = new CompoundBorder(new EmptyBorder(1, 1, 1, 1), new EmptyBorder(5, 5, 5, 5));
-    CompoundBorder labelSelectedBorder = new CompoundBorder(new MatteBorder(1, 1, 1, 1, Color.red), new EmptyBorder(5, 5, 5, 5));
-    String[] daysShortName = getDaysName(Constant.SHORT_DISPLAY);
-
-    weekLabelsPanel.setLayout(gLayout);
-    weekLabelsPanel.setOpaque(true);
-    weekLabelsPanel.setBackground(Constant.BG_DARKER_BLUE);
-    weekLabelsPanel.setBorder(pBorder);
-
-    for(int i = 1; i < 8; i++) {
-      JLabel l = new JLabel(daysShortName[i - 1], JLabel.CENTER);
-
-      l.setFont(l.getFont().deriveFont(Font.BOLD));
-      l.setBorder(labelBorder);
-      l.setForeground(i == DateTimeConstants.SUNDAY ? new Color(190, 58, 61) : Constant.TEXT_COLOR);
-
-      weekLabelsPanel.add(l);
-    }
-
-    // calculate necessary cells
-    int cells = 0;
-    DateTime tempDate = new DateTime(selectedDate.getYear(), selectedDate.getMonthOfYear(), 1, 0, 0);
-    int dom = tempDate.dayOfMonth().getMaximumValue();
-    cells += dom;
-    tempDate = new DateTime(tempDate.withDayOfWeek(DateTimeConstants.MONDAY));
-    int emptyBefore = 0;
-    if(tempDate.getDayOfMonth() > 1) {
-      emptyBefore = tempDate.dayOfMonth().getMaximumValue() - tempDate.getDayOfMonth() + 1;
-    }
-    cells += emptyBefore;
-
-    // calculate necessary cells for full rows
-    while(cells % 7 != 0) {
-      cells++;
-    }
-    JPanel p = new JPanel();
-    for(int i = 1; i <= cells; i++) {
-      String t;
-      JLabel l = new JLabel();
-      if((i == 1) || ((i - 1) % 7 == 0)) {
-        p = new JPanel();
-        p.setLayout(gLayout);
-      }
-      if((i <= emptyBefore) || (i >  dom + emptyBefore)) {
-        t = "";
-      }
-      else {
-        t = Integer.toString(i - emptyBefore);
-        l.addMouseListener(cellListener);
-        l.setCursor(new Cursor(Cursor.HAND_CURSOR));
-      }
-      l.setText(t);
-      l.setHorizontalAlignment(JLabel.CENTER);
-      l.setFont(l.getFont().deriveFont(Font.BOLD));
-      l.setForeground(Constant.TEXT_COLOR);
-      l.setBackground(Color.white);
-      l.setOpaque(true);
-      if((i - emptyBefore == ActivityCalendar.currentDayOfMonth) && (selectedDate.getYear() == ActivityCalendar.currentYear) && (selectedDate.getMonthOfYear() == ActivityCalendar.currentMonth)) {
-        l.setForeground(Constant.BG_DARKER_BLUE);
-      }
-      if((i - emptyBefore == selectedDate.getDayOfMonth()) && (selectedDate.getYear() == ActivityCalendar.selectedDate.getYear()) && (selectedDate.getMonthOfYear() == ActivityCalendar.selectedDate.getMonthOfYear())) {
-        l.setBorder(labelSelectedBorder);
-      }
-      else {
-        l.setBorder(labelBorder);
-      }
-      p.add(l);
-      p.setOpaque(false);
-      p.setBorder(pBorder);
-      dayLabelsPanel.setLayout(new BoxLayout(dayLabelsPanel, BoxLayout.Y_AXIS));
-      dayLabelsPanel.setOpaque(false);
-      dayLabelsPanel.add(p);
-    }
-
-    GroupLayout layout = new GroupLayout(this);
-    this.setLayout(layout);
+    GroupLayout layout = new GroupLayout(getContentPane());
+    getContentPane().setLayout(layout);
     layout.setHorizontalGroup(
       layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-      .addComponent(headerLabel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
       .addGroup(GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
         .addContainerGap()
         .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
-          .addComponent(dayLabelsPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-          .addComponent(weekLabelsPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-          .addComponent(calendarControlPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+          .addComponent(monthPane)
           .addComponent(closeButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         )
         .addContainerGap()
@@ -189,28 +105,54 @@ public class MonthCalendar extends JPanelX {
     layout.setVerticalGroup(
       layout.createParallelGroup(GroupLayout.Alignment.LEADING)
       .addGroup(layout.createSequentialGroup()
-        .addComponent(headerLabel, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(calendarControlPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+        .addComponent(monthPane)
         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(weekLabelsPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(dayLabelsPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        .addContainerGap()
         .addComponent(closeButton)
         .addContainerGap()
       )
     );
+
+    pack();
+    setLocationRelativeTo(relativeTo);
   }
   //</editor-fold>
+
+  /**
+   * Show the dialog.
+   * 
+   * @return selected date
+   */
+  public DateTime showDialog() {
+    setVisible(true);
+
+    return selectedDate;
+  }
+
+  // Handle button clicks.
+  ActionListener actionListener = new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      if(null != e.getActionCommand()) {
+        switch (e.getActionCommand()) {
+          case Constant.CLOSE_DIALOG:
+            selectedDate = null;
+            setVisible(false);
+            dispose();
+            break;
+        }
+      }
+    }
+  };
 
   //<editor-fold defaultstate="collapsed" desc=" MouseListener ">
   MouseListener cellListener = new MouseListener() {
     @Override
     public void mouseClicked(MouseEvent e) {
       JLabel l = (JLabel)e.getSource();
-      DateTime d = new DateTime((int)yearSpinner.getValue(), monthComboBox.getSelectedIndex() + 1, Integer.parseInt(l.getText()), 0, 0);
-      firePropertyChange(Constant.DAY_CHANGE, null, d);
+      selectedDate = new DateTime((int)yearSpinner.getValue(), monthComboBox.getSelectedIndex() + 1, Integer.parseInt(l.getText()), 0, 0);
+      setVisible(false);
+      dispose();
     }
 
     @Override
@@ -243,8 +185,12 @@ public class MonthCalendar extends JPanelX {
    */
   private void prevMonthButtonActionPerformed(ActionEvent e) {
     selectedDate = selectedDate.minusMonths(1);
-    DateTime d = new DateTime(selectedDate.getYear(), selectedDate.getMonthOfYear(), selectedDate.getDayOfMonth(), 0, 0);
-    firePropertyChange(Constant.MONTH_CHANGE, null, d);
+    monthPane.removeAll();
+    monthView = new MonthView();
+    calendarControlPanel = new MonthControllerPane();
+    monthPane.add(calendarControlPanel);
+    monthPane.add(monthView);
+    pack();
   }
   //</editor-fold>
 
@@ -256,24 +202,36 @@ public class MonthCalendar extends JPanelX {
    */
   private void nextMonthButtonActionPerformed(ActionEvent e) {
     selectedDate = selectedDate.plusMonths(1);
-    DateTime d = new DateTime(selectedDate.getYear(), selectedDate.getMonthOfYear(), selectedDate.getDayOfMonth(), 0, 0);
-    firePropertyChange(Constant.MONTH_CHANGE, null, d);
+    monthPane.removeAll();
+    monthView = new MonthView();
+    calendarControlPanel = new MonthControllerPane();
+    monthPane.add(calendarControlPanel);
+    monthPane.add(monthView);
+    pack();
   }
   // </editor-fold>
 
   //<editor-fold defaultstate="collapsed" desc=" Year change action ">
   private void yearSpinnerStateChanged(ChangeEvent e) {
     selectedDate = selectedDate.withYear((int)yearSpinner.getValue());
-    DateTime d = new DateTime(selectedDate.getYear(), selectedDate.getMonthOfYear(), selectedDate.getDayOfMonth(), 0, 0);
-    firePropertyChange(Constant.YEAR_CHANGE, null, d);
+    monthPane.removeAll();
+    monthView = new MonthView();
+    calendarControlPanel = new MonthControllerPane();
+    monthPane.add(calendarControlPanel);
+    monthPane.add(monthView);
+    pack();
   }
   //</editor-fold>
 
   //<editor-fold defaultstate="collapsed" desc=" Month change action ">
   private void monthComboBoxActionPerformed(ActionEvent e) {
     selectedDate = selectedDate.withMonthOfYear(monthComboBox.getSelectedIndex() + 1);
-    DateTime d = new DateTime(selectedDate.getYear(), selectedDate.getMonthOfYear(), selectedDate.getDayOfMonth(), 0, 0);
-    firePropertyChange(Constant.MONTH_CHANGE, null, d);
+    monthPane.removeAll();
+    monthView = new MonthView();
+    calendarControlPanel = new MonthControllerPane();
+    monthPane.add(calendarControlPanel);
+    monthPane.add(monthView);
+    pack();
   }
   //</editor-fold>
 
@@ -366,9 +324,92 @@ public class MonthCalendar extends JPanelX {
   }
   //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Close button action ">
-  private void closeButtonActionPerformed(ActionEvent e) {
-    firePropertyChange(Constant.CLOSE_PANE, null, this);
+  private class MonthView extends JPanel {
+    public MonthView() {
+      weekLabelsPanel = new JPanel();
+      dayLabelsPanel  = new JPanel();
+
+      setOpaque(false);
+      setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+
+      GridLayout gLayout = new GridLayout(1, 7, 2, 2);
+      EmptyBorder pBorder = new EmptyBorder(1, 2, 2, 2);
+      CompoundBorder labelBorder = new CompoundBorder(new EmptyBorder(1, 1, 1, 1), new EmptyBorder(5, 5, 5, 5));
+      CompoundBorder labelSelectedBorder = new CompoundBorder(new MatteBorder(1, 1, 1, 1, Color.red), new EmptyBorder(5, 5, 5, 5));
+      String[] daysShortName = getDaysName(Constant.SHORT_DISPLAY);
+
+      weekLabelsPanel.setLayout(gLayout);
+      weekLabelsPanel.setOpaque(true);
+      weekLabelsPanel.setBackground(Constant.BG_DARKER_BLUE);
+      weekLabelsPanel.setBorder(pBorder);
+
+      for(int i = 1; i < 8; i++) {
+        JLabel l = new JLabel(daysShortName[i - 1], JLabel.CENTER);
+
+        l.setFont(l.getFont().deriveFont(Font.BOLD));
+        l.setBorder(labelBorder);
+        l.setForeground(i == DateTimeConstants.SUNDAY ? new Color(190, 58, 61) : Constant.TEXT_COLOR);
+
+        weekLabelsPanel.add(l);
+      }
+
+      // calculate necessary cells
+      int cells = 0;
+      DateTime tempDate = new DateTime(selectedDate.getYear(), selectedDate.getMonthOfYear(), 1, 0, 0);
+      int dom = tempDate.dayOfMonth().getMaximumValue();
+      cells += dom;
+      tempDate = new DateTime(tempDate.withDayOfWeek(DateTimeConstants.MONDAY));
+      int emptyBefore = 0;
+      if(tempDate.getDayOfMonth() > 1) {
+        emptyBefore = tempDate.dayOfMonth().getMaximumValue() - tempDate.getDayOfMonth() + 1;
+      }
+      cells += emptyBefore;
+
+      // calculate necessary cells for full rows
+      while(cells % 7 != 0) {
+        cells++;
+      }
+      JPanel p = new JPanel();
+      for(int i = 1; i <= cells; i++) {
+        String t;
+        JLabel l = new JLabel();
+        if((i == 1) || ((i - 1) % 7 == 0)) {
+          p = new JPanel();
+          p.setLayout(gLayout);
+        }
+        if((i <= emptyBefore) || (i >  dom + emptyBefore)) {
+          t = "";
+        }
+        else {
+          t = Integer.toString(i - emptyBefore);
+          l.addMouseListener(cellListener);
+          l.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        }
+        l.setText(t);
+        l.setHorizontalAlignment(JLabel.CENTER);
+        l.setFont(l.getFont().deriveFont(Font.BOLD));
+        l.setForeground(Constant.TEXT_COLOR);
+        l.setBackground(Color.white);
+        l.setOpaque(true);
+        if((i - emptyBefore == ActivityCalendar.currentDayOfMonth) && (selectedDate.getYear() == ActivityCalendar.currentYear) && (selectedDate.getMonthOfYear() == ActivityCalendar.currentMonth)) {
+          l.setForeground(Constant.BG_DARKER_BLUE);
+        }
+        if((i - emptyBefore == selectedDate.getDayOfMonth()) && (selectedDate.getYear() == ActivityCalendar.selectedDate.getYear()) && (selectedDate.getMonthOfYear() == ActivityCalendar.selectedDate.getMonthOfYear())) {
+          l.setBorder(labelSelectedBorder);
+        }
+        else {
+          l.setBorder(labelBorder);
+        }
+        p.add(l);
+        p.setOpaque(false);
+        p.setBorder(pBorder);
+        dayLabelsPanel.setLayout(new BoxLayout(dayLabelsPanel, BoxLayout.Y_AXIS));
+        dayLabelsPanel.setOpaque(false);
+        dayLabelsPanel.add(p);
+      }
+
+      add(weekLabelsPanel);
+      add(dayLabelsPanel);
+    }
   }
-  //</editor-fold>
 }

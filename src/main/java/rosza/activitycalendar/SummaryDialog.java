@@ -49,7 +49,6 @@ import org.jasypt.util.text.StrongTextEncryptor;
 import rosza.xcomponents.JDialogX;
 
 public class SummaryDialog extends JDialogX {
-  private static SummaryDialog dialog;
   // UI variables declaration
   private JButtonX    closeButton;
   private JLabel      dateLabel;
@@ -88,31 +87,6 @@ public class SummaryDialog extends JDialogX {
       summary.total += summary.children.get(i).total;
     }
     generateHTMLSummary();
-  }
-
-  /**
-   * Set up and show the dialog.
-   * 
-   * @param frameComp determines which frame the dialog depends on;
-   *                  it should be a component in the dialog's controlling frame
-   * @param locationComp null if you want the dialog to come up with its left
-   *                     corner in the center of the screen; otherwise, it should
-   *                     be the component on top of which the dialog should appear
-   * @param title the title of the dialog
-   * @param modal specifies whether dialog blocks user input to other top-level
-   *              windows when shown
-   * @param y selected year
-   * @param m selected month
-   * @param d selected day of month
-   */
-  public static void showDialog(Component frameComp, Component locationComp, String title, boolean modal, int y, int m, int d) {
-    Frame frame = JOptionPane.getFrameForComponent(frameComp);
-    dialog = new SummaryDialog(frame, locationComp, title, modal, y, m, d);
-    dialog.setVisible(true);
-  }
-
-  public static boolean getVisible() {
-    return dialog == null ? false : dialog.isVisible();
   }
 
   //<editor-fold defaultstate="collapsed" desc=" Create UI components ">
@@ -253,6 +227,13 @@ public class SummaryDialog extends JDialogX {
     setLocationRelativeTo(locationComp);
   }
   //</editor-fold>
+
+  /**
+   * Show the dialog.
+   */
+  public void showDialog() {
+    setVisible(true);
+  }
 
   //<editor-fold defaultstate="collapsed" desc=" Build summary ">
   private Summary[] buildSummary(Category c, ArrayList<Activity> activityList) {
@@ -476,7 +457,8 @@ public class SummaryDialog extends JDialogX {
       if(null != e.getActionCommand()) {
         switch (e.getActionCommand()) {
           case Constant.CLOSE_DIALOG:
-            dialog.setVisible(false);
+            setVisible(false);
+            dispose();
             break;
         }
       }
