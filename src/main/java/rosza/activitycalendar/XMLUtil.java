@@ -4,13 +4,12 @@
  * @author Szalay Roland
  * 
  */
-/* XML helpings:
+/* XML help:
     http://www.mkyong.com/java/how-to-create-xml-file-in-java-dom/
     http://stackoverflow.com/questions/6445828/how-do-i-append-a-node-to-an-existing-xml-file-in-java
 */
 package rosza.activitycalendar;
 
-//<editor-fold defaultstate="collapsed" desc=" Import ">
 import java.awt.Color;
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,10 +37,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-//</editor-fold>
 
 public class XMLUtil {
-  //<editor-fold defaultstate="collapsed" desc=" PROPERTIES - Save ">
+  // PROPERTIES - Save
   public static void setProperties(Properties props) {
     try(OutputStream output = new FileOutputStream(Constant.PROPERTIES_FILE)) {
       // save properties to file
@@ -52,9 +50,8 @@ public class XMLUtil {
       JOptionPane.showMessageDialog(null, "Error saving properties to file!", "Error - IOException", JOptionPane.ERROR_MESSAGE);
     }
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" PROPERTIES - Load ">
+  // PROPERTIES - Load
   public static Properties getProperties() {
     Properties props = new Properties();
 
@@ -70,11 +67,9 @@ public class XMLUtil {
 
     return null;
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" ACTIVITY - Add to XML file ">
   /**
-   * Add new "activity" to XML file.
+   * Add new "activity" to file.
    * If the file does not exists, creates a new one.
    * 
    * @param activity Activity class to add to the xml
@@ -161,11 +156,9 @@ public class XMLUtil {
 
     return false;
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" ACTIVITY - Update in XML file ">
   /**
-   * Updates the activity (identified by ID) in the XML file.
+   * Update activity (identified by ID) in file.
    * 
    * @param activity activity to update to
    * @return true if the operation was successful, otherwise false
@@ -216,11 +209,9 @@ public class XMLUtil {
 
     return false;
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" ACTIVITY - Remove from XML file by Activity ">
   /**
-   * Removes an activity (identified by ID) from the XML file.
+   * Remove activity (identified by ID) from file.
    * Invokes removeActivity(int id) after getting the ID from "activity".
    * 
    * @param activity activity to remove
@@ -229,11 +220,9 @@ public class XMLUtil {
   public static boolean removeActivity(Activity activity) {
     return removeActivity(activity.getID());
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" ACTIVITY - Remove from XML file by ID ">
   /**
-   * Removes an activity (identified by ID) from the XML file.
+   * Remove activity (identified by ID) from file.
    * 
    * @param id ID of activity to remove
    * @return true if the operation was successful, otherwise false
@@ -280,11 +269,9 @@ public class XMLUtil {
 
     return false;
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" ACTIVITY - Get by date ">
   /**
-   * Get "activity" from file by year, month and day of month.
+   * Get "activity" from file by (start) date.
    * 
    * @param year desired year
    * @param month desired month
@@ -324,8 +311,6 @@ public class XMLUtil {
       JOptionPane.showMessageDialog(null, e.getMessage(), "Error - SAXException", JOptionPane.ERROR_MESSAGE);
     }
     catch(IOException e) {
-      //System.out.println("nincs fájl, nincs olvasás se");
-      //e.printStackTrace();
     }
     catch(NumberFormatException e) {
       JOptionPane.showMessageDialog(null, e.getMessage(), "Error - NumberFormatException", JOptionPane.ERROR_MESSAGE);
@@ -336,9 +321,7 @@ public class XMLUtil {
 
     return null;
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" ACTIVITY - Get by ID ">
   /**
    * Get "activity" from file by ID.
    * Invokes getActivityByString(String s, String field) after converting "s" to String
@@ -350,14 +333,12 @@ public class XMLUtil {
   public static Activity getActivityByID(int id) {
     return getActivityByString(Integer.toString(id), Constant.XML_ID).get(0);
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" ACTIVITY - Get String and field ">
   /**
    * Get "activity" from file depending on the input string and field combination.
    * 
-   * @param s this is what we are looking for in "field". can be activity id, comment or category
-   * @param field this is where we are looking for "s". can be XML_ID, XML_COMMENT, XML_CATEGORY
+   * @param s this is what we are looking for in "field". Should be activity id, comment or category
+   * @param field this is where we are looking for "s". Should be XML_ID, XML_COMMENT, XML_CATEGORY
    * @return new Activity class if the opertion was successful, otherwise null
    */
   public static ArrayList<Activity> getActivityByString(String s, String field) {
@@ -420,11 +401,9 @@ public class XMLUtil {
 
     return null;
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" ACTIVITY - XML Element to Activity class ">
   /**
-   * Creates an Activity class from the given XML element.
+   * Creates an Activity class based on the given XML element.
    * 
    * @param element element to convert to Activity class
    * @return new Activity class
@@ -440,11 +419,9 @@ public class XMLUtil {
 
     return a;
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" ACTIVITY - Create XML file ">
   /**
-   * Creates an XML file with the given XML data.
+   * Create file with the given XML data.
    * 
    * @param doc XML data
    * @return true if the opertion was successful, otherwise false
@@ -476,22 +453,18 @@ public class XMLUtil {
       return false;
     }
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" CATEGORY - Create XML file from predefined categories ">
   /**
-   * Creates the categories.xml file from predefined categories.
+   * Creates the categories.xml file from pre-defined categories.
    * 
    * @return true if the opertion was successful, otherwise false
    */
   public static boolean createCategoriesXML() {
     return createCategoriesXML(Category.getDefaultCategories());
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" CATEGORY - Create XML file ">
   /**
-   * Creates the categories.xml from the given Category class categories.
+   * Creates the categories.xml from the given Category class.
    * 
    * @param c from this Category class will be the XML document generated
    * @return true if the opertion was successful, otherwise false
@@ -548,9 +521,7 @@ public class XMLUtil {
 
     return false;
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" CATEGORY - Categories to XML document ">
   /**
    * Generates XML document from a given Category class.
    * 
@@ -577,11 +548,9 @@ public class XMLUtil {
 
     return doc;
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" CATEGORY - Get by ID ">
   /**
-   * Get Category class from ID.
+   * Get Category by ID.
    * 
    * @param id the ID we are looking for
    * @return new Category class
@@ -633,11 +602,9 @@ public class XMLUtil {
     return null;
 
   }
-  //</editor-fold>
- 
-  //<editor-fold defaultstate="collapsed" desc=" CATEGORY - Get all ">
+
   /**
-   * Get Categories.
+   * Get all category from file.
    * 
    * @return new Category[] class
    */
@@ -690,11 +657,9 @@ public class XMLUtil {
     return null;
 
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" CATEGORY - Get subcategories ">
   /**
-   * Get sub-categories and build the strucutre
+   * Get sub-category and it's children.
    * 
    * @param child 
    * @return Category array
@@ -725,9 +690,7 @@ public class XMLUtil {
 
     return tempCat;
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Get last ID in XML ">
   /**
    * Returns the last ID in the XML file.
    * 
@@ -752,11 +715,9 @@ public class XMLUtil {
 
     return currentID;
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Returns the larger number ">
   /**
-   * Returns the larger number between currentID and newID.
+   * Returns the greater number between currentID and newID.
    * 
    * @param currentID number to compare
    * @param newID number to compare
@@ -769,5 +730,4 @@ public class XMLUtil {
 
     return newID;
   }
-  //</editor-fold>
 }

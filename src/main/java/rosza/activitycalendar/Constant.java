@@ -1,16 +1,14 @@
 /**
- * Constants for ActivityCalendar.
+ * Constants for ActivityCalendar
  * 
  * @author Szalay Roland
  * 
  */
 package rosza.activitycalendar;
 
-//<editor-fold defaultstate="collapsed" desc=" Import ">
 import java.awt.Color;
 import java.awt.Font;
 import javax.swing.UIManager;
-//</editor-fold>
 
 public class Constant {
   // common
@@ -28,7 +26,9 @@ public class Constant {
   public static final String SETTINGS_ICON = "images/settings.png";
   public static final String SUMMARY_ICON  = "images/summary.png";
   public static final String NEXT_ICON     = "images/next.png";
+  public static final String NEXT24_ICON   = "images/next24.png";
   public static final String PREV_ICON     = "images/previous.png";
+  public static final String PREV24_ICON   = "images/previous24.png";
   public static final String ADD_ICON      = "images/add.png";
   public static final String TRAY_ICON16   = "images/calendar16.png";
   public static final String TRAY_ICON24   = "images/calendar24.png";
@@ -76,8 +76,8 @@ public class Constant {
   public static final Color BG_DARKER_COLOR           = new Color(200, 200, 200);
   public static final Color BG_BLUE                   = new Color(76, 160, 201);
   public static final Color BG_DARKER_BLUE            = new Color(34, 131, 178);
-  public static final Color TEXT_COLOR                = new Color(50, 50, 50);
-  public static final Color BORDER_COLOR              = new Color(50, 50, 50);
+  public static final Color TEXT_COLOR                = new Color(30, 30, 30);
+  public static final Color BORDER_COLOR              = new Color(30, 30, 30);
   public static final Color DEFAULT_ACTIVITY_COLOR    = Color.gray;
   public static final Color ERROR_ACTIVITY_COLOR      = Color.red;
   public static final Color CELL_BORDER_COLOR         = new Color(220, 220, 220);

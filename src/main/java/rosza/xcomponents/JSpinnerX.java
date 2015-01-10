@@ -24,6 +24,7 @@ public class JSpinnerX extends BasicSpinnerUI {
     Component c = new BasicArrowButton(SwingConstants.NORTH, Constant.BG_DARKER_BLUE, Constant.BG_DARKER_BLUE, Constant.TEXT_COLOR, Constant.BG_BLUE);
     c.setName("Spinner.nextButton");
     installNextButtonListeners(c);
+
     return c;
   }
 
@@ -32,11 +33,12 @@ public class JSpinnerX extends BasicSpinnerUI {
     Component c = new BasicArrowButton(SwingConstants.SOUTH, Constant.BG_DARKER_BLUE, Constant.BG_DARKER_BLUE, Constant.TEXT_COLOR, Constant.BG_BLUE);
     c.setName("Spinner.previousButton");
     installPreviousButtonListeners(c);
+
     return c;
   }
 
   @Override  
   public void installUI(JComponent c) {  
-    super.installUI(c);  
+    super.installUI(c);
   }
 }

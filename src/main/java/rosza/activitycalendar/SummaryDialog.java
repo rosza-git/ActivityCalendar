@@ -1,13 +1,11 @@
 /**
- * Summary dialog.
+ * Summary dialog
  * 
  * @author Szalay Roland
  * 
  */
 package rosza.activitycalendar;
 
-import rosza.xcomponents.JButtonX;
-import rosza.xcomponents.JScrollBarX;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -41,15 +39,18 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle;
 import javax.swing.UIManager;
+import javax.swing.border.MatteBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
 import org.jasypt.util.text.StrongTextEncryptor;
+import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 import rosza.xcomponents.JDialogX;
+import rosza.xcomponents.JButtonX;
+import rosza.xcomponents.JScrollBarX;
 
 public class SummaryDialog extends JDialogX {
-  // UI variables declaration
+  // UI variables
   private JButtonX    closeButton;
   private JLabel      dateLabel;
   private JScrollPane editorScrollPane;
@@ -60,18 +61,22 @@ public class SummaryDialog extends JDialogX {
   private JTextField  subjectTextField;
   private JEditorPane summaryEditorPane;
   private JLabel      summaryLabel;
-  // End of UI variables declaration
+
+  // Date and time variables
   private static int selectedYear;
   private static int selectedMonth;
   private static int selectedDayOfMonth;
+
+  // Generated summary variable
   private StringBuilder html = new StringBuilder();
 
+  // Variable to store the summary informations
   private Summary summary;
   
   // Properties variables declaration
   private final Properties props = XMLUtil.getProperties();
-  // End of properties variables declaration
 
+  // Create summary dialog
   public SummaryDialog(Frame owner, Component locationComp, String title, boolean modal, int y, int m, int d) {
     super(owner, title, modal);
 
@@ -89,7 +94,7 @@ public class SummaryDialog extends JDialogX {
     generateHTMLSummary();
   }
 
-  //<editor-fold defaultstate="collapsed" desc=" Create UI components ">
+  // Create UI
   @SuppressWarnings("unchecked")
   private void createUI(Component locationComp) {
     summaryLabel      = new JLabel();
@@ -118,6 +123,7 @@ public class SummaryDialog extends JDialogX {
     editorScrollPane.setViewportView(summaryEditorPane);
     editorScrollPane.getVerticalScrollBar().setUI(new JScrollBarX());
     editorScrollPane.getHorizontalScrollBar().setUI(new JScrollBarX());
+    editorScrollPane.setBorder(new MatteBorder(1, 1, 1, 1, Constant.BG_DARKER_BLUE));
 
     sendToLabel.setFont(sendToLabel.getFont().deriveFont(Font.BOLD));
     sendToLabel.setText("send to: ");
@@ -226,22 +232,18 @@ public class SummaryDialog extends JDialogX {
     pack();
     setLocationRelativeTo(locationComp);
   }
-  //</editor-fold>
 
-  /**
-   * Show the dialog.
-   */
+  //Show the dialog.
   public void showDialog() {
     setVisible(true);
   }
 
-  //<editor-fold defaultstate="collapsed" desc=" Build summary ">
+  // Build summary "database"
   private Summary[] buildSummary(Category c, ArrayList<Activity> activityList) {
     return visitCategories(c, activityList);
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Visit categories ">
+  // Visit categories
   private Summary[] visitCategories(Category c, ArrayList<Activity> activityList) {
     ArrayList<Summary> sum = new ArrayList<>();
 
@@ -265,7 +267,7 @@ public class SummaryDialog extends JDialogX {
   }
   //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Link together all members of a summary ">
+  // Link together all members of a summary
   public static void linkSummary(Summary parent, Summary[] children) {
     for(Summary sum : children) {
       parent.children.add(sum);
@@ -275,9 +277,8 @@ public class SummaryDialog extends JDialogX {
       }
     }
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Activity-Category match ">
+  // Activity-Category match
   private Summary activityCategoryMatch(String cat, ArrayList<Activity> activities) {
     Summary s = new Summary(cat);
     if(activities != null) {
@@ -293,9 +294,8 @@ public class SummaryDialog extends JDialogX {
 
     return s;
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Generate HTML summary ">
+  // Generate HTML document from summary
   private void generateHTMLSummary() {
     parentheticRepresentation(summary, "");
     StringBuilder body = new StringBuilder("<html><head></head><body><font face=\"arial\">");
@@ -303,9 +303,8 @@ public class SummaryDialog extends JDialogX {
     body.append("</font></body></html>");
     summaryEditorPane.setText(body.toString());
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Generate parenthetic representation of summary class in HTML format">
+  // Generate parenthetic representation of summary class in HTML format
   private void parentheticRepresentation(Summary sum, String indent) {
     html.append(indent);
     if(sum.comment.isEmpty()) {
@@ -334,9 +333,8 @@ public class SummaryDialog extends JDialogX {
       }
     }
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Send e-mail ">
+  // Send e-mail
   private void sendMail(String to, String subject, String body) {
     StrongTextEncryptor textEncryptor = new StrongTextEncryptor();
     textEncryptor.setPassword(Constant.SALT);
@@ -414,9 +412,8 @@ public class SummaryDialog extends JDialogX {
       JOptionPane.showMessageDialog(this, e.toString(), "Error", JOptionPane.ERROR_MESSAGE);
 		}
 	}
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" E-mail verifier ">
+  // E-mail verifier
   private class EmailVerifier extends InputVerifier {
     @Override
     public boolean verify(JComponent input) {
@@ -437,9 +434,8 @@ public class SummaryDialog extends JDialogX {
       }
     }
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Send button state ">
+  // Send button state
   private boolean enableSendButton() {
     boolean en = (!sendToTextField.getText().equals(""));
     if(props == null) {
@@ -448,9 +444,8 @@ public class SummaryDialog extends JDialogX {
 
     return en;
   }
-  //</editor-fold>
 
-  // Handle button clicks.
+  // Action listener
   ActionListener actionListener = new ActionListener() {
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -465,13 +460,12 @@ public class SummaryDialog extends JDialogX {
     }
   };
 
-  //<e ditor-fold defaultstate="collapsed" desc=" Button events ">
+  // Button events
   private void sendButtonActionPerformed(ActionEvent e) {
     sendMail(sendToTextField.getText(), subjectTextField.getText(), summaryEditorPane.getText());
   }
-  //</e ditor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Summary class ">
+  // Summary class
   public class Summary {
     public ArrayList<String> comment = new ArrayList<>();
     public ArrayList<String> category = new ArrayList<>();
@@ -494,5 +488,4 @@ public class SummaryDialog extends JDialogX {
       this.children = new ArrayList<>();
     }
   }
-  //</editor-fold>
 }

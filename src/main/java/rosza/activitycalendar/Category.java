@@ -6,26 +6,22 @@
  */
 package rosza.activitycalendar;
 
-//<editor-fold defaultstate="collapsed" desc=" Import ">
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Objects;
-//</editor-fold>
 
 public class Category {
-  //<editor-fold defaultstate="collapsed" desc=" Variables declaration ">
-  private Category parent;
-  private int parentID;
+  private Category                  parent;
+  private int                       parentID;
   private final ArrayList<Category> sub;
-  private final int ID;
-  private String name;
-  private Color color;
-  private final boolean predefined;
-  private boolean hasSubcat;
-  //</editor-fold>
+  private final int                 ID;
+  private String                    name;
+  private Color                     color;
+  private final boolean             predefined;
+  private boolean                   hasSubcat;
 
   /**
-   * Category
+   * Create new Category instance
    * 
    * @param id ID of this category
    * @param name category name
@@ -41,7 +37,7 @@ public class Category {
   }
 
   /**
-   * Category
+   * Create new Category instance
    * 
    * @param id ID of this category
    * @param parentId id of parent category
@@ -72,6 +68,7 @@ public class Category {
     }
   }
 
+  // Getter methods
   public int getID() {
     return this.ID;
   }
@@ -88,10 +85,6 @@ public class Category {
     return this.color;
   }
 
-  public boolean isPredefined() {
-    return this.predefined;
-  }
-
   public Category getParentCategory() {
     return this.parent;
   }
@@ -100,40 +93,13 @@ public class Category {
     return this.sub;
   }
 
-  public static String color2hex(Color c) {
-    return String.format("#%02x%02x%02x", c.getRed(),c.getGreen(), c.getBlue());
-  }
-
-  private Category visitCategories(int id, Category c) {
-    for(int i = 0, size = c.getSubCount(); i < size; i++) {
-      if((c.getSubAt(i)).getID() == id) {
-        return c.getSubAt(i);
-      }
-      Category temp = visitCategories(id, c.getSubAt(i));
-      if(temp != null) {
-        return temp;
-      }
-    }
-
-    return c.getID() == id ? c : null;
-  }
-  
   public Category getCategoryByID(int id) {
     if(this.ID == id) {
       return this;
     }
     else {
-      return visitCategories(id, this);
+      return searchCategories(id, this);
     }
-  }
-
-  public boolean hasSubCategory() {
-    return this.hasSubcat;
-  }
-
-  @Override
-  public String toString() {
-    return this.name;
   }
 
   public int getSubCount() {
@@ -148,25 +114,6 @@ public class Category {
     return sub.indexOf(subCat);
   }
 
-  public void removeCategory(Category category) {
-    Category p = category.getParentCategory();
-    int id = p.getIndexOfSub(category);
-    p.sub.remove(id);
-    if(p.getSubCount() == 0) {
-      p.hasSubcat = false;
-    }
-  }
-
-  public static void addCategory(Category child, Category parent) {
-    Category[] c = {child};
-    Category.linkCategories(parent, c);
-  }
-
-  public static void modifiyCategory(Category c, String newName, Color newColor) {
-    c.name = newName;
-    c.color = newColor;
-  }
-
   public static int getLastID(Category c, int id) {
     for(int i = 0, size = c.getSubCount(); i < size; i++) {
       int cid = (c.getSubAt(i)).getID();
@@ -176,6 +123,55 @@ public class Category {
     return id;
   }
 
+  public boolean isPredefined() {
+    return this.predefined;
+  }
+
+  public boolean hasSubCategory() {
+    return this.hasSubcat;
+  }
+
+  // Converter method
+  public static String color2hex(Color c) {
+    return String.format("#%02x%02x%02x", c.getRed(),c.getGreen(), c.getBlue());
+  }
+
+  // Search all Category for th given ID
+  private Category searchCategories(int id, Category c) {
+    for(int i = 0, size = c.getSubCount(); i < size; i++) {
+      if((c.getSubAt(i)).getID() == id) {
+        return c.getSubAt(i);
+      }
+      Category temp = searchCategories(id, c.getSubAt(i));
+      if(temp != null) {
+        return temp;
+      }
+    }
+
+    return c.getID() == id ? c : null;
+  }
+
+  // Category manipulator methods
+  public static void addCategory(Category child, Category parent) {
+    Category[] c = {child};
+    Category.linkCategories(parent, c);
+  }
+
+  public void removeCategory(Category category) {
+    Category p = category.getParentCategory();
+    int id = p.getIndexOfSub(category);
+    p.sub.remove(id);
+    if(p.getSubCount() == 0) {
+      p.hasSubcat = false;
+    }
+  }
+
+  public static void modifiyCategory(Category c, String newName, Color newColor) {
+    c.name = newName;
+    c.color = newColor;
+  }
+
+  // Get the greater number between two given arguments
   private static int getMax(int currentID, int newID) {
     if(currentID > newID) {
       return currentID;
@@ -184,6 +180,7 @@ public class Category {
     return newID;
   }
 
+  // Create built-in categories
   public static Category getDefaultCategories() {
     Category root = new Category(0, "categories", Color.black, true);
     Category c1 = new Category(1, "personal", Color.red, true);
@@ -205,6 +202,13 @@ public class Category {
     return root;
   }
 
+  // toString method
+  @Override
+  public String toString() {
+    return this.name;
+  }
+
+  // equals method
   @Override
   public boolean equals(Object obj) {
     if(obj == this) {
@@ -214,23 +218,18 @@ public class Category {
       boolean result = true;
       Category cat = (Category)obj;
       result &= this.ID == cat.getID();
-      //System.out.println("ID        : " + this.ID + "==" + cat.getID() + " = " + result);
       result &= this.name.equals(cat.getName());
-      //System.out.println("name      : " + this.name + "==" + cat.getName() + " = " + result);
       result &= this.parentID == cat.getParentID();
-      //System.out.println("parentID  : " + this.parentID + "==" + cat.getParentID() + " = " + result);
       result &= this.color.equals(cat.getColor());
-      //System.out.println("color     : " + this.color + "==" + cat.getColor() + " = " + result);
       result &= this.predefined == cat.isPredefined();
-      //System.out.println("predefined: " + this.predefined + "==" + cat.isPredefined() + " = " + result);
 
-      //System.out.println("result    : " + result + " hashCode:" + this.hashCode() + "\n");
       return result;
     }
 
     return false;
   }
 
+  // hashCode method
   @Override
   public int hashCode() {
     int hash = 7;

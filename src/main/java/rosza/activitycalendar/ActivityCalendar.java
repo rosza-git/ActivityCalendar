@@ -3,7 +3,7 @@
  * 
  * @author Szalay Roland
  * 
- * used 3rd-party libraries:
+ * required 3rd-party libraries (at least):
  *   - jaspyt-1.9.2.jar - http://www.jasypt.org/
  *   - javax.mail.1.5.2.jar - https://java.net/projects/javamail/pages/Home
  *   - activation-1.1.jar (via javax.mail)
@@ -17,7 +17,7 @@
  */
 package rosza.activitycalendar;
 
-//<editor-fold defaultstate="collapsed" desc=" Import ">
+import com.sun.javafx.scene.layout.region.Margins;
 import rosza.xcomponents.JLabelX;
 import java.awt.AWTException;
 import java.awt.BorderLayout;
@@ -29,6 +29,7 @@ import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Insets;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
 import java.awt.Rectangle;
@@ -49,21 +50,21 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JLayeredPane;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.MatteBorder;
 import org.joda.time.DateTime;
-//</editor-fold>
 
 public class ActivityCalendar extends JFrame {
-  //<editor-fold defaultstate="collapsed" desc=" Variables declaration ">
-  // UI variables declaration
+  // UI variables
   private JPanel         topLayer;
   private JPanel         bottomLayer;
-  // // customized components
+
+  // customized components
   private ActivityHeader activityHeader;
   private ActivityMenu   activityMenu;
   private MonthDialog    monthDialog;
@@ -71,19 +72,17 @@ public class ActivityCalendar extends JFrame {
   private SettingsDialog settingsDialog;
   private SummaryDialog  summaryDialog;
   private ActivityPane   activityPane;
-  // // end of customized components
-  // End of UI variables declaration
 
   // System tray variables declaration
   private SystemTray systemTray;
   private TrayIcon trayIcon;
+
+  // Class loader
   private final ClassLoader cl = this.getClass().getClassLoader();
-  // End system tray variables declaration
 
   // Mouse action variables declaration
   private int mouseX;
   private int mouseY;
-  // End of mouse action variables declaration
 
   //Calendar variables declaration
   public static DateTime now = new DateTime();  // get new Joda-Time for actual date
@@ -91,10 +90,8 @@ public class ActivityCalendar extends JFrame {
   public static int      currentMonth;          // current month
   public static int      currentDayOfMonth;     // current day of the month
   public static DateTime selectedDate;          // selected date
-  // End of calendar action variables declaration
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Create new form ActivityCalendar ">
+  // Create new ActivityCalendar form
   public ActivityCalendar() {
     currentYear       = now.getYear();          // current year
     currentMonth      = now.getMonthOfYear();   // current month
@@ -106,9 +103,8 @@ public class ActivityCalendar extends JFrame {
     initSystemTray();
     XMLUtil.getCategories();
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Create UI components ">
+  // Create UI
   @SuppressWarnings("unchecked")
   private void createUI() {
     topLayer       = new JPanel();
@@ -156,16 +152,14 @@ public class ActivityCalendar extends JFrame {
     pack();
     setLocationRelativeTo(null);
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Set application icon ">
+  // Set application icon
   private void setAppIcon() {
     Image image = Toolkit.getDefaultToolkit().getImage(cl.getResource(Constant.APP_ICON));
     setIconImage(image);
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" System tray ">
+  // Initialize the system tray icon and pop-up menu
   private void initSystemTray() {
     if(SystemTray.isSupported()) {
       PopupMenu popup = new PopupMenu();
@@ -216,12 +210,11 @@ public class ActivityCalendar extends JFrame {
       JOptionPane.showMessageDialog(this, "System tray is currently not supported!", "Error", JOptionPane.ERROR_MESSAGE);
     }
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Show month dialog ">
+  // Show a "date selector"
   private void showMonthDialog() {
     if(monthDialog == null || !monthDialog.isVisible()) {
-      monthDialog = new MonthDialog(this, this, "date selector", true, selectedDate.getYear(), selectedDate.getMonthOfYear(), selectedDate.getDayOfMonth());
+      monthDialog = new MonthDialog(this, this, "jump to date", true, selectedDate.getYear(), selectedDate.getMonthOfYear(), selectedDate.getDayOfMonth());
       DateTime result = monthDialog.showDialog();
       if(result != null) {
         selectedDate = result;
@@ -233,9 +226,8 @@ public class ActivityCalendar extends JFrame {
       monthDialog.dispose();
     }
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Show summary dialog ">
+  // Show the _summary_ dialog
   private void showSummaryDialog() {
     if(summaryDialog == null || !summaryDialog.isVisible()) {
       summaryDialog = new SummaryDialog(this, this, "summary", true, selectedDate.getYear(), selectedDate.getMonthOfYear(), selectedDate.getDayOfMonth());
@@ -246,9 +238,8 @@ public class ActivityCalendar extends JFrame {
       summaryDialog.dispose();
     }
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Show settings dialog ">
+  // Show the _settings_ dialog
   private void showSettingsDialog() {
     if(settingsDialog == null || !settingsDialog.isVisible()) {
       settingsDialog = new SettingsDialog(this, this, "settings", true);
@@ -259,9 +250,8 @@ public class ActivityCalendar extends JFrame {
       settingsDialog.dispose();
     }
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Show activity dialog ">
+  // Show the _activity_ dialog
   private void showActivityDialog(Activity a) {
     if(activityDialog == null || !activityDialog.isVisible()) {
       activityDialog = new ActivityDialog(this, this, "activity", true, a);
@@ -288,17 +278,15 @@ public class ActivityCalendar extends JFrame {
       activityDialog.dispose();
     }
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Exit method ">
+  // Exit application method
   private void exitApplication() {
     // Remove application from system-tray and close 
     systemTray.remove(trayIcon);
     System.exit(0);
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Show/hide method ">
+  // Show/hide application method
   private void showHideApplication() {
     // Show or hide Activity Calendar window
     if(this.isShowing()) {
@@ -308,39 +296,31 @@ public class ActivityCalendar extends JFrame {
       this.setVisible(true);
     }
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Minimize method ">
+  // Minimize application method
   private void minimizeApplication() {
     setState(ActivityCalendar.ICONIFIED);
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Goto today method ">
+  // Make selected date to today
   private void gotoToday() {
     selectedDate = now;
     updateActivityUI();
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" One day backward method ">
+  // Go backward one day
   private void prevDay() {
     selectedDate = selectedDate.minusDays(1);
     updateActivityUI();
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" One day forward method ">
+  // Go forward one day
   private void nextDay() {
     selectedDate = selectedDate.plusDays(1);
     updateActivityUI();
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Update Activity UI ">
-  /**
-   * Update Activity UI with new date parameters.
-   */
+  //Update Activity UI with new date parameters.
   private void updateActivityUI() {
     Rectangle rect;
     rect = activityPane.getVisibleRectangle();
@@ -353,9 +333,8 @@ public class ActivityCalendar extends JFrame {
     revalidate();
     repaint();
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Header move methods ">
+  // Application window mover methods
   private void headerDragged(MouseEvent e) {
     int x = e.getXOnScreen();
     int y = e.getYOnScreen();
@@ -367,9 +346,8 @@ public class ActivityCalendar extends JFrame {
     mouseX = e.getX();
     mouseY = e.getY();
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Main method ">
+  // Main method
   /**
    * @param args the command line arguments
    */
@@ -382,6 +360,7 @@ public class ActivityCalendar extends JFrame {
       for(javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
         if("Windows".equals(info.getName())) {
           javax.swing.UIManager.setLookAndFeel(info.getClassName());
+          customizeLAF();
           break;
         }
       }
@@ -403,9 +382,136 @@ public class ActivityCalendar extends JFrame {
       }
     });
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Mouse Listener ">
+  // Set look and feel colors
+  private static void customizeLAF() {
+    // JLabel
+    UIManager.put("Label.foreground", Constant.TEXT_COLOR);
+
+    // JTextField
+    UIManager.put("text", Constant.TEXT_COLOR);
+    UIManager.put("textHighlight", Constant.BG_BLUE);
+    UIManager.put("textHighlightText", Constant.TEXT_COLOR);
+    UIManager.put("textInactiveText", Constant.BG_DARKER_COLOR);
+    UIManager.put("TextField.background", Constant.BG_COLOR);
+    UIManager.put("TextField.border", new MatteBorder(1, 1, 1, 1, Constant.BG_DARKER_BLUE));
+    UIManager.put("TextField.caretForeground", Constant.TEXT_COLOR);
+    UIManager.put("TextField.disabledBackground", Constant.BG_DARKER_COLOR);
+    UIManager.put("TextField.foreground", Constant.TEXT_COLOR);
+    UIManager.put("TextField.highlight", Constant.BG_BLUE);
+    UIManager.put("TextField.inactiveBackground", Constant.BG_COLOR);
+    UIManager.put("TextField.inactiveForeground", Constant.BG_DARKER_COLOR);
+    UIManager.put("TextField.selectionBackground", Constant.BG_BLUE);
+    UIManager.put("TextField.selectionForeground", Constant.TEXT_COLOR);
+
+    // JRadioButton
+    UIManager.put("RadioButton.background", Constant.BG_COLOR);
+    UIManager.put("RadioButton.border", Constant.BG_DARKER_BLUE);
+    UIManager.put("RadioButton.darkShadow", Constant.BG_DARKER_BLUE);
+    UIManager.put("RadioButton.disabledText", Constant.BG_DARKER_COLOR);
+    UIManager.put("RadioButton.focus", Constant.TEXT_COLOR);
+    UIManager.put("RadioButton.foreground", Constant.TEXT_COLOR);
+    UIManager.put("RadioButton.highlight", Constant.BG_DARKER_BLUE);
+    UIManager.put("RadioButton.interiorBackground", Constant.BG_COLOR);
+    UIManager.put("RadioButton.light", Constant.BG_BLUE);
+    UIManager.put("RadioButton.select", Constant.BG_DARKER_BLUE);
+    UIManager.put("RadioButton.shadow", Constant.BG_BLUE);
+
+    // JTree
+    UIManager.put("Tree.background", Constant.BG_COLOR);
+    UIManager.put("Tree.editorBorder", new MatteBorder(1, 1, 1, 1, Constant.BG_DARKER_BLUE));
+    UIManager.put("Tree.editorBorderSelectionColor", Constant.BG_DARKER_COLOR);
+    UIManager.put("Tree.foreground", Constant.TEXT_COLOR);
+    UIManager.put("Tree.hash", Constant.BORDER_COLOR);
+    UIManager.put("Tree.line", Constant.BORDER_COLOR);
+    UIManager.put("Tree.selectionBackground", Constant.BG_BLUE);
+    UIManager.put("Tree.selectionBorderColor", Constant.BG_DARKER_BLUE);
+    UIManager.put("Tree.selectionForeground", Constant.TEXT_COLOR);
+    UIManager.put("Tree.textBackground", Constant.BG_COLOR);
+    UIManager.put("Tree.textForeground", Constant.TEXT_COLOR);
+
+    // JCheckBox
+    UIManager.put("CheckBox.background", Constant.BG_COLOR);
+    UIManager.put("CheckBox.border", new MatteBorder(1, 1, 1, 1, Constant.BG_DARKER_BLUE));
+    UIManager.put("CheckBox.darkShadow", Constant.BG_DARKER_BLUE);
+    UIManager.put("CheckBox.disabledText", Constant.BG_DARKER_COLOR);
+    UIManager.put("CheckBox.focus", Constant.TEXT_COLOR);
+    UIManager.put("CheckBox.foreground", Constant.TEXT_COLOR);
+    UIManager.put("CheckBox.highlight", Constant.BG_DARKER_BLUE);
+    UIManager.put("CheckBox.interiorBackground", Constant.BG_COLOR);
+    UIManager.put("CheckBox.light", Constant.BG_BLUE);
+    UIManager.put("Checkbox.select", Constant.BG_DARKER_BLUE);
+    UIManager.put("CheckBox.shadow", Constant.BG_BLUE);
+
+    // JSpinner
+    UIManager.put("Spinner.background", Constant.BG_COLOR);
+    UIManager.put("Spinner.border", new MatteBorder(1, 1, 1, 1, Constant.BG_DARKER_BLUE));
+    UIManager.put("Spinner.foreground", Constant.TEXT_COLOR);
+
+    // JPaswordField
+    UIManager.put("PasswordField.background", Constant.BG_COLOR);
+    UIManager.put("PasswordField.border", new MatteBorder(1, 1, 1, 1, Constant.BG_DARKER_BLUE));
+    UIManager.put("PasswordField.caretForeground", Constant.TEXT_COLOR);
+    UIManager.put("PasswordField.disabledBackground", Constant.BG_DARKER_COLOR);
+    UIManager.put("PasswordField.foreground", Constant.TEXT_COLOR);
+    UIManager.put("PasswordField.inactiveBackground", Constant.BG_COLOR);
+    UIManager.put("PasswordField.inactiveForeground", Constant.BG_DARKER_COLOR);
+    UIManager.put("PasswordField.selectionBackground", Constant.BG_BLUE);
+    UIManager.put("PasswordField.selectionForeground", Constant.TEXT_COLOR);
+
+    // JEditorPane
+    UIManager.put("EditorPane.background", Constant.BG_COLOR);
+    UIManager.put("EditorPane.caretForeground", Constant.TEXT_COLOR);
+    UIManager.put("EditorPane.foreground", Constant.TEXT_COLOR);
+    UIManager.put("EditorPane.inactiveForeground", Constant.BG_DARKER_COLOR);
+    UIManager.put("EditorPane.selectionBackground", Constant.BG_BLUE);
+    UIManager.put("EditorPane.selectionForeground", Constant.TEXT_COLOR);
+
+    // JSlider
+    UIManager.put("Slider.altTrackColo", Constant.BG_COLOR);
+    UIManager.put("Slider.background", Constant.BG_COLOR);
+    UIManager.put("Slider.border", null);
+    UIManager.put("Slider.darkShadow", Constant.BG_DARKER_BLUE);
+    UIManager.put("Slider.focus", Constant.TEXT_COLOR);
+    UIManager.put("Slider.foreground", Constant.TEXT_COLOR);
+    UIManager.put("Slider.highlight", Constant.BG_DARKER_BLUE);
+    UIManager.put("Slider.shadow", Constant.BG_BLUE);
+    UIManager.put("Slider.thumb", Constant.BG_DARKER_BLUE);
+    UIManager.put("Slider.tickColor", Constant.TEXT_COLOR);
+    UIManager.put("Slider.trackBorder", null);
+
+    // JTabbedPane
+    UIManager.put("TabbedPane.background", Constant.BG_COLOR);
+    UIManager.put("TabbedPane.borderHightlightColor", Constant.BG_DARKER_COLOR);
+    UIManager.put("TabbedPane.contentAreaColor", Constant.BG_COLOR);
+    UIManager.put("TabbedPane.darkShadow", Constant.BG_DARKER_BLUE);
+    UIManager.put("TabbedPane.focus", Constant.TEXT_COLOR);
+    UIManager.put("TabbedPane.foreground", Constant.TEXT_COLOR);
+    UIManager.put("TabbedPane.highlight", Constant.BG_DARKER_BLUE);
+    UIManager.put("TabbedPane.light", Constant.BG_BLUE);
+    UIManager.put("TabbedPane.selectedForeground", Constant.TEXT_COLOR);
+    UIManager.put("TabbedPane.shadow", Constant.BG_BLUE);
+
+    // JColorChooser
+    UIManager.put("ColorChooser.background", Constant.BG_COLOR);
+    UIManager.put("ColorChooser.foreground", Constant.TEXT_COLOR);
+    //ColorChooser.panels AbstractColorChooserPanel[ ]
+
+    // JFormattedTextField
+    UIManager.put("FormattedTextField.background", Constant.BG_COLOR);
+    UIManager.put("FormattedTextField.border", new MatteBorder(1, 1, 1, 1, Constant.BG_DARKER_BLUE));
+    UIManager.put("FormattedTextField.caretForeground", Constant.TEXT_COLOR);
+    UIManager.put("FormattedTextField.foreground	Color", Constant.TEXT_COLOR);
+    UIManager.put("FormattedTextField.inactiveBackground", Constant.BG_COLOR);
+    UIManager.put("FormattedTextField.inactiveForeground", Constant.BG_DARKER_COLOR);
+    UIManager.put("FormattedTextField.selectionBackground", Constant.BG_BLUE);
+    UIManager.put("FormattedTextField.selectionForeground", Constant.TEXT_COLOR);
+
+    // JPanel
+    UIManager.put("Panel.background", Constant.BG_COLOR);
+  }
+
+  // Mouse listener
   MouseListener mouseListener = new MouseListener() {
     @Override
     public void mouseClicked(MouseEvent e) {
@@ -436,9 +542,8 @@ public class ActivityCalendar extends JFrame {
       //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
   };
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Property change ">
+  // Property change listener
   PropertyChangeListener propertyChangeListener = new PropertyChangeListener() {
     @Override
     public void propertyChange(PropertyChangeEvent e) {
@@ -471,9 +576,8 @@ public class ActivityCalendar extends JFrame {
       }
     }
   };
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Activity header ">
+  // Application header
   class ActivityHeader extends JPanel {
     private JLabel headerLabel;
     private JLabel closeButton;
@@ -496,7 +600,6 @@ public class ActivityCalendar extends JFrame {
       headerLabel.setFont(headerLabel.getFont().deriveFont(Font.BOLD).deriveFont(22f));
       headerLabel.setText(Constant.APP_DISPLAY_NAME);
       headerLabel.setVerticalAlignment(JLabel.CENTER);
-      headerLabel.setForeground(Constant.TEXT_COLOR);
       headerLabel.setPreferredSize(new Dimension(headerLabel.getSize().width, 40));
 
       closeButton.setIcon(new ImageIcon(cl.getResource(Constant.CLOSE_ICON)));
@@ -577,18 +680,17 @@ public class ActivityCalendar extends JFrame {
       super.paint(g2d);
     }
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Activity menu ">
+  // Application menu
   class ActivityMenu extends JPanel {
-    private JLabel timeLabel;
+    private JLabel  timeLabel;
     private JLabelX todayLabel;
-    private JLabel prevButton;
-    private JLabel nextButton;
-    private JLabel settingsButton;
-    private JLabel summaryButton;
+    private JLabel  prevButton;
+    private JLabel  nextButton;
+    private JLabel  settingsButton;
+    private JLabel  summaryButton;
     private JLabelX selectedDateLabel;
-    private JLabel addButton;
+    private JLabel  addButton;
 
     ActivityMenu() {
       createMenu();
@@ -610,14 +712,12 @@ public class ActivityCalendar extends JFrame {
       setBorder(new EmptyBorder(5, 5, 5, 5));
 
       timeLabel.setFont(timeLabel.getFont().deriveFont(Font.BOLD).deriveFont(34f));
-      timeLabel.setForeground(Constant.TEXT_COLOR);
       timeLabel.setVerticalAlignment(JButton.CENTER);
 
       todayLabel.setFont(todayLabel.getFont().deriveFont(Font.BOLD).deriveFont(14f));
       todayLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
       todayLabel.setVerticalAlignment(JButton.CENTER);
       todayLabel.setToolTipText("today");
-      todayLabel.setForeground(Constant.TEXT_COLOR);
       todayLabel.addMouseListener(new MouseAdapter() {
         @Override
         public void mouseClicked(MouseEvent e) {
@@ -690,7 +790,6 @@ public class ActivityCalendar extends JFrame {
       selectedDateLabel.setVerticalAlignment(JButton.CENTER);
       selectedDateLabel.setText(String.format("%d.%02d.%02d", selectedDate.getYear(), selectedDate.getMonthOfYear(), selectedDate.getDayOfMonth()));
       selectedDateLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
-      selectedDateLabel.setForeground(Constant.TEXT_COLOR);
       selectedDateLabel.setToolTipText("calendar");
       selectedDateLabel.addMouseListener(new MouseAdapter() {
         @Override
@@ -770,5 +869,4 @@ public class ActivityCalendar extends JFrame {
       super.paint(g2d);
     }
   }
-  //</editor-fold>
 }

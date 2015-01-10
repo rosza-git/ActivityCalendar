@@ -1,6 +1,8 @@
 /**
  * Customized title bar component from JLabel.
  * 
+ * @author Szalay Roland
+ * 
  */
 package rosza.xcomponents;
 
@@ -11,13 +13,10 @@ import javax.swing.JLabel;
 import javax.swing.border.EmptyBorder;
 import rosza.activitycalendar.Constant;
 
-/**
- *
- * @author roli
- */
 public class TitleBarX extends JLabel {
   public TitleBarX() {
     super();
+
     setBorder(new EmptyBorder(5, 0, 5, 0));
   }
 

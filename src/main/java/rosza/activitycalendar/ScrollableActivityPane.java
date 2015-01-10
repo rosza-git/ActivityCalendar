@@ -6,7 +6,6 @@
  */
 package rosza.activitycalendar;
 
-//<editor-fold defaultstate="collapsed" desc=" Import ">
 import java.awt.BasicStroke;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -25,13 +24,9 @@ import javax.swing.SwingConstants;
 import javax.swing.border.MatteBorder;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
-//</editor-fold>
 
 public class ScrollableActivityPane extends JLayeredPane implements Scrollable {
-  //<editor-fold defaultstate="collapsed" desc=" Variables declaration ">
-  private final int currentView;
-  private final int cellWidth;
-
+  // Date and time variables
   private DateTime  tempCalendar       = new DateTime();
   private final int selectedYear       = ActivityCalendar.selectedDate.getYear();
   private final int selectedMonth      = ActivityCalendar.selectedDate.getMonthOfYear();
@@ -39,15 +34,19 @@ public class ScrollableActivityPane extends JLayeredPane implements Scrollable {
   private int       currentHour        = tempCalendar.getHourOfDay();
   private int       currentMinute      = tempCalendar.getMinuteOfHour();
 
-  private int dayPaneHeight;
+  private final int currentView;
+  private final int cellWidth;
+  private int       dayPaneHeight;
 
+  // Scroll unit size
   private int unitIncrement = Constant.FONT_SIZE;
 
+  // Thread variables
   private volatile Thread thread;
   private volatile boolean running = true;
   private static int count = 0;
-  //</editor-fold>
 
+  // Create scrollable activity pane
   public ScrollableActivityPane(int view, int year, int month, int day) {
     setAutoscrolls(true);
     addMouseMotionListener(mouseMotionListener);
@@ -57,7 +56,7 @@ public class ScrollableActivityPane extends JLayeredPane implements Scrollable {
     currentView = view;
     cellWidth = currentView == Constant.DAY_VIEW ? Constant.DAY_CELL_WIDTH : Constant.WEEK_CELL_WIDTH;
 
-    createDaysPane();
+    createView();
 
     ArrayList<Activity> actList;
 
@@ -87,12 +86,14 @@ public class ScrollableActivityPane extends JLayeredPane implements Scrollable {
     thread.start();
   }
 
+  // Stop the thread
   public void stopRunning() {
     thread.interrupt();
     running = false;
     thread = null;
   }
 
+  // Create and redraw the time line
   class TimeLine extends Thread {
     TimeLine(String n) {
       super(n);
@@ -118,7 +119,8 @@ public class ScrollableActivityPane extends JLayeredPane implements Scrollable {
     }
   }
 
-  private void createDaysPane() {
+  // Creates a day, week (or a month (not implemented yet)) view
+  private void createView() {
     tempCalendar = new DateTime(selectedYear, selectedMonth, selectedDayOfMonth, 0, 0);
 
     if(currentView == Constant.DAY_VIEW) {
@@ -150,6 +152,7 @@ public class ScrollableActivityPane extends JLayeredPane implements Scrollable {
     }
   }
 
+  // Time and coordinate converters
   private int time2y(int h, int m) {
     return (int)(h * Constant.CELL_HEIGHT + (m / 60.0) * Constant.CELL_HEIGHT);
   }
@@ -163,6 +166,7 @@ public class ScrollableActivityPane extends JLayeredPane implements Scrollable {
     return r;
   }
 
+  // Day and coordinate converter
   private int day2x(int view, int d) {
     d = view == Constant.DAY_VIEW ? 0 : --d;
     int x = cellWidth * d + (cellWidth / 2) - ((cellWidth - Constant.CELL_SPACER * 2) / 2);
@@ -170,6 +174,7 @@ public class ScrollableActivityPane extends JLayeredPane implements Scrollable {
     return x;
   }
 
+  // Create a day column
   private class DayPane extends JPanel {
     private DayPane(int view, int y, int m, int d, boolean selected) {
       int dHeight = 0;
@@ -215,6 +220,7 @@ public class ScrollableActivityPane extends JLayeredPane implements Scrollable {
     }
   }
 
+  // Mouse listener
   MouseListener mouseListener = new MouseListener() {
     @Override
     public void mouseClicked(MouseEvent e) {
@@ -248,6 +254,7 @@ public class ScrollableActivityPane extends JLayeredPane implements Scrollable {
     }
   };
 
+  // Mouse motion listener
   MouseMotionListener mouseMotionListener = new MouseMotionListener() {
     @Override
     public void mouseMoved(MouseEvent e) {
@@ -258,6 +265,7 @@ public class ScrollableActivityPane extends JLayeredPane implements Scrollable {
     }
   };
 
+  // Methods for scrollpane
   @Override
   public Dimension getPreferredSize() {
     return super.getPreferredSize();

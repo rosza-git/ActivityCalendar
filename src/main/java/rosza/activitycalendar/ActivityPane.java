@@ -5,7 +5,6 @@
  */
 package rosza.activitycalendar;
 
-//<editor-fold defaultstate="collapsed" desc=" Import ">
 import java.awt.BasicStroke;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -21,31 +20,35 @@ import javax.swing.border.*;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import rosza.xcomponents.JScrollBarX;
-//</editor-fold>
 
 public class ActivityPane extends JPanel  {
-  //<editor-fold defaultstate="collapsed" desc=" Variables declaration ">
+  // Horizontal and vertical bars of the scrollpane
   private static Bars daysBar;
   private static Bars hoursBar;
 
+  // Date and time variables
   private final DateTime now = new DateTime();
-  private DateTime  tempCalendar = new DateTime(now);
-  private int       currentHour  = now.getHourOfDay();
-  private int       currentMinute = now.getMinuteOfHour();
-  private final int selectedYear = ActivityCalendar.selectedDate.getYear();
-  private final int selectedMonth = ActivityCalendar.selectedDate.getMonthOfYear();
-  private final int selectedDayOfMonth = ActivityCalendar.selectedDate.getDayOfMonth();
+  private DateTime       tempCalendar = new DateTime(now);
+  private int            currentHour  = now.getHourOfDay();
+  private int            currentMinute = now.getMinuteOfHour();
+  private final int      selectedYear = ActivityCalendar.selectedDate.getYear();
+  private final int      selectedMonth = ActivityCalendar.selectedDate.getMonthOfYear();
+  private final int      selectedDayOfMonth = ActivityCalendar.selectedDate.getDayOfMonth();
+
+  // Scrollpane
   private final ScrollableActivityPane scrollableActivityPane;
   public final JScrollPane scrollPane;
 
   private final int currentView;
   private final int cellWidth;
 
+  // Thread variables
   private volatile Thread thread;
   private volatile boolean running = true;
   private static int count = 0;
   //</editor-fold>
 
+  // Create Activity pane
   public ActivityPane(int view, int year, int month, int day) {
     setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
     setOpaque(true);
@@ -83,30 +86,19 @@ public class ActivityPane extends JPanel  {
     thread.start();
   }
 
-  PropertyChangeListener propertyChangeListener = new PropertyChangeListener() {
-    @Override
-    public void propertyChange(PropertyChangeEvent e) {
-      if(e.getPropertyName().equals(Constant.SELECTION_CHANGE)) {
-        firePropertyChange(Constant.SELECTION_CHANGE, e.getOldValue(), e.getNewValue());
-      }
-      if(e.getSource() instanceof ScrollableActivityPane) {
-        if(e.getPropertyName().equals(Constant.MODIFY_ACTIVITY)) {
-          firePropertyChange(Constant.MODIFY_ACTIVITY, e.getOldValue(), e.getNewValue());
-        }
-      }
-    }
-  };
-
+  // Getter method
   public Rectangle getVisibleRectangle() {
     Rectangle rect = new Rectangle();
     scrollableActivityPane.computeVisibleRect(rect);
     return rect;
   }
 
+  // Scroll the scrollpane to the desired position
   public void scrollToVisibleRect(Rectangle rect) {
     scrollableActivityPane.scrollRectToVisible(rect);
   }
 
+  // Create the corners of the scroll view
   private class Corner extends JLabel {
     private Corner() {
       setBackground(Constant.BG_COLOR);
@@ -125,6 +117,7 @@ public class ActivityPane extends JPanel  {
     }
   }
 
+  // Stop the thread
   public void stopRunning() {
     scrollableActivityPane.stopRunning();
     thread.interrupt();
@@ -132,7 +125,53 @@ public class ActivityPane extends JPanel  {
     thread = null;
   }
 
-  class TimeLine extends Thread {
+  // Property change listener
+  PropertyChangeListener propertyChangeListener = new PropertyChangeListener() {
+    @Override
+    public void propertyChange(PropertyChangeEvent e) {
+      if(e.getPropertyName().equals(Constant.SELECTION_CHANGE)) {
+        firePropertyChange(Constant.SELECTION_CHANGE, e.getOldValue(), e.getNewValue());
+      }
+      if(e.getSource() instanceof ScrollableActivityPane) {
+        if(e.getPropertyName().equals(Constant.MODIFY_ACTIVITY)) {
+          firePropertyChange(Constant.MODIFY_ACTIVITY, e.getOldValue(), e.getNewValue());
+        }
+      }
+    }
+  };
+
+  // Mouse listener
+  MouseListener mouseListener = new MouseListener() {
+    @Override
+    public void mouseClicked(MouseEvent e) {
+      if(e.getSource() instanceof JLabel) {
+        firePropertyChange(Constant.SELECTION_CHANGE, null, ((JLabel)e.getSource()).getName());
+      }
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+      //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+      //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+      //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+      //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+  };
+
+  // Create and redraw the time line
+  private class TimeLine extends Thread {
     TimeLine(String n) {
       super(n);
     }
@@ -157,6 +196,7 @@ public class ActivityPane extends JPanel  {
     }
   }
 
+  // Create the horizontal and vertical bars of the scrollpane
   private class Bars extends JPanel {
     public static final int HOURS = 0;
     public static final int DAYS = 1;
@@ -235,7 +275,7 @@ public class ActivityPane extends JPanel  {
       l.setMaximumSize(new Dimension(cellWidth, Constant.BAR_HEIGHT));
       l.setMinimumSize(new Dimension(cellWidth, Constant.BAR_HEIGHT));
       l.setPreferredSize(new Dimension(cellWidth, Constant.BAR_HEIGHT));
-      l.addMouseListener(dayLabelMouseListener);
+      l.addMouseListener(mouseListener);
 
       return l;
     }
@@ -265,34 +305,5 @@ public class ActivityPane extends JPanel  {
         g2d.drawLine(getWidth() - 10, (int)currentState, getWidth(), (int)currentState);
       }
     }
-
-    MouseListener dayLabelMouseListener = new MouseListener() {
-      @Override
-      public void mouseClicked(MouseEvent e) {
-        if(e.getSource() instanceof JLabel) {
-          firePropertyChange(Constant.SELECTION_CHANGE, null, ((JLabel)e.getSource()).getName());
-        }
-      }
-
-      @Override
-      public void mousePressed(MouseEvent e) {
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-      }
-
-      @Override
-      public void mouseReleased(MouseEvent e) {
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-      }
-
-      @Override
-      public void mouseEntered(MouseEvent e) {
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-      }
-
-      @Override
-      public void mouseExited(MouseEvent e) {
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-      }
-    };
   }
 }

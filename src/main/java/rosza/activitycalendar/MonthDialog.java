@@ -1,46 +1,65 @@
 /**
- * Month dialog.
+ * Month dialog
  * 
  * @author Szalay Roland
  * 
  */
 package rosza.activitycalendar;
 
-import rosza.xcomponents.JDialogX;
-import rosza.xcomponents.JButtonX;
-import rosza.xcomponents.JComboBoxX;
-import rosza.xcomponents.JSpinnerX;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Frame;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import javax.swing.*;
-import javax.swing.border.*;
+import javax.swing.BoxLayout;
+import javax.swing.GroupLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.LayoutStyle;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.MatteBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
+import rosza.xcomponents.JDialogX;
+import rosza.xcomponents.JButtonX;
+import rosza.xcomponents.JComboBoxX;
+import rosza.xcomponents.JSpinnerX;
 
 public class MonthDialog extends JDialogX {
-  //<editor-fold defaultstate="collapsed" desc=" Variables declaration ">
-  private JSpinner  yearSpinner;
-  private JButton   prevMonthButton;
-  private JComboBox monthComboBox;
-  private JButton   nextMonthButton;
-  private JPanel    calendarControlPanel;
-  private JPanel    weekLabelsPanel;
-  private JPanel    dayLabelsPanel;
-  private JPanel    monthView;
-  private JPanel    monthPane;
-  private JButtonX  closeButton;
+  // UI variables
+  private JSpinner        yearSpinner;
+  private JLabel          prevMonthButton;
+  private JComboBox       monthComboBox;
+  private JLabel          nextMonthButton;
+  private JPanel          calendarControlPanel;
+  private JPanel          weekLabelsPanel;
+  private JPanel          dayLabelsPanel;
+  private JPanel          monthView;
+  private JPanel          monthPane;
+  private JButtonX        closeButton;
   private final Component relativeTo;
 
+  // Date and time variable
   private static DateTime selectedDate;
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Create new MonthCalendar ">
+  // Class loader
+  private final ClassLoader cl = this.getClass().getClassLoader();
 
+  // Create new MonthDialog
   public MonthDialog(Frame owner, Component locationComp, String title, boolean modal, int y, int m, int d) {
     super(owner, title, modal);
 
@@ -49,9 +68,8 @@ public class MonthDialog extends JDialogX {
 
     createUI();
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Get short or long day names ">
+  // Get short or long day names
   private static String[] getDaysName(int style) {
     String[] d = new String[7];
     DateTime date = new DateTime();
@@ -70,9 +88,9 @@ public class MonthDialog extends JDialogX {
 
     return d;
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Create UI ">
+  // Create UI
+  @SuppressWarnings("unchecked")
   private void createUI() {
     closeButton          = new JButtonX("close");
     monthPane            = new JPanel();
@@ -116,10 +134,9 @@ public class MonthDialog extends JDialogX {
     pack();
     setLocationRelativeTo(relativeTo);
   }
-  //</editor-fold>
 
   /**
-   * Show the dialog.
+   * Show the dialog
    * 
    * @return selected date
    */
@@ -129,7 +146,7 @@ public class MonthDialog extends JDialogX {
     return selectedDate;
   }
 
-  // Handle button clicks.
+  // Action listener
   ActionListener actionListener = new ActionListener() {
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -145,7 +162,7 @@ public class MonthDialog extends JDialogX {
     }
   };
 
-  //<editor-fold defaultstate="collapsed" desc=" MouseListener ">
+  // Mouse listener
   MouseListener cellListener = new MouseListener() {
     @Override
     public void mouseClicked(MouseEvent e) {
@@ -175,15 +192,13 @@ public class MonthDialog extends JDialogX {
     public void mouseReleased(MouseEvent e) {
     }
   };
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Previous month action ">
   /**
-   * Step one month backward.
+   * Step one month backward
    * 
    * @param e 
    */
-  private void prevMonthButtonActionPerformed(ActionEvent e) {
+  private void prevMonth() {
     selectedDate = selectedDate.minusMonths(1);
     monthPane.removeAll();
     monthView = new MonthView();
@@ -192,15 +207,13 @@ public class MonthDialog extends JDialogX {
     monthPane.add(monthView);
     pack();
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Next month action ">
   /**
-   * Step one month forward.
+   * Step one month forward
    * 
    * @param e 
    */
-  private void nextMonthButtonActionPerformed(ActionEvent e) {
+  private void nextMonth() {
     selectedDate = selectedDate.plusMonths(1);
     monthPane.removeAll();
     monthView = new MonthView();
@@ -209,10 +222,13 @@ public class MonthDialog extends JDialogX {
     monthPane.add(monthView);
     pack();
   }
-  // </editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Year change action ">
-  private void yearSpinnerStateChanged(ChangeEvent e) {
+  /**
+   * Change selected year
+   * 
+   * @param e 
+   */
+  private void yearSpinnerStateChanged() {
     selectedDate = selectedDate.withYear((int)yearSpinner.getValue());
     monthPane.removeAll();
     monthView = new MonthView();
@@ -221,10 +237,13 @@ public class MonthDialog extends JDialogX {
     monthPane.add(monthView);
     pack();
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Month change action ">
-  private void monthComboBoxActionPerformed(ActionEvent e) {
+  /**
+   * Change selected month
+   * 
+   * @param e 
+   */
+  private void monthComboBoxActionPerformed() {
     selectedDate = selectedDate.withMonthOfYear(monthComboBox.getSelectedIndex() + 1);
     monthPane.removeAll();
     monthView = new MonthView();
@@ -233,38 +252,27 @@ public class MonthDialog extends JDialogX {
     monthPane.add(monthView);
     pack();
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Month controller pane ">
+  // Month controller pane
   private class MonthControllerPane extends JPanel {
     public MonthControllerPane() {
       yearSpinner     = new JSpinner();
-      prevMonthButton = new JButtonX("<");
+      prevMonthButton = new JLabel();
       monthComboBox   = new JComboBox(getMonthsName(Constant.LONG_DISPLAY));
-      nextMonthButton = new JButtonX(">");
+      nextMonthButton = new JLabel();
 
       setOpaque(false);
 
       yearSpinner.setModel(new SpinnerNumberModel(selectedDate.getYear(), null, null, 1));
       yearSpinner.setToolTipText("year");
       yearSpinner.setEditor(new JSpinner.NumberEditor(yearSpinner, "#"));
-      yearSpinner.setPreferredSize(new Dimension(52, 20));
+      yearSpinner.setPreferredSize(new Dimension(yearSpinner.getPreferredSize().width, 22));
+      yearSpinner.setBorder(new MatteBorder(1, 1, 1, 1, Constant.BG_DARKER_BLUE));
       yearSpinner.setUI(new JSpinnerX());
       yearSpinner.addChangeListener(new ChangeListener() {
         @Override
         public void stateChanged(ChangeEvent e) {
-          yearSpinnerStateChanged(e);
-        }
-      });
-
-      prevMonthButton.setFont(prevMonthButton.getFont().deriveFont(Font.BOLD));
-      prevMonthButton.setText("<");
-      prevMonthButton.setToolTipText("previous month");
-      prevMonthButton.setPreferredSize(new Dimension(25, 25));
-      prevMonthButton.addActionListener(new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-          prevMonthButtonActionPerformed(e);
+          yearSpinnerStateChanged();
         }
       });
 
@@ -272,31 +280,66 @@ public class MonthDialog extends JDialogX {
       monthComboBox.setLightWeightPopupEnabled(false);
       monthComboBox.setSelectedIndex(selectedDate.getMonthOfYear() - 1);
       monthComboBox.setToolTipText("month");
+      monthComboBox.setBorder(new MatteBorder(1, 1, 1, 1, Constant.BG_DARKER_BLUE));
+      monthComboBox.setPreferredSize(new Dimension(monthComboBox.getPreferredSize().width, 22));
       monthComboBox.addActionListener(new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
-          monthComboBoxActionPerformed(e);
+          monthComboBoxActionPerformed();
         }
       });
 
-      nextMonthButton.setFont(nextMonthButton.getFont().deriveFont(Font.BOLD));
-      nextMonthButton.setText(">");
-      nextMonthButton.setToolTipText("next month");
-      nextMonthButton.setPreferredSize(new Dimension(25, 25));
-      nextMonthButton.addActionListener(new ActionListener() {
+      prevMonthButton.setIcon(new ImageIcon(cl.getResource(Constant.PREV24_ICON)));
+      prevMonthButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+      prevMonthButton.setToolTipText("previous month");
+      prevMonthButton.addMouseListener(new MouseAdapter() {
         @Override
-        public void actionPerformed(ActionEvent e) {
-          nextMonthButtonActionPerformed(e);
+        public void mouseClicked(MouseEvent e) {
+          prevMonth();
         }
       });
 
-      add(yearSpinner);
-      add(prevMonthButton);
-      add(monthComboBox);
-      add(nextMonthButton);
+      nextMonthButton.setIcon(new ImageIcon(cl.getResource(Constant.NEXT24_ICON)));
+      nextMonthButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+      nextMonthButton.setToolTipText("next month");
+      nextMonthButton.addMouseListener(new MouseAdapter() {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+          nextMonth();
+        }
+      });
+
+      GroupLayout layout = new GroupLayout(this);
+      this.setLayout(layout);
+      layout.setHorizontalGroup(
+        layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+        .addGroup(layout.createSequentialGroup()
+          .addContainerGap(0, 0)
+          .addComponent(prevMonthButton)
+          .addContainerGap(10, 500)
+          .addComponent(yearSpinner, 55, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+          .addContainerGap(10, 500)
+          .addComponent(monthComboBox, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+          .addContainerGap(10, 500)
+          .addComponent(nextMonthButton)
+          .addContainerGap(0, 0)
+        )
+      );
+      layout.setVerticalGroup(
+        layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+        .addGroup(layout.createSequentialGroup()
+          .addGap(5)
+          .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+            .addComponent(prevMonthButton)
+            .addComponent(yearSpinner)
+            .addComponent(monthComboBox)
+            .addComponent(nextMonthButton)
+          )
+          .addGap(5)
+        )
+      );
     }
 
-    //<editor-fold defaultstate="collapsed" desc=" Get months name ">
     /**
      * Get the long or short name of the months.
      * 
@@ -320,10 +363,9 @@ public class MonthDialog extends JDialogX {
 
       return temp;
     }
-    //</editor-fold>
   }
-  //</editor-fold>
 
+  // Create a "month view" from the selected month
   private class MonthView extends JPanel {
     public MonthView() {
       weekLabelsPanel = new JPanel();

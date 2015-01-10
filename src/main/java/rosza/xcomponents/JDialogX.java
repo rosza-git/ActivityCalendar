@@ -7,7 +7,6 @@
 package rosza.xcomponents;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Container;
 import java.awt.Font;
 import java.awt.Frame;
@@ -41,7 +40,7 @@ public class JDialogX extends JDialog {
     super(owner, title, modal);
 
     contentPane = new JPanel();
-    // Create UI.
+
     createUI(title);
   }
 
@@ -82,6 +81,7 @@ public class JDialogX extends JDialog {
     rootPane.add(contentPane, BorderLayout.CENTER);
   }
 
+  // Getter methods
   @Override
   public Container getContentPane() {
     return contentPane;

@@ -1,5 +1,5 @@
 /**
- * Activity dialog.
+ * Activity dialog
  * 
  * @author Szalay Roland
  * 
@@ -36,7 +36,7 @@ import rosza.xcomponents.JScrollBarX;
 import rosza.xcomponents.JSpinnerX;
 
 public class ActivityDialog extends JDialogX {
-  // ActivityDialog variables
+  // ActivityDialog
   private static Activity       activity;
   private static ActivityAction activityAction;
   // UI variables
@@ -54,9 +54,10 @@ public class ActivityDialog extends JDialogX {
   private JButtonX       modifyActivityButton;
   private JButtonX       removeActivityButton;
   private JButtonX       cancelButton;
-  private final Category categoryTreeElements = XMLUtil.getCategories();
   private JScrollPane    categoryScrollPane;
+  private final Category categoryTreeElements = XMLUtil.getCategories();
 
+  // Create new Activity dialog
   public ActivityDialog(Frame frame, Component locationComp, String title, boolean modal, Activity initialValue) {
     super(frame, title, modal);
 
@@ -128,7 +129,6 @@ public class ActivityDialog extends JDialogX {
     startDateSpinner.setModel(new SpinnerDateModel(activity == null ? new Date(ActivityCalendar.selectedDate.getMillis()) : new Date(activity.getStartDate().getMillis()), null, null, Calendar.DAY_OF_MONTH));
     startDateSpinner.setEditor(new JSpinner.DateEditor(startDateSpinner, "yyyy.MM.dd."));
     startDateSpinner.setUI(new JSpinnerX());
-    startDateSpinner.setBorder(new MatteBorder(1, 1, 1, 1, Constant.BG_DARKER_BLUE));
     startDateSpinner.addChangeListener(new ChangeListener() {
       @Override
       public void stateChanged(ChangeEvent e) {
@@ -139,7 +139,6 @@ public class ActivityDialog extends JDialogX {
     startTimeSpinner.setModel(new SpinnerDateModel(activity == null ? new Date(ActivityCalendar.selectedDate.getMillis()) : new Date(activity.getStartDate().getMillis()), null, null, Calendar.MINUTE));
     startTimeSpinner.setEditor(new JSpinner.DateEditor(startTimeSpinner, "HH:mm"));
     startTimeSpinner.setUI(new JSpinnerX());
-    startTimeSpinner.setBorder(new MatteBorder(1, 1, 1, 1, Constant.BG_DARKER_BLUE));
     startTimeSpinner.addChangeListener(new ChangeListener() {
       @Override
       public void stateChanged(ChangeEvent e) {
@@ -154,7 +153,6 @@ public class ActivityDialog extends JDialogX {
     endDateSpinner.setModel(new SpinnerDateModel(activity == null ? new Date(ActivityCalendar.selectedDate.getMillis()) : new Date(activity.getEndDate().getMillis()), null, null, Calendar.DAY_OF_MONTH));
     endDateSpinner.setEditor(new JSpinner.DateEditor(endDateSpinner, "yyyy.MM.dd."));
     endDateSpinner.setUI(new JSpinnerX());
-    endDateSpinner.setBorder(new MatteBorder(1, 1, 1, 1, Constant.BG_DARKER_BLUE));
     endDateSpinner.addChangeListener(new ChangeListener() {
       @Override
       public void stateChanged(ChangeEvent e) {
@@ -165,7 +163,6 @@ public class ActivityDialog extends JDialogX {
     endTimeSpinner.setModel(new SpinnerDateModel(activity == null ? new Date(ActivityCalendar.selectedDate.getMillis()) : new Date(activity.getEndDate().getMillis()), null, null, Calendar.MINUTE));
     endTimeSpinner.setEditor(new JSpinner.DateEditor(endTimeSpinner, "HH:mm"));
     endTimeSpinner.setUI(new JSpinnerX());
-    endTimeSpinner.setBorder(new MatteBorder(1, 1, 1, 1, Constant.BG_DARKER_BLUE));
     endTimeSpinner.addChangeListener(new ChangeListener() {
       @Override
       public void stateChanged(ChangeEvent e) {
@@ -189,6 +186,7 @@ public class ActivityDialog extends JDialogX {
     categoryScrollPane.setPreferredSize(new Dimension(categoryTree.getWidth(), (int)Constant.FONT_SIZE * 6));
     categoryScrollPane.getVerticalScrollBar().setUI(new JScrollBarX());
     categoryScrollPane.getHorizontalScrollBar().setUI(new JScrollBarX());
+    categoryScrollPane.setBorder(new MatteBorder(1, 1, 1, 1, Constant.BG_DARKER_BLUE));
 
     GroupLayout layout = new GroupLayout(getContentPane());
     getContentPane().setLayout(layout);
@@ -217,14 +215,14 @@ public class ActivityDialog extends JDialogX {
             .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING, false)
               .addComponent(commentTextField)
               .addGroup(layout.createSequentialGroup()
-                .addComponent(startDateSpinner, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+                .addComponent(startDateSpinner, 90, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(startTimeSpinner, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+                .addComponent(startTimeSpinner, 55, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
               )
               .addGroup(layout.createSequentialGroup()
-                .addComponent(endDateSpinner, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+                .addComponent(endDateSpinner, 90, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(endTimeSpinner, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
+                .addComponent(endTimeSpinner, 55, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
               )
               .addComponent(categoryScrollPane, GroupLayout.PREFERRED_SIZE, 250, GroupLayout.PREFERRED_SIZE)
             )
@@ -303,7 +301,7 @@ public class ActivityDialog extends JDialogX {
   }
 
   /**
-   * Create Activity class from user data.
+   * Create Activity class based on user input.
    * 
    * @return true if the datas are suitable for add or modify Activity, otherwise false
    */
@@ -345,7 +343,7 @@ public class ActivityDialog extends JDialogX {
   }
 
   /**
-   * Checks time interval conflicts.
+   * Check time interval conflicts.
    * 
    * @param start1 date 1 start
    * @param end1   date 1 end
@@ -360,7 +358,7 @@ public class ActivityDialog extends JDialogX {
     return firstI.overlaps(lastI);
   }
 
-  //<editor-fold defaultstate="collapsed" desc=" Change events ">
+  // Change events
   private void startDateSpinnerStateChanged(ChangeEvent e) {
     Date sd = new Date();
     sd.setYear(((Date)startDateSpinner.getValue()).getYear());
@@ -374,7 +372,7 @@ public class ActivityDialog extends JDialogX {
 /*    if(sd.after(ed)) {
       endDateSpinner.setValue(sd);
     }*/
-    // different dates are not allowed
+    // different dates are not allowed (for now)
     if(sd.compareTo(ed) != 0) {
       endDateSpinner.setValue(sd);
     }
@@ -393,7 +391,7 @@ public class ActivityDialog extends JDialogX {
 /*    if(sd.after(ed)) {
       startDateSpinner.setValue(ed);
     }*/
-    // different dates are not allowed
+    // different dates are not allowed (for now)
     if(ed.compareTo(sd) != 0) {
       startDateSpinner.setValue(ed);
     }
@@ -425,7 +423,7 @@ public class ActivityDialog extends JDialogX {
     }
   }
 
-  // Handle button clicks.
+  // Action listener
   ActionListener actionListener = new ActionListener() {
     @Override
     public void actionPerformed(ActionEvent e) {

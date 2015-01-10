@@ -12,6 +12,7 @@ import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.border.MatteBorder;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicArrowButton;
 import javax.swing.plaf.basic.BasicComboBoxUI;
@@ -29,6 +30,7 @@ public class JComboBoxX extends BasicComboBoxUI {
     JBasicComboPopupX popupX = new JBasicComboPopupX(comboBox);
     JList list = popupX.getList();
     list.setSelectionBackground(Constant.BG_BLUE);
+
     return popupX;
   }
 
@@ -41,6 +43,7 @@ public class JComboBoxX extends BasicComboBoxUI {
 class JBasicComboPopupX extends BasicComboPopup {
   JBasicComboPopupX(JComboBox box) {
     super(box);
+    setBorder(new MatteBorder(1, 1, 1, 1, Constant.BG_DARKER_BLUE));
   }
 
   @Override

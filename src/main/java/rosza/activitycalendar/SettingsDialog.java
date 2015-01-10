@@ -1,12 +1,11 @@
 /**
- * Settings dialog.
+ * Settings dialog
  * 
  * @author Szalay Roland
  * 
  */
 package rosza.activitycalendar;
 
-// Import 
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
@@ -25,9 +24,11 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle;
+import javax.swing.border.MatteBorder;
 import javax.swing.colorchooser.AbstractColorChooserPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -40,10 +41,11 @@ import org.jasypt.util.text.StrongTextEncryptor;
 import rosza.xcomponents.JButtonX;
 import rosza.xcomponents.JDialogX;
 import rosza.xcomponents.JScrollBarX;
+import rosza.xcomponents.JSpinnerX;
 import rosza.xcomponents.JTabbedPaneX;
 
 public class SettingsDialog extends JDialogX {
-  // UI variables declaration
+  // UI variables
   private JTabbedPane    settingsTabbedPane;
   private JPanel         storagePanel;
   private JPanel         categoriesPanel;
@@ -88,12 +90,14 @@ public class SettingsDialog extends JDialogX {
   private JRadioButton   emailSMTPRadioButton;
   private JRadioButton   emailSMTPSRadioButton;
   private JButtonX       emailSaveButton;
-  // End of UI variables declaration
 
-  // Properties variables declaration
+  // Properties variable
   private Properties props;
+
+  // Variable for encryption
   private final StrongTextEncryptor textEncryptor;      // http://technofes.blogspot.in/2011/10/orgjasyptexceptionsencryptionoperationn.html
 
+  // Create settings dialog
   public SettingsDialog(Frame frame, Component locationComp, String title, boolean modal) {
     super(frame, title, modal);
 
@@ -105,13 +109,13 @@ public class SettingsDialog extends JDialogX {
     setFieldValues();
   }
 
-  /**
-   * Show the dialog.
-   */
+  // Show the dialog.
   public void showDialog() {
     setVisible(true);
   }
 
+  // Create UI
+  @SuppressWarnings("unchecked")
   private void createUI(Component locationComp) {
     emailRadioGroup       = new ButtonGroup();
     storageRadioGroup     = new ButtonGroup();
@@ -166,18 +170,17 @@ public class SettingsDialog extends JDialogX {
          categoryColor.removeChooserPanel(accp);
       }
       else {
-        accp.setBackground(Constant.BG_COLOR);
         for(Component component : accp.getComponents()) {
           JComponent comp = (JComponent)component;
-          if(comp instanceof JPanel) {
-            for(Component c : comp.getComponents()) {
-              c.setBackground(Constant.BG_COLOR);
+          for(Component c : comp.getComponents()) {
+            if(c instanceof JSpinner) {
+              ((JSpinner)c).setUI(new JSpinnerX());
             }
           }
-          comp.setBackground(Constant.BG_COLOR);
         }
       }
     }
+
     categoryColor.getSelectionModel().addChangeListener(new ChangeListener() {
       @Override
       public void stateChanged(ChangeEvent e) {
@@ -243,7 +246,6 @@ public class SettingsDialog extends JDialogX {
     });
 
     storagePanel.setOpaque(true);
-    storagePanel.setBackground(Constant.BG_COLOR);
     GroupLayout storagePanelLayout = new GroupLayout(storagePanel);
     storagePanel.setLayout(storagePanelLayout);
     storagePanelLayout.setHorizontalGroup(
@@ -325,11 +327,11 @@ public class SettingsDialog extends JDialogX {
       }
     });
 
-    categoryScrollPane.setBackground(Constant.BG_COLOR);
     categoryScrollPane.setFont(categoryScrollPane.getFont());
     categoryScrollPane.setViewportView(categoryTree);
     categoryScrollPane.getVerticalScrollBar().setUI(new JScrollBarX());
     categoryScrollPane.getHorizontalScrollBar().setUI(new JScrollBarX());
+    categoryScrollPane.setBorder(new MatteBorder(1, 1, 1, 1, Constant.BG_DARKER_BLUE));
 
     newCategoryTextField.setText("");
     newCategoryTextField.setFont(newCategoryTextField.getFont());
@@ -385,7 +387,6 @@ public class SettingsDialog extends JDialogX {
     });
 
     categoriesPanel.setOpaque(true);
-    categoriesPanel.setBackground(Constant.BG_COLOR);
     GroupLayout categoriesPanelLayout = new GroupLayout(categoriesPanel);
     categoriesPanel.setLayout(categoriesPanelLayout);
     categoriesPanelLayout.setHorizontalGroup(
@@ -536,7 +537,6 @@ public class SettingsDialog extends JDialogX {
     });
 
     emailPanel.setOpaque(true);
-    emailPanel.setBackground(Constant.BG_COLOR);
     GroupLayout emailPanelLayout = new GroupLayout(emailPanel);
     emailPanel.setLayout(emailPanelLayout);
     emailPanelLayout.setHorizontalGroup(
@@ -632,9 +632,8 @@ public class SettingsDialog extends JDialogX {
 
     settingsTabbedPane.setUI(new JTabbedPaneX());
     settingsTabbedPane.setTabPlacement(JTabbedPane.TOP);
-    settingsTabbedPane.setBackground(Constant.BG_COLOR);
     settingsTabbedPane.setFont(settingsTabbedPane.getFont().deriveFont(Font.BOLD));
-    //settingsTabbedPane.addTab("storage", storagePanel);
+    settingsTabbedPane.addTab("storage", storagePanel);
     settingsTabbedPane.addTab("categories", categoriesPanel);
     settingsTabbedPane.addTab("e-mail", emailPanel);
 
@@ -654,7 +653,6 @@ public class SettingsDialog extends JDialogX {
     layout.setVerticalGroup(
       layout.createParallelGroup(GroupLayout.Alignment.LEADING)
       .addGroup(layout.createSequentialGroup()
-        //.addComponent(headerLabel)
         .addContainerGap()
         .addComponent(settingsTabbedPane, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -667,7 +665,7 @@ public class SettingsDialog extends JDialogX {
     setLocationRelativeTo(locationComp);
   }
 
-  //<editor-fold defaultstate="collapsed" desc=" Set field values from properties ">
+  // Set field values from properties
   private void setFieldValues() {
     try {
       // Get storage settings
@@ -751,9 +749,8 @@ public class SettingsDialog extends JDialogX {
     catch(NullPointerException e) {
     }
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" E-mail save button state ">
+  // E-mail save button state
   private boolean enableEmailSaveButton() {
     boolean state = true;
     state &= !emailAddressTextField.getText().equals("");
@@ -764,30 +761,13 @@ public class SettingsDialog extends JDialogX {
 
     return state;
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Add category button state ">
+  // Add category button state
   private boolean enableAddCategoryButton() {
     return !(newCategoryTextField.getText().equals("") && (categoryTree.getSelected().getID() == 0));
   }
-  //</editor-fold>
 
-  // Handle button clicks.
-  ActionListener actionListener = new ActionListener() {
-    @Override
-    public void actionPerformed(ActionEvent e) {
-      if(null != e.getActionCommand()) {
-        switch (e.getActionCommand()) {
-          case Constant.CLOSE_DIALOG:
-            setVisible(false);
-            dispose();
-            break;
-        }
-      }
-    }
-  };
-
-  //<e ditor-fold defaultstate="collapsed" desc=" Button events ">
+  // Button handlers
   private void categoryAddButtonActionPerformed(ActionEvent e) {
     int id = Category.getLastID((Category)categoryTree.getModel().getRoot(), 0);
     Category c = new Category(++id, newCategoryTextField.getText(), categoryColor.getColor(), false);
@@ -882,9 +862,8 @@ public class SettingsDialog extends JDialogX {
 
     XMLUtil.setProperties(props);
   }
-  //</e ditor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Radio button events ">
+  // Radio button events
   private void storageRadioActionPerformed(ActionEvent e) {
     if(xmlRadio.isSelected()) {
       this.dbServerTextField.setEnabled(false);
@@ -899,9 +878,8 @@ public class SettingsDialog extends JDialogX {
       this.dbPasswordField.setEnabled(true);
     }
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Category-tree selection changed ">
+  // Category-tree selection changed
   private void categoryTreeSelectionChanged(TreeSelectionEvent e) {
     int id = categoryTree.getSelected().getID();
     if(id == 0) {
@@ -915,24 +893,37 @@ public class SettingsDialog extends JDialogX {
       removeCategoryButton.setEnabled(true);
     }
   }
-  //</editor-fold>
 
-  //<editor-fold defaultstate="collapsed" desc=" Document Listener ">
+  // Action listener
+  ActionListener actionListener = new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      if(null != e.getActionCommand()) {
+        switch (e.getActionCommand()) {
+          case Constant.CLOSE_DIALOG:
+            setVisible(false);
+            dispose();
+            break;
+        }
+      }
+    }
+  };
+
+  // Document Listener
   DocumentListener documentListener = new DocumentListener() {
-      @Override
-      public void insertUpdate(DocumentEvent e) {
-        emailSaveButton.setEnabled(enableEmailSaveButton());
-      }
+    @Override
+    public void insertUpdate(DocumentEvent e) {
+      emailSaveButton.setEnabled(enableEmailSaveButton());
+    }
 
-      @Override
-      public void removeUpdate(DocumentEvent e) {
-        emailSaveButton.setEnabled(enableEmailSaveButton());
-      }
+    @Override
+    public void removeUpdate(DocumentEvent e) {
+      emailSaveButton.setEnabled(enableEmailSaveButton());
+    }
 
-      @Override
-      public void changedUpdate(DocumentEvent e) {
-        emailSaveButton.setEnabled(enableEmailSaveButton());
-      }
-    };
-  //</editor-fold>
+    @Override
+    public void changedUpdate(DocumentEvent e) {
+      emailSaveButton.setEnabled(enableEmailSaveButton());
+    }
+  };
 }

@@ -6,7 +6,6 @@
  */
 package rosza.activitycalendar;
 
-//<editor-fold defaultstate="collapsed" desc=" Import ">
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Cursor;
@@ -20,28 +19,27 @@ import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-//</editor-fold>
+import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 
 public class ActivityLabel extends JPanel {
-  //<editor-fold defaultstate="collapsed" desc=" Variables declaration ">
   private final Activity activity;
   private int w;
   private int h;
-  JLabel timeLabel;
-  JLabel commentLabel;
-  JLabel categoryLabel;
-  //</editor-fold>
+  private JLabel timeLabel;
+  private JLabel commentLabel;
 
+  // Create new Activity label on Activity panel
   public ActivityLabel(Activity a) {
     activity = a;
 
-    initUIComponents();
+    createUI();
   }
 
-  private void initUIComponents() {
+  // Create UI
+  @SuppressWarnings("unchecked")
+  private void createUI() {
     setFont(getFont().deriveFont(Font.BOLD));
     setCursor(new Cursor(Cursor.HAND_CURSOR));
     setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -58,6 +56,7 @@ public class ActivityLabel extends JPanel {
     add(commentLabel);
   }
 
+  // Getter methods
   public Activity getActivity() {
     return activity;
   }
@@ -66,6 +65,26 @@ public class ActivityLabel extends JPanel {
     return activity.getComment();
   }
 
+  @Override
+  public Dimension getPreferredSize() {
+    return super.getPreferredSize();
+  }
+
+  // Setter methods
+  public void setStartTime(int h, int m) {
+    setStartHour(h);
+    setStartMinute(m);
+  }
+
+  public void setStartHour(int h) {
+    activity.setStartHour(h);
+  }
+
+  public void setStartMinute(int m) {
+    activity.setStartMinute(m);
+  }
+
+  // Create tooltip
   private String creatToolTip() {
     StringBuilder toolTip = new StringBuilder("<html><body>");
     toolTip.append("<b>comment:</b> ").append(escapeHtml(activity.getComment())).append("<br>");
@@ -78,25 +97,7 @@ public class ActivityLabel extends JPanel {
     return toolTip.toString();
   }
 
-  public void setStartTime(int h, int m) {
-    setStartHour(h);
-    setStartMinute(m);
-    //setText(getHeader());
-  }
-
-  public void setStartHour(int h) {
-    activity.setStartHour(h);
-  }
-
-  public void setStartMinute(int m) {
-    activity.setStartMinute(m);
-  }
-
-  @Override
-  public Dimension getPreferredSize() {
-    return super.getPreferredSize();
-  }
-
+  // Paint the label
   @Override
   public void paintComponent(Graphics g) {
     w = getWidth();

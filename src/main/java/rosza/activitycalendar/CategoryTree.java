@@ -1,5 +1,5 @@
 /**
- * Category Tree.
+ * Category Tree
  * 
  * @author Szalay Roland
  * 
@@ -17,12 +17,13 @@ public class CategoryTree extends JTree {
 
   public CategoryTree(Category graphNode) {
     super(new CategoryTreeModel(graphNode));
+
     getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
     DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
-    Icon personIcon = null;
-    renderer.setLeafIcon(personIcon);
-    renderer.setClosedIcon(personIcon);
-    renderer.setOpenIcon(personIcon);
+    Icon icon = null;
+    renderer.setLeafIcon(icon);
+    renderer.setClosedIcon(icon);
+    renderer.setOpenIcon(icon);
     setCellRenderer(renderer);
   }
 
