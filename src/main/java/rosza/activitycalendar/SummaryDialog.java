@@ -6,7 +6,6 @@
  */
 package rosza.activitycalendar;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -15,35 +14,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Properties;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import javax.mail.AuthenticationFailedException;
-import javax.mail.Authenticator;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Multipart;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import javax.mail.PasswordAuthentication;
-import javax.mail.internet.MimeBodyPart;
-import javax.mail.internet.MimeMultipart;
 import javax.swing.GroupLayout;
-import javax.swing.InputVerifier;
-import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle;
-import javax.swing.UIManager;
 import javax.swing.border.MatteBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
-import org.jasypt.util.text.StrongTextEncryptor;
 import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 import rosza.xcomponents.JDialogX;
 import rosza.xcomponents.JButtonX;
@@ -76,9 +55,13 @@ public class SummaryDialog extends JDialogX {
   // Properties variables declaration
   private final Properties props = XMLUtil.getProperties();
 
+  // Email variable
+  private Email email;
   // Create summary dialog
   public SummaryDialog(Frame owner, Component locationComp, String title, boolean modal, int y, int m, int d) {
     super(owner, title, modal);
+
+    email = new Email(this);
 
     selectedYear = y;
     selectedMonth = m;
@@ -334,107 +317,6 @@ public class SummaryDialog extends JDialogX {
     }
   }
 
-  // Send e-mail
-  private void sendMail(String to, String subject, String body) {
-    StrongTextEncryptor textEncryptor = new StrongTextEncryptor();
-    textEncryptor.setPassword(Constant.SALT);
-    Properties eMailProps = new Properties();
-
-		eMailProps.put("mail.smtp.host", props.getProperty(Constant.PROPS_EMAIL_SMTP_HOST));
-    eMailProps.put("mail.smtp.port", props.getProperty(Constant.PROPS_EMAIL_SMTP_PORT));
-    switch(props.getProperty(Constant.PROPS_EMAIL_PROTOCOL)) {
-    case Constant.PROPS_EMAIL_SMTPS:
-        eMailProps.put("mail.smtp.ssl.enable", true);
-        break;
-    case Constant.PROPS_EMAIL_TLS:
-        eMailProps.put("mail.smtp.starttls.enable", true);
-        break;
-    }
-
-    final String from = props.getProperty(Constant.PROPS_EMAIL_ADDRESS);
-    final String username = props.getProperty(Constant.PROPS_EMAIL_USERNAME);
-    final String password;
-    String pwd = props.getProperty(Constant.PROPS_EMAIL_PASSWORD);
-    try {
-      pwd = textEncryptor.decrypt(pwd);
-    }
-    catch(EncryptionOperationNotPossibleException e) {
-      JOptionPane.showMessageDialog(this, "Error in jaspyt!\n" + e.toString(), "Error", JOptionPane.ERROR_MESSAGE);
-    }
-    password = pwd;
-
-    Authenticator authenticator = null;
-    if(props.getProperty(Constant.PROPS_EMAIL_AUTHENTICATION).equals("true")) {
-      eMailProps.put("mail.smtp.auth", true);
-      authenticator = new Authenticator() {
-        private final PasswordAuthentication pa = new PasswordAuthentication(username, password);
-        @Override
-        public PasswordAuthentication getPasswordAuthentication() {
-          return pa;
-        }
-      };
-    }
-
-    Session session = Session.getDefaultInstance(eMailProps, authenticator);
-
-    try {
-      Message message = new MimeMessage(session);
-      message.setFrom(new InternetAddress(from));
-      message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
-      message.setSubject(subject);
-			//message.setText(body);
-
-      Multipart multipart = new MimeMultipart("alternative");
-      // Create a MimeBodyPart instance to contain the text body part
-      MimeBodyPart textPart = new MimeBodyPart();
-      String textContent = "";
-      textPart.setText(textContent);
-
-      // Create a MimeBodyPart instance to contain the HTML body part.
-      // Order is important, the preferred format of an alternative multi-part message should be added last.
-      MimeBodyPart htmlPart = new MimeBodyPart();
-      String htmlContent = body;
-      htmlPart.setContent(htmlContent, "text/html");
-
-      // Add both MimeBodyPart instances to the MimeMultipart instance and set the MimeMultipart instance as the MimeMessage.
-      //multipart.addBodyPart(textPart);
-      multipart.addBodyPart(htmlPart);
-      message.setContent(multipart);
-
-      Transport.send(message);
-
-      JOptionPane.showMessageDialog(this, "Message has been sent to " + to, "Information", JOptionPane.INFORMATION_MESSAGE);
-    }
-    catch(AuthenticationFailedException e) {
-      JOptionPane.showMessageDialog(this, "Error in username or password!", "Error", JOptionPane.ERROR_MESSAGE);
-    }
-    catch(MessagingException e) {
-      JOptionPane.showMessageDialog(this, e.toString(), "Error", JOptionPane.ERROR_MESSAGE);
-		}
-	}
-
-  // E-mail verifier
-  private class EmailVerifier extends InputVerifier {
-    @Override
-    public boolean verify(JComponent input) {
-      String email = ((JTextField)input).getText();
-      final String singleValidExpression = "[\\w\\.-]+@([\\w\\-]+\\.)+[A-Z]{2,4}";  
-      final String validExpression = "^" + singleValidExpression + "(\\s*,\\s*" + singleValidExpression + ")*$";  
-
-      Pattern compare = Pattern.compile(validExpression, Pattern.CASE_INSENSITIVE);
-      Matcher matcher = compare.matcher(email); 
-
-      if(matcher.matches()) {
-        input.setBackground(UIManager.getColor("TextField.background"));
-        return true;
-      }
-      else {
-        input.setBackground( Color.red );
-        return false;
-      }
-    }
-  }
-
   // Send button state
   private boolean enableSendButton() {
     boolean en = (!sendToTextField.getText().equals(""));
@@ -462,7 +344,7 @@ public class SummaryDialog extends JDialogX {
 
   // Button events
   private void sendButtonActionPerformed(ActionEvent e) {
-    sendMail(sendToTextField.getText(), subjectTextField.getText(), summaryEditorPane.getText());
+    email.sendMail(sendToTextField.getText(), subjectTextField.getText(), summaryEditorPane.getText());
   }
 
   // Summary class

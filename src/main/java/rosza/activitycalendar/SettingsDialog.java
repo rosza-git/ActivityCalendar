@@ -456,6 +456,7 @@ public class SettingsDialog extends JDialogX {
     emailAddressLabel.setFont(emailAddressLabel.getFont().deriveFont(Font.BOLD));
 
     emailAddressTextField.setFont(emailAddressTextField.getFont());
+    emailAddressTextField.setInputVerifier(new EmailVerifier());
     emailAddressTextField.getDocument().addDocumentListener(documentListener);
 
     emailUserLabel.setHorizontalAlignment(JLabel.RIGHT);
