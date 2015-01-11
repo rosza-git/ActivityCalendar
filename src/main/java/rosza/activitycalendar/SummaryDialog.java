@@ -24,6 +24,7 @@ import javax.swing.border.MatteBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
+import org.joda.time.DateTime;
 import rosza.xcomponents.JDialogX;
 import rosza.xcomponents.JButtonX;
 import rosza.xcomponents.JScrollBarX;
@@ -42,6 +43,7 @@ public class SummaryDialog extends JDialogX {
   private JLabel      summaryLabel;
 
   // Date and time variables
+  private static DateTime selectedDate;
   private static int selectedYear;
   private static int selectedMonth;
   private static int selectedDayOfMonth;
@@ -57,20 +59,27 @@ public class SummaryDialog extends JDialogX {
 
   // Email variable
   private Email email;
+
+  // DataManager
+  private DataManager dataManager;
+
   // Create summary dialog
-  public SummaryDialog(Frame owner, Component locationComp, String title, boolean modal, int y, int m, int d) {
+  public SummaryDialog(Frame owner, Component locationComp, String title, boolean modal, DateTime date) {
     super(owner, title, modal);
 
     if(props != null) {
       email = new Email(this, props);
     }
 
-    selectedYear = y;
-    selectedMonth = m;
-    selectedDayOfMonth = d;
+    dataManager = new DataManager();
+
+    selectedDate = date;
+    selectedYear = selectedDate.getYear();
+    selectedMonth = selectedDate.getMonthOfYear();
+    selectedDayOfMonth = selectedDate.getDayOfMonth();
 
     createUI(locationComp);
-    ArrayList<Activity> activityList = XMLUtil.getActivityByDate(y, m, d);
+    ArrayList<Activity> activityList = dataManager.getActivityByStartDate(selectedDate);
     Category category = XMLUtil.getCategories();
     summary = buildSummary(category, activityList)[0];
     for(int i = 0, size = summary.children.size(); i < size; i++) {

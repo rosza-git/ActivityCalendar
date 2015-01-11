@@ -41,10 +41,16 @@ public class ScrollableActivityPane extends JLayeredPane implements Scrollable {
   // Scroll unit size
   private int unitIncrement = Constant.FONT_SIZE;
 
+  // DataManager
+  private final DataManager dataManager;
+
   // Thread variables
   private volatile Thread thread;
   private volatile boolean running = true;
   private static int count = 0;
+
+  // Variable for activities
+  private ArrayList<Activity> activityList = new ArrayList<>();
 
   // Create scrollable activity pane
   public ScrollableActivityPane(int view, int year, int month, int day) {
@@ -53,20 +59,21 @@ public class ScrollableActivityPane extends JLayeredPane implements Scrollable {
     setBackground(Constant.CELL_BG_COLOR);
     setOpaque(true);
 
+    dataManager = new DataManager();
+
     currentView = view;
     cellWidth = currentView == Constant.DAY_VIEW ? Constant.DAY_CELL_WIDTH : Constant.WEEK_CELL_WIDTH;
 
     createView();
 
-    ArrayList<Activity> actList;
-
     tempCalendar = new DateTime(year, month, day, 0, 0);
     tempCalendar = new DateTime(tempCalendar.withDayOfWeek(DateTimeConstants.MONDAY));
     for(int i = 0; i < 7; i++) {
-      actList = XMLUtil.getActivityByDate(tempCalendar.getYear(), tempCalendar.getMonthOfYear(), tempCalendar.getDayOfMonth());
-      if(actList != null) {
+      activityList.clear();
+      activityList = dataManager.getActivityByStartDate(tempCalendar);
+      if(activityList != null) {
         int j = 0;
-        for(Activity a : actList) {
+        for(Activity a : activityList) {
           ActivityLabel al = new ActivityLabel(a);
           int cellHeight = (int)(Constant.CELL_HEIGHT * Activity.time2fraction(a.getDuration()));
           if(cellHeight < Constant.CELL_HEIGHT) {

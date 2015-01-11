@@ -88,12 +88,17 @@ public class ActivityCalendar extends JFrame {
   public static int      currentDayOfMonth;     // current day of the month
   public static DateTime selectedDate;          // selected date
 
+  // DataManager
+  private final DataManager dataManager;
+
   // Create new ActivityCalendar form
   public ActivityCalendar() {
     currentYear       = now.getYear();          // current year
     currentMonth      = now.getMonthOfYear();   // current month
     currentDayOfMonth = now.getDayOfMonth();    // current day of the month
     selectedDate      = new DateTime(now);
+
+    dataManager = new DataManager();
 
     setAppIcon();
     createUI();
@@ -227,7 +232,7 @@ public class ActivityCalendar extends JFrame {
   // Show the _summary_ dialog
   private void showSummaryDialog() {
     if(summaryDialog == null || !summaryDialog.isVisible()) {
-      summaryDialog = new SummaryDialog(this, this, "summary", true, selectedDate.getYear(), selectedDate.getMonthOfYear(), selectedDate.getDayOfMonth());
+      summaryDialog = new SummaryDialog(this, this, "summary", true, selectedDate);
       summaryDialog.showDialog();
     }
     else {
@@ -258,13 +263,13 @@ public class ActivityCalendar extends JFrame {
       }
       switch(aa.getActionCommand()) {
         case Constant.ADD_ACTIVITY:
-          XMLUtil.addActivity(aa.getActivity());
+          dataManager.addActivity(aa.getActivity());
           break;
         case Constant.MODIFY_ACTIVITY:
-          XMLUtil.updateActivity(aa.getActivity());
+          dataManager.updateActivity(aa.getActivity());
           break;
         case Constant.REMOVE_ACTIVITY:
-          XMLUtil.removeActivity(aa.getActivity());
+          dataManager.removeActivity(aa.getActivity());
           break;
       }
       selectedDate = aa.getActivity().getStartDate();

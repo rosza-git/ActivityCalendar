@@ -41,6 +41,8 @@ public class ActivityDialog extends JDialogX {
   // ActivityDialog
   private static Activity       activity;
   private static ActivityAction activityAction;
+  // DataManager
+  private final DataManager dataManager;
   // UI variables
   private JLabel         categoryLabel;
   private JLabel         commentLabel;
@@ -63,6 +65,7 @@ public class ActivityDialog extends JDialogX {
   public ActivityDialog(Frame frame, Component locationComp, String title, boolean modal, Activity initialValue) {
     super(frame, title, modal);
 
+    dataManager = new DataManager();
     // Set initial value.
     activity = initialValue;
     activityAction = new ActivityAction(Constant.MODIFY_ACTIVITY, activity);
@@ -333,7 +336,7 @@ public class ActivityDialog extends JDialogX {
     }
 
     if(command.equals(Constant.ADD_ACTIVITY) || command.equals(Constant.MODIFY_ACTIVITY)) {
-      ArrayList<Activity> activityList = XMLUtil.getActivityByDate(sdate.getYear(), sdate.getMonthOfYear(), sdate.getDayOfMonth());
+      ArrayList<Activity> activityList = dataManager.getActivityByStartDate(sdate);
       if(activityList != null) {
         for(Activity act : activityList) {
           if(act.getID() == activity.getID()) {

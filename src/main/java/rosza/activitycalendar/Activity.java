@@ -143,14 +143,14 @@ public class Activity {
 
   public String getDurationInHM() {
     int h = this.duration / 60;
-    long m = this.duration % 60; 
+    int m = this.duration % 60; 
 
     return String.format("%02d:%02d", h, m);
   }
 
   public static String getDurationInHM(int duration) {
     int h = duration / 60;
-    long m = duration % 60; 
+    int m = duration % 60; 
 
     return String.format("%02d:%02d", h, m);
   }

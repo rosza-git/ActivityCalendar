@@ -555,7 +555,7 @@ public class XMLUtil {
    * @param id the ID we are looking for
    * @return new Category class
    */
-  private static Category getCategoryByID(int id) {
+  public static Category getCategoryByID(int id) {
     try {
       DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
       DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
