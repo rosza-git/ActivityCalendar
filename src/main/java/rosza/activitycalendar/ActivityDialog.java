@@ -27,6 +27,8 @@ import javax.swing.SpinnerDateModel;
 import javax.swing.border.MatteBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreePath;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -181,6 +183,12 @@ public class ActivityDialog extends JDialogX {
     catch(NullPointerException e) {
       categoryTree.setSelectionPath(categoryTree.getPathForRow(1));
     }
+    categoryTree.addTreeSelectionListener(new TreeSelectionListener() {
+      @Override
+      public void valueChanged(TreeSelectionEvent e) {
+        categoryTreeSelectionChanged(e);
+      }
+    });
 
     categoryScrollPane.setViewportView(categoryTree);
     categoryScrollPane.setPreferredSize(new Dimension(categoryTree.getWidth(), (int)Constant.FONT_SIZE * 6));
@@ -420,6 +428,17 @@ public class ActivityDialog extends JDialogX {
 
     if(sd.after(ed)) {
       startTimeSpinner.setValue(ed);
+    }
+  }
+
+  // Category-tree selection changed
+  private void categoryTreeSelectionChanged(TreeSelectionEvent e) {
+    if(categoryTree.getSelected() == null) {
+      return;
+    }
+    int id = categoryTree.getSelected().getID();
+    if(id == 0) {
+      categoryTree.setSelectionPath(categoryTree.getPathForRow(id + 1));
     }
   }
 

@@ -39,9 +39,9 @@ class Email {
   // Owner frame variable
   private final Component owner;
 
-  public Email(Component o) {
+  public Email(Component o, Properties p) {
     this.owner = o;
-    this.props = XMLUtil.getProperties();
+    this.props = p;
   }
 
   // Send e-mail

@@ -193,7 +193,6 @@ public class SettingsDialog extends JDialogX {
     storageRadioGroup.add(dbRadio);
 
     xmlRadio.setText("XML");
-    xmlRadio.setFont(xmlRadio.getFont());
     xmlRadio.setOpaque(false);
     xmlRadio.addActionListener(new ActionListener() {
       @Override
@@ -203,7 +202,6 @@ public class SettingsDialog extends JDialogX {
     });
 
     dbRadio.setText("database");
-    dbRadio.setFont(dbRadio.getFont());
     dbRadio.setOpaque(false);
     dbRadio.addActionListener(new ActionListener() {
       @Override
@@ -227,14 +225,6 @@ public class SettingsDialog extends JDialogX {
     dbPasswordLabel.setHorizontalAlignment(JLabel.RIGHT);
     dbPasswordLabel.setText("password:");
     dbPasswordLabel.setFont(dbPasswordLabel.getFont().deriveFont(Font.BOLD));
-
-    dbServerTextField.setFont(dbServerTextField.getFont());
-
-    dbServerPortTextField.setFont(dbServerPortTextField.getFont());
-
-    dbUserTextField.setFont(dbUserTextField.getFont());
-
-    dbPasswordField.setFont(dbPasswordField.getFont());
 
     saveStorageButton.setText("save");
     saveStorageButton.setFont(saveStorageButton.getFont().deriveFont(Font.BOLD));
@@ -318,7 +308,6 @@ public class SettingsDialog extends JDialogX {
     categoriesLabel.setText("categories:");
     categoriesLabel.setFont(categoriesLabel.getFont().deriveFont(Font.BOLD));
 
-    categoryTree.setFont(categoryTree.getFont());
     categoryTree.setSelectionPath(categoryTree.getPathForRow(1));
     categoryTree.addTreeSelectionListener(new TreeSelectionListener() {
       @Override
@@ -327,14 +316,12 @@ public class SettingsDialog extends JDialogX {
       }
     });
 
-    categoryScrollPane.setFont(categoryScrollPane.getFont());
     categoryScrollPane.setViewportView(categoryTree);
     categoryScrollPane.getVerticalScrollBar().setUI(new JScrollBarX());
     categoryScrollPane.getHorizontalScrollBar().setUI(new JScrollBarX());
     categoryScrollPane.setBorder(new MatteBorder(1, 1, 1, 1, Constant.BG_DARKER_BLUE));
 
     newCategoryTextField.setText("");
-    newCategoryTextField.setFont(newCategoryTextField.getFont());
     newCategoryTextField.getDocument().addDocumentListener(new DocumentListener() {
       @Override
       public void insertUpdate(DocumentEvent e) {
@@ -455,7 +442,6 @@ public class SettingsDialog extends JDialogX {
     emailAddressLabel.setText("from:");
     emailAddressLabel.setFont(emailAddressLabel.getFont().deriveFont(Font.BOLD));
 
-    emailAddressTextField.setFont(emailAddressTextField.getFont());
     emailAddressTextField.setInputVerifier(new EmailVerifier());
     emailAddressTextField.getDocument().addDocumentListener(documentListener);
 
@@ -463,31 +449,25 @@ public class SettingsDialog extends JDialogX {
     emailUserLabel.setText("username:");
     emailUserLabel.setFont(emailUserLabel.getFont().deriveFont(Font.BOLD));
 
-    emailUserTextField.setFont(emailUserTextField.getFont());
     emailUserTextField.getDocument().addDocumentListener(documentListener);
 
     emailPasswordLabel.setHorizontalAlignment(JLabel.RIGHT);
     emailPasswordLabel.setText("password:");
     emailPasswordLabel.setFont(emailPasswordLabel.getFont().deriveFont(Font.BOLD));
 
-    emailPasswordField.setFont(emailPasswordField.getFont());
-
     emailAuthCheckBox.setText("authentication");
     emailAuthCheckBox.setOpaque(false);
-    emailAuthCheckBox.setFont(emailAuthCheckBox.getFont());
 
     emailHostLabel.setHorizontalAlignment(JLabel.RIGHT);
     emailHostLabel.setText("smtp host:");
     emailHostLabel.setFont(emailHostLabel.getFont().deriveFont(Font.BOLD));
 
-    emailHostTextField.setFont(emailHostTextField.getFont());
     emailHostTextField.getDocument().addDocumentListener(documentListener);
 
     emailPortLabel.setHorizontalAlignment(JLabel.RIGHT);
     emailPortLabel.setText("port:");
     emailPortLabel.setFont(emailPortLabel.getFont().deriveFont(Font.BOLD));
 
-    emailPortTextField.setFont(emailPortTextField.getFont());
     emailPortTextField.getDocument().addDocumentListener(documentListener);
 
     emailProtocolLabel.setText("protocol:");
@@ -499,7 +479,6 @@ public class SettingsDialog extends JDialogX {
 
     emailTLSRadioButton.setText("TLS");
     emailTLSRadioButton.setOpaque(false);
-    emailTLSRadioButton.setFont(emailTLSRadioButton.getFont());
     emailTLSRadioButton.addChangeListener(new ChangeListener() {
       @Override
       public void stateChanged(ChangeEvent e) {
@@ -509,7 +488,6 @@ public class SettingsDialog extends JDialogX {
 
     emailSMTPRadioButton.setText("SMTP");
     emailSMTPRadioButton.setOpaque(false);
-    emailSMTPRadioButton.setFont(emailSMTPRadioButton.getFont());
     emailSMTPRadioButton.addChangeListener(new ChangeListener() {
       @Override
       public void stateChanged(ChangeEvent e) {
@@ -519,7 +497,6 @@ public class SettingsDialog extends JDialogX {
 
     emailSMTPSRadioButton.setText("SMTPS");
     emailSMTPSRadioButton.setOpaque(false);
-    emailSMTPSRadioButton.setFont(emailSMTPSRadioButton.getFont());
     emailSMTPSRadioButton.addChangeListener(new ChangeListener() {
       @Override
       public void stateChanged(ChangeEvent e) {
@@ -882,6 +859,9 @@ public class SettingsDialog extends JDialogX {
 
   // Category-tree selection changed
   private void categoryTreeSelectionChanged(TreeSelectionEvent e) {
+    if(categoryTree.getSelected() == null) {
+      return;
+    }
     int id = categoryTree.getSelected().getID();
     if(id == 0) {
       categoryTree.setSelectionPath(categoryTree.getPathForRow(id + 1));

@@ -61,7 +61,9 @@ public class SummaryDialog extends JDialogX {
   public SummaryDialog(Frame owner, Component locationComp, String title, boolean modal, int y, int m, int d) {
     super(owner, title, modal);
 
-    email = new Email(this);
+    if(props != null) {
+      email = new Email(this, props);
+    }
 
     selectedYear = y;
     selectedMonth = m;
@@ -344,7 +346,9 @@ public class SummaryDialog extends JDialogX {
 
   // Button events
   private void sendButtonActionPerformed(ActionEvent e) {
-    email.sendMail(sendToTextField.getText(), subjectTextField.getText(), summaryEditorPane.getText());
+    if(email != null) {
+      email.sendMail(sendToTextField.getText(), subjectTextField.getText(), summaryEditorPane.getText());
+    }
   }
 
   // Summary class
