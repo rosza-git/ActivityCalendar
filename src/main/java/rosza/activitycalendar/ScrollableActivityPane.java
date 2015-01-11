@@ -279,7 +279,7 @@ public class ScrollableActivityPane extends JLayeredPane implements Scrollable {
   @Override
   public int getScrollableUnitIncrement(Rectangle visibleRect, int orientation, int direction) {
     //Get the current position.
-    int currentPosition = 0;
+    int currentPosition;
     if(orientation == SwingConstants.HORIZONTAL) {
       currentPosition = visibleRect.x;
     }
