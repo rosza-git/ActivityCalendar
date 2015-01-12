@@ -87,7 +87,6 @@ public class SettingsDialog extends JDialogX {
   private JPasswordField emailPasswordField;
   private JLabel         emailProtocolLabel;
   private JRadioButton   emailTLSRadioButton;
-  private JRadioButton   emailSMTPRadioButton;
   private JRadioButton   emailSMTPSRadioButton;
   private JButtonX       emailSaveButton;
 
@@ -103,7 +102,7 @@ public class SettingsDialog extends JDialogX {
 
     textEncryptor = new StrongTextEncryptor();
     textEncryptor.setPassword(Constant.SALT);
-    props = XMLUtil.getProperties();
+    props = ActivityCalendar.getProperties();
 
     createUI(locationComp);
     setFieldValues();
@@ -157,7 +156,6 @@ public class SettingsDialog extends JDialogX {
     emailPasswordField    = new JPasswordField();
     emailProtocolLabel    = new JLabel();
     emailTLSRadioButton   = new JRadioButton();
-    emailSMTPRadioButton  = new JRadioButton();
     emailSMTPSRadioButton = new JRadioButton();
     emailSaveButton       = new JButtonX("save");
     closeButton           = new JButtonX("close");
@@ -214,20 +212,29 @@ public class SettingsDialog extends JDialogX {
     dbServerLabel.setText("server:");
     dbServerLabel.setFont(dbServerLabel.getFont().deriveFont(Font.BOLD));
 
+    dbServerTextField.getDocument().addDocumentListener(databaseListener);
+
     dbServerPortLabel.setHorizontalAlignment(JLabel.RIGHT);
     dbServerPortLabel.setText("port:");
     dbServerPortLabel.setFont(dbServerPortLabel.getFont().deriveFont(Font.BOLD));
+
+    dbServerPortTextField.getDocument().addDocumentListener(databaseListener);
 
     dbUserLabel.setHorizontalAlignment(JLabel.RIGHT);
     dbUserLabel.setText("user:");
     dbUserLabel.setFont(dbUserLabel.getFont().deriveFont(Font.BOLD));
 
+    dbUserTextField.getDocument().addDocumentListener(databaseListener);
+
     dbPasswordLabel.setHorizontalAlignment(JLabel.RIGHT);
     dbPasswordLabel.setText("password:");
     dbPasswordLabel.setFont(dbPasswordLabel.getFont().deriveFont(Font.BOLD));
 
+    dbPasswordField.getDocument().addDocumentListener(databaseListener);
+
     saveStorageButton.setText("save");
     saveStorageButton.setFont(saveStorageButton.getFont().deriveFont(Font.BOLD));
+    saveStorageButton.setEnabled(enableStorageSaveButton());
     saveStorageButton.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
@@ -435,7 +442,6 @@ public class SettingsDialog extends JDialogX {
     );
 
     emailRadioGroup.add(this.emailTLSRadioButton);
-    emailRadioGroup.add(this.emailSMTPRadioButton);
     emailRadioGroup.add(this.emailSMTPSRadioButton);
 
     emailAddressLabel.setHorizontalAlignment(JLabel.RIGHT);
@@ -443,17 +449,19 @@ public class SettingsDialog extends JDialogX {
     emailAddressLabel.setFont(emailAddressLabel.getFont().deriveFont(Font.BOLD));
 
     emailAddressTextField.setInputVerifier(new EmailVerifier());
-    emailAddressTextField.getDocument().addDocumentListener(documentListener);
+    emailAddressTextField.getDocument().addDocumentListener(emailListener);
 
     emailUserLabel.setHorizontalAlignment(JLabel.RIGHT);
     emailUserLabel.setText("username:");
     emailUserLabel.setFont(emailUserLabel.getFont().deriveFont(Font.BOLD));
 
-    emailUserTextField.getDocument().addDocumentListener(documentListener);
+    emailUserTextField.getDocument().addDocumentListener(emailListener);
 
     emailPasswordLabel.setHorizontalAlignment(JLabel.RIGHT);
     emailPasswordLabel.setText("password:");
     emailPasswordLabel.setFont(emailPasswordLabel.getFont().deriveFont(Font.BOLD));
+
+    emailPasswordField.getDocument().addDocumentListener(emailListener);
 
     emailAuthCheckBox.setText("authentication");
     emailAuthCheckBox.setOpaque(false);
@@ -462,33 +470,23 @@ public class SettingsDialog extends JDialogX {
     emailHostLabel.setText("smtp host:");
     emailHostLabel.setFont(emailHostLabel.getFont().deriveFont(Font.BOLD));
 
-    emailHostTextField.getDocument().addDocumentListener(documentListener);
+    emailHostTextField.getDocument().addDocumentListener(emailListener);
 
     emailPortLabel.setHorizontalAlignment(JLabel.RIGHT);
     emailPortLabel.setText("port:");
     emailPortLabel.setFont(emailPortLabel.getFont().deriveFont(Font.BOLD));
 
-    emailPortTextField.getDocument().addDocumentListener(documentListener);
+    emailPortTextField.getDocument().addDocumentListener(emailListener);
 
     emailProtocolLabel.setText("protocol:");
     emailProtocolLabel.setFont(emailProtocolLabel.getFont().deriveFont(Font.BOLD));
 
     emailRadioGroup.add(emailTLSRadioButton);
     emailRadioGroup.add(emailSMTPSRadioButton);
-    emailRadioGroup.add(emailSMTPRadioButton);
 
     emailTLSRadioButton.setText("TLS");
     emailTLSRadioButton.setOpaque(false);
     emailTLSRadioButton.addChangeListener(new ChangeListener() {
-      @Override
-      public void stateChanged(ChangeEvent e) {
-        emailSaveButton.setEnabled(enableEmailSaveButton());
-      }
-    });
-
-    emailSMTPRadioButton.setText("SMTP");
-    emailSMTPRadioButton.setOpaque(false);
-    emailSMTPRadioButton.addChangeListener(new ChangeListener() {
       @Override
       public void stateChanged(ChangeEvent e) {
         emailSaveButton.setEnabled(enableEmailSaveButton());
@@ -548,8 +546,6 @@ public class SettingsDialog extends JDialogX {
                     .addComponent(emailTLSRadioButton)
                     .addGap(18, 18, 18)
                     .addComponent(emailSMTPSRadioButton)
-                    .addGap(18, 18, 18)
-                    .addComponent(emailSMTPRadioButton)
                   )
                 )
                 .addGap(0, 126, Short.MAX_VALUE)
@@ -593,7 +589,6 @@ public class SettingsDialog extends JDialogX {
           .addComponent(emailProtocolLabel)
           .addComponent(emailTLSRadioButton)
           .addComponent(emailSMTPSRadioButton)
-          .addComponent(emailSMTPRadioButton)
         )
         .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(emailAuthCheckBox)
@@ -690,6 +685,7 @@ public class SettingsDialog extends JDialogX {
       dbServerTextField.setEnabled(false);
       dbUserTextField.setEnabled(false);
     }
+    saveStorageButton.setEnabled(enableStorageSaveButton());
     // Get e-mail settings
     try {
       emailAddressTextField.setText(props.getProperty(Constant.PROPS_EMAIL_ADDRESS));
@@ -716,9 +712,6 @@ public class SettingsDialog extends JDialogX {
         case Constant.PROPS_EMAIL_SMTPS:
           emailSMTPSRadioButton.setSelected(true);
           break;
-        case Constant.PROPS_EMAIL_SMTP:
-          emailSMTPRadioButton.setSelected(true);
-          break;
         case Constant.PROPS_EMAIL_TLS:
           emailTLSRadioButton.setSelected(true);
           break;
@@ -733,9 +726,24 @@ public class SettingsDialog extends JDialogX {
     boolean state = true;
     state &= !emailAddressTextField.getText().equals("");
     state &= !emailUserTextField.getText().equals("");
+    state &= emailPasswordField.getPassword().length > 0;
     state &= !emailHostTextField.getText().equals("");  
     state &= !emailPortTextField.getText().equals("");
-    state &= (emailTLSRadioButton.isSelected() | emailSMTPRadioButton.isSelected() | emailSMTPSRadioButton.isSelected());
+    state &= (emailTLSRadioButton.isSelected() | emailSMTPSRadioButton.isSelected());
+
+    return state;
+  }
+
+  // Storage save button state
+  private boolean enableStorageSaveButton() {
+    if(xmlRadio.isSelected()) {
+      return true;
+    }
+    boolean state = true;
+    state &= !dbServerTextField.getText().equals("");
+    state &= !dbServerPortTextField.getText().equals("");
+    state &= !dbUserTextField.getText().equals("");  
+    state &= dbPasswordField.getPassword().length > 0;
 
     return state;
   }
@@ -805,7 +813,7 @@ public class SettingsDialog extends JDialogX {
       props.setProperty(Constant.PROPS_STORAGE, Constant.PROPS_XML_STORAGE);
     }
 
-    XMLUtil.setProperties(props);
+    ActivityCalendar.setProperties(props);
   }
 
   private void saveEmailButtonActionPerformed(ActionEvent e) {
@@ -828,9 +836,6 @@ public class SettingsDialog extends JDialogX {
     if(emailSMTPSRadioButton.isSelected()) {
       protocol = Constant.PROPS_EMAIL_SMTPS;
     }
-    else if(emailSMTPRadioButton.isSelected()) {
-      protocol = Constant.PROPS_EMAIL_SMTP;
-    }
     else {
       protocol = Constant.PROPS_EMAIL_TLS;
     }
@@ -838,7 +843,7 @@ public class SettingsDialog extends JDialogX {
     String auth = emailAuthCheckBox.isSelected() ? "true" : "false";
     props.setProperty(Constant.PROPS_EMAIL_AUTHENTICATION, auth);
 
-    XMLUtil.setProperties(props);
+    ActivityCalendar.setProperties(props);
   }
 
   // Radio button events
@@ -855,6 +860,7 @@ public class SettingsDialog extends JDialogX {
       this.dbUserTextField.setEnabled(true);
       this.dbPasswordField.setEnabled(true);
     }
+    saveStorageButton.setEnabled(enableStorageSaveButton());
   }
 
   // Category-tree selection changed
@@ -890,8 +896,8 @@ public class SettingsDialog extends JDialogX {
     }
   };
 
-  // Document Listener
-  DocumentListener documentListener = new DocumentListener() {
+  // Document listener for e-mail fields
+  DocumentListener emailListener = new DocumentListener() {
     @Override
     public void insertUpdate(DocumentEvent e) {
       emailSaveButton.setEnabled(enableEmailSaveButton());
@@ -905,6 +911,24 @@ public class SettingsDialog extends JDialogX {
     @Override
     public void changedUpdate(DocumentEvent e) {
       emailSaveButton.setEnabled(enableEmailSaveButton());
+    }
+  };
+
+  // Document listener for database fields
+  DocumentListener databaseListener = new DocumentListener() {
+    @Override
+    public void insertUpdate(DocumentEvent e) {
+      saveStorageButton.setEnabled(enableStorageSaveButton());
+    }
+
+    @Override
+    public void removeUpdate(DocumentEvent e) {
+      saveStorageButton.setEnabled(enableStorageSaveButton());
+    }
+
+    @Override
+    public void changedUpdate(DocumentEvent e) {
+      saveStorageButton.setEnabled(enableStorageSaveButton());
     }
   };
 }

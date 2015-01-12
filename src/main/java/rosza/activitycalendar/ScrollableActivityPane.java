@@ -18,10 +18,12 @@ import java.util.ArrayList;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.Scrollable;
 import javax.swing.SwingConstants;
 import javax.swing.border.MatteBorder;
+import org.hibernate.HibernateException;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 
@@ -34,6 +36,7 @@ public class ScrollableActivityPane extends JLayeredPane implements Scrollable {
   private int       currentHour        = tempCalendar.getHourOfDay();
   private int       currentMinute      = tempCalendar.getMinuteOfHour();
 
+  // Panel variables
   private final int currentView;
   private final int cellWidth;
   private int       dayPaneHeight;
@@ -41,16 +44,13 @@ public class ScrollableActivityPane extends JLayeredPane implements Scrollable {
   // Scroll unit size
   private int unitIncrement = Constant.FONT_SIZE;
 
-  // DataManager
-  private final DataManager dataManager;
-
   // Thread variables
   private volatile Thread thread;
   private volatile boolean running = true;
   private static int count = 0;
 
   // Variable for activities
-  private ArrayList<Activity> activityList = new ArrayList<>();
+  private ArrayList<Activity> activityList;
 
   // Create scrollable activity pane
   public ScrollableActivityPane(int view, int year, int month, int day) {
@@ -59,7 +59,7 @@ public class ScrollableActivityPane extends JLayeredPane implements Scrollable {
     setBackground(Constant.CELL_BG_COLOR);
     setOpaque(true);
 
-    dataManager = new DataManager();
+    activityList = new ArrayList<>();
 
     currentView = view;
     cellWidth = currentView == Constant.DAY_VIEW ? Constant.DAY_CELL_WIDTH : Constant.WEEK_CELL_WIDTH;
@@ -69,8 +69,13 @@ public class ScrollableActivityPane extends JLayeredPane implements Scrollable {
     tempCalendar = new DateTime(year, month, day, 0, 0);
     tempCalendar = new DateTime(tempCalendar.withDayOfWeek(DateTimeConstants.MONDAY));
     for(int i = 0; i < 7; i++) {
-      activityList.clear();
-      activityList = dataManager.getActivityByStartDate(tempCalendar);
+      try {
+        activityList = new DataManager().getActivityByStartDate(tempCalendar);
+      }
+      catch(HibernateException e) {
+        JOptionPane.showMessageDialog(null, "Unable to access server!", "Error", JOptionPane.ERROR_MESSAGE);
+        break;
+      }
       if(activityList != null) {
         int j = 0;
         for(Activity a : activityList) {
@@ -86,6 +91,7 @@ public class ScrollableActivityPane extends JLayeredPane implements Scrollable {
           j++;
         }
         tempCalendar = tempCalendar.plusDays(1);
+        activityList.clear();
       }
     }
 

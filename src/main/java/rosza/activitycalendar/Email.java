@@ -36,11 +36,7 @@ class Email {
   // Properties variables declaration
   private final Properties props;
 
-  // Owner frame variable
-  private final Component owner;
-
-  public Email(Component o, Properties p) {
-    this.owner = o;
+  public Email(Properties p) {
     this.props = p;
   }
 
@@ -69,7 +65,7 @@ class Email {
       pwd = textEncryptor.decrypt(pwd);
     }
     catch(EncryptionOperationNotPossibleException e) {
-      JOptionPane.showMessageDialog(owner, "Error in jaspyt!\n" + e.toString(), "Error", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, "Error in jaspyt!\n" + e.toString(), "Error", JOptionPane.ERROR_MESSAGE);
     }
     password = pwd;
 
@@ -113,13 +109,13 @@ class Email {
 
       Transport.send(message);
 
-      JOptionPane.showMessageDialog(owner, "Message has been sent to " + to, "Information", JOptionPane.INFORMATION_MESSAGE);
+      JOptionPane.showMessageDialog(null, "Message has been sent to " + to, "Information", JOptionPane.INFORMATION_MESSAGE);
     }
     catch(AuthenticationFailedException e) {
-      JOptionPane.showMessageDialog(owner, "Error in username or password!", "Error", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, "Error in username or password!", "Error", JOptionPane.ERROR_MESSAGE);
     }
     catch(MessagingException e) {
-      JOptionPane.showMessageDialog(owner, e.toString(), "Error", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, e.toString(), "Error", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 }
@@ -140,7 +136,7 @@ class EmailVerifier extends InputVerifier {
       return true;
     }
     else {
-      input.setBackground( Color.red );
+      input.setBackground(Color.red );
       return false;
     }
   }

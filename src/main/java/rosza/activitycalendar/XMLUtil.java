@@ -12,13 +12,8 @@ package rosza.activitycalendar;
 
 import java.awt.Color;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Properties;
 import javax.swing.JOptionPane;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -39,35 +34,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 public class XMLUtil {
-  // PROPERTIES - Save
-  public static void setProperties(Properties props) {
-    try(OutputStream output = new FileOutputStream(Constant.PROPERTIES_FILE)) {
-      // save properties to file
-      props.store(output, null);
-      JOptionPane.showMessageDialog(null, "Settings saved!", "Information", JOptionPane.INFORMATION_MESSAGE);
-    }
-    catch(IOException e) {
-      JOptionPane.showMessageDialog(null, "Error saving properties to file!", "Error - IOException", JOptionPane.ERROR_MESSAGE);
-    }
-  }
-
-  // PROPERTIES - Load
-  public static Properties getProperties() {
-    Properties props = new Properties();
-
-    try(InputStream input = new FileInputStream(Constant.PROPERTIES_FILE)) {
-      // load a properties file
-      props.load(input);
-
-      return props;
-    }
-    catch(IOException e) {
-      JOptionPane.showMessageDialog(null, "No configuration file found, using default values.", "Information", JOptionPane.PLAIN_MESSAGE);
-    }
-
-    return null;
-  }
-
   /**
    * Add new "activity" to file.
    * If the file does not exists, creates a new one.

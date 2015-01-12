@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<!-- Generated 2015.01.11. 18:56:20 by Hibernate Tools 4.3.1 -->
+<hibernate-mapping>
+  <class catalog="activitycalendar" name="rosza.hibernate.Activities" optimistic-lock="version" table="activities">
+    <id name="id" type="int">
+      <column name="id"/>
+      <generator class="assigned"/>
+    </id>
+    <property name="comment" type="string">
+      <column length="65535" name="comment"/>
+    </property>
+    <property name="category" type="int">
+      <column name="category"/>
+    </property>
+    <property name="start" type="timestamp">
+      <column length="19" name="start"/>
+    </property>
+    <property name="end" type="timestamp">
+      <column length="19" name="end"/>
+    </property>
+  </class>
+</hibernate-mapping>

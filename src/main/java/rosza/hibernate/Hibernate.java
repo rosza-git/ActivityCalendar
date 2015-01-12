@@ -23,7 +23,12 @@ public class Hibernate {
   private static final String ACTIVITY_QUERY_BASED_ON_END_DATE   = "from Activities a where a.end like '";
   private static final String ACTIVITY_QUERY_BASED_ON_CATEGORY   = "from Activities a where a.category = ";
 
-  private final ArrayList<Activity> activityList = new ArrayList<>();
+  private ArrayList<Activity> activityList;
+  private final Session session;
+
+  public Hibernate() throws HibernateException, IllegalArgumentException, NullPointerException {
+    session = HibernateUtil.getSessionFactory().openSession();
+  }
 
   public Activity getActivityByID(int id) {
     runQueryBasedOnActivityID(id);
@@ -84,21 +89,22 @@ public class Hibernate {
 
   private void activityExecuteHQLQuery(String hql) {
     try {
-      Session session = HibernateUtil.getSessionFactory().openSession();
       session.beginTransaction();
       Query q = session.createQuery(hql);
       List resultList = q.list();
       createList(resultList);
       session.getTransaction().commit();
     }
-    catch(HibernateException he) {
+    catch(NullPointerException ne) {
+      JOptionPane.showMessageDialog(null, "Cannot connect to server! Missing parameter(s)!", "Hibernate error", JOptionPane.ERROR_MESSAGE);
+    }
+    catch(IllegalArgumentException | ExceptionInInitializerError | HibernateException he) {
       JOptionPane.showMessageDialog(null, he.toString(), "Hibernate error", JOptionPane.ERROR_MESSAGE);
     }
   }
 
   private boolean activityInsert(Activity activity) {
     try {
-      Session session = HibernateUtil.getSessionFactory().openSession();
       session.beginTransaction();
 
       //Add new Activities object
@@ -116,7 +122,10 @@ public class Hibernate {
 
       return true;
     }
-    catch(HibernateException he) {
+    catch(NullPointerException ne) {
+      JOptionPane.showMessageDialog(null, "Cannot connect to server! Missing parameter(s)!", "Hibernate error", JOptionPane.ERROR_MESSAGE);
+    }
+    catch(IllegalArgumentException | ExceptionInInitializerError | HibernateException he) {
       JOptionPane.showMessageDialog(null, he.toString(), "Hibernate error", JOptionPane.ERROR_MESSAGE);
     }
 
@@ -125,7 +134,6 @@ public class Hibernate {
 
   private boolean activityUpdate(Activity activity) {
     try {
-      Session session = HibernateUtil.getSessionFactory().openSession();
       session.beginTransaction();
 
       // Create modified Activities object
@@ -144,7 +152,10 @@ public class Hibernate {
 
       return true;
     }
-    catch(HibernateException he) {
+    catch(NullPointerException ne) {
+      JOptionPane.showMessageDialog(null, "Cannot connect to server! Missing parameter(s)!", "Hibernate error", JOptionPane.ERROR_MESSAGE);
+    }
+    catch(IllegalArgumentException | ExceptionInInitializerError | HibernateException he) {
       JOptionPane.showMessageDialog(null, he.toString(), "Hibernate error", JOptionPane.ERROR_MESSAGE);
     }
 
@@ -153,7 +164,6 @@ public class Hibernate {
 
   private boolean activityRemove(Activity activity) {
     try {
-      Session session = HibernateUtil.getSessionFactory().openSession();
       session.beginTransaction();
 
       // Create Activities object
@@ -172,7 +182,10 @@ public class Hibernate {
 
       return true;
     }
-    catch(HibernateException he) {
+    catch(NullPointerException ne) {
+      JOptionPane.showMessageDialog(null, "Cannot connect to server! Missing parameter(s)!", "Hibernate error", JOptionPane.ERROR_MESSAGE);
+    }
+    catch(IllegalArgumentException | ExceptionInInitializerError | HibernateException he) {
       JOptionPane.showMessageDialog(null, he.toString(), "Hibernate error", JOptionPane.ERROR_MESSAGE);
     }
 
@@ -180,6 +193,7 @@ public class Hibernate {
   }
 
   private void createList(List resultList) {
+    activityList = new ArrayList<>();
     for(Object o : resultList) {
       Activities activity = (Activities)o;
       Activity a = new Activity(activity.getId(), activity.getComment(), XMLUtil.getCategoryByID(activity.getCategory()), new DateTime(activity.getStart()), new DateTime(activity.getEnd()));

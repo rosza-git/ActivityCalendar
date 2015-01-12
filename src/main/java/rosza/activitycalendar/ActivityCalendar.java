@@ -41,6 +41,11 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
@@ -88,8 +93,8 @@ public class ActivityCalendar extends JFrame {
   public static int      currentDayOfMonth;     // current day of the month
   public static DateTime selectedDate;          // selected date
 
-  // DataManager
-  private final DataManager dataManager;
+  // Settings
+  private static Properties properties = loadProperties();
 
   // Create new ActivityCalendar form
   public ActivityCalendar() {
@@ -97,8 +102,6 @@ public class ActivityCalendar extends JFrame {
     currentMonth      = now.getMonthOfYear();   // current month
     currentDayOfMonth = now.getDayOfMonth();    // current day of the month
     selectedDate      = new DateTime(now);
-
-    dataManager = new DataManager();
 
     setAppIcon();
     createUI();
@@ -246,6 +249,7 @@ public class ActivityCalendar extends JFrame {
     if(settingsDialog == null || !settingsDialog.isVisible()) {
       settingsDialog = new SettingsDialog(this, this, "settings", true);
       settingsDialog.showDialog();
+      updateActivityUI();
     }
     else {
       settingsDialog.setVisible(false);
@@ -263,13 +267,13 @@ public class ActivityCalendar extends JFrame {
       }
       switch(aa.getActionCommand()) {
         case Constant.ADD_ACTIVITY:
-          dataManager.addActivity(aa.getActivity());
+          new DataManager().addActivity(aa.getActivity());
           break;
         case Constant.MODIFY_ACTIVITY:
-          dataManager.updateActivity(aa.getActivity());
+          new DataManager().updateActivity(aa.getActivity());
           break;
         case Constant.REMOVE_ACTIVITY:
-          dataManager.removeActivity(aa.getActivity());
+          new DataManager().removeActivity(aa.getActivity());
           break;
       }
       selectedDate = aa.getActivity().getStartDate();
@@ -349,6 +353,166 @@ public class ActivityCalendar extends JFrame {
     mouseY = e.getY();
   }
 
+  // Properties handling methods
+  private static Properties loadProperties() {
+    try {
+      return SettingsHandler.getProperties();
+    }
+    catch(FileNotFoundException e) {
+      //Logger.getLogger(ActivityCalendar.class.getName()).log(Level.SEVERE, null, e);
+      JOptionPane.showMessageDialog(null, "Cannot find settings file!\nUsing default values.", "Error", JOptionPane.ERROR_MESSAGE);
+    }
+    catch(IOException ex) {
+      //Logger.getLogger(ActivityCalendar.class.getName()).log(Level.SEVERE, null, ex);
+      JOptionPane.showMessageDialog(null, "Cannot load settings from file!\nUsing default values.", "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+    return null;
+  }
+
+  public static Properties getProperties() {
+    return properties;
+  }
+
+  public static void setProperties(Properties props) {
+    try {
+      SettingsHandler.setProperties(props);
+      properties = loadProperties();
+    }
+    catch(IOException ex) {
+      Logger.getLogger(ActivityCalendar.class.getName()).log(Level.SEVERE, null, ex);
+      JOptionPane.showMessageDialog(null, "Cannot save settings to file!", "Error", JOptionPane.ERROR_MESSAGE);
+    }
+  }
+
+  // Set look and feel colors
+  private static void customizeLAF() {
+    // JLabel
+    UIManager.getLookAndFeelDefaults().put("Label.foreground", Constant.TEXT_COLOR);
+
+    // JTextField
+    UIManager.getLookAndFeelDefaults().put("text", Constant.TEXT_COLOR);
+    UIManager.getLookAndFeelDefaults().put("textHighlight", Constant.BG_BLUE);
+    UIManager.getLookAndFeelDefaults().put("textHighlightText", Constant.TEXT_COLOR);
+    UIManager.getLookAndFeelDefaults().put("textInactiveText", Constant.BG_DARKER_COLOR);
+    UIManager.getLookAndFeelDefaults().put("TextField.background", Constant.BG_COLOR);
+    UIManager.getLookAndFeelDefaults().put("TextField.border", new MatteBorder(1, 1, 1, 1, Constant.BG_DARKER_BLUE));
+    UIManager.getLookAndFeelDefaults().put("TextField.caretForeground", Constant.TEXT_COLOR);
+    UIManager.getLookAndFeelDefaults().put("TextField.disabledBackground", Constant.BG_DARKER_COLOR);
+    UIManager.getLookAndFeelDefaults().put("TextField.foreground", Constant.TEXT_COLOR);
+    UIManager.getLookAndFeelDefaults().put("TextField.highlight", Constant.BG_BLUE);
+    UIManager.getLookAndFeelDefaults().put("TextField.inactiveBackground", Constant.BG_COLOR);
+    UIManager.getLookAndFeelDefaults().put("TextField.inactiveForeground", Constant.BG_DARKER_COLOR);
+    UIManager.getLookAndFeelDefaults().put("TextField.selectionBackground", Constant.BG_BLUE);
+    UIManager.getLookAndFeelDefaults().put("TextField.selectionForeground", Constant.TEXT_COLOR);
+
+    // JRadioButton
+    UIManager.getLookAndFeelDefaults().put("RadioButton.background", Constant.BG_COLOR);
+    UIManager.getLookAndFeelDefaults().put("RadioButton.border", Constant.BG_DARKER_BLUE);
+    UIManager.getLookAndFeelDefaults().put("RadioButton.darkShadow", Constant.BG_DARKER_BLUE);
+    UIManager.getLookAndFeelDefaults().put("RadioButton.disabledText", Constant.BG_DARKER_COLOR);
+    UIManager.getLookAndFeelDefaults().put("RadioButton.focus", Constant.TEXT_COLOR);
+    UIManager.getLookAndFeelDefaults().put("RadioButton.foreground", Constant.TEXT_COLOR);
+    UIManager.getLookAndFeelDefaults().put("RadioButton.highlight", Constant.BG_DARKER_BLUE);
+    UIManager.getLookAndFeelDefaults().put("RadioButton.interiorBackground", Constant.BG_COLOR);
+    UIManager.getLookAndFeelDefaults().put("RadioButton.light", Constant.BG_BLUE);
+    UIManager.getLookAndFeelDefaults().put("RadioButton.select", Constant.BG_DARKER_BLUE);
+    UIManager.getLookAndFeelDefaults().put("RadioButton.shadow", Constant.BG_BLUE);
+
+    // JTree
+    UIManager.getLookAndFeelDefaults().put("Tree.background", Constant.BG_COLOR);
+    UIManager.getLookAndFeelDefaults().put("Tree.editorBorder", new MatteBorder(1, 1, 1, 1, Constant.BG_DARKER_BLUE));
+    UIManager.getLookAndFeelDefaults().put("Tree.editorBorderSelectionColor", Constant.BG_DARKER_COLOR);
+    UIManager.getLookAndFeelDefaults().put("Tree.foreground", Constant.TEXT_COLOR);
+    UIManager.getLookAndFeelDefaults().put("Tree.hash", Constant.BORDER_COLOR);
+    UIManager.getLookAndFeelDefaults().put("Tree.line", Constant.BORDER_COLOR);
+    UIManager.getLookAndFeelDefaults().put("Tree.selectionBackground", Constant.BG_BLUE);
+    UIManager.getLookAndFeelDefaults().put("Tree.selectionBorderColor", Constant.BG_DARKER_BLUE);
+    UIManager.getLookAndFeelDefaults().put("Tree.selectionForeground", Constant.TEXT_COLOR);
+    UIManager.getLookAndFeelDefaults().put("Tree.textBackground", Constant.BG_COLOR);
+    UIManager.getLookAndFeelDefaults().put("Tree.textForeground", Constant.TEXT_COLOR);
+
+    // JCheckBox
+    UIManager.getLookAndFeelDefaults().put("CheckBox.background", Constant.BG_COLOR);
+    UIManager.getLookAndFeelDefaults().put("CheckBox.border", new MatteBorder(1, 1, 1, 1, Constant.BG_DARKER_BLUE));
+    UIManager.getLookAndFeelDefaults().put("CheckBox.darkShadow", Constant.BG_DARKER_BLUE);
+    UIManager.getLookAndFeelDefaults().put("CheckBox.disabledText", Constant.BG_DARKER_COLOR);
+    UIManager.getLookAndFeelDefaults().put("CheckBox.focus", Constant.TEXT_COLOR);
+    UIManager.getLookAndFeelDefaults().put("CheckBox.foreground", Constant.TEXT_COLOR);
+    UIManager.getLookAndFeelDefaults().put("CheckBox.highlight", Constant.BG_DARKER_BLUE);
+    UIManager.getLookAndFeelDefaults().put("CheckBox.interiorBackground", Constant.BG_COLOR);
+    UIManager.getLookAndFeelDefaults().put("CheckBox.light", Constant.BG_BLUE);
+    UIManager.getLookAndFeelDefaults().put("Checkbox.select", Constant.BG_DARKER_BLUE);
+    UIManager.getLookAndFeelDefaults().put("CheckBox.shadow", Constant.BG_BLUE);
+
+    // JSpinner
+    UIManager.getLookAndFeelDefaults().put("Spinner.background", Constant.BG_COLOR);
+    UIManager.getLookAndFeelDefaults().put("Spinner.border", new MatteBorder(1, 1, 1, 1, Constant.BG_DARKER_BLUE));
+    UIManager.getLookAndFeelDefaults().put("Spinner.foreground", Constant.TEXT_COLOR);
+
+    // JPaswordField
+    UIManager.getLookAndFeelDefaults().put("PasswordField.background", Constant.BG_COLOR);
+    UIManager.getLookAndFeelDefaults().put("PasswordField.border", new MatteBorder(1, 1, 1, 1, Constant.BG_DARKER_BLUE));
+    UIManager.getLookAndFeelDefaults().put("PasswordField.caretForeground", Constant.TEXT_COLOR);
+    UIManager.getLookAndFeelDefaults().put("PasswordField.disabledBackground", Constant.BG_DARKER_COLOR);
+    UIManager.getLookAndFeelDefaults().put("PasswordField.foreground", Constant.TEXT_COLOR);
+    UIManager.getLookAndFeelDefaults().put("PasswordField.inactiveBackground", Constant.BG_COLOR);
+    UIManager.getLookAndFeelDefaults().put("PasswordField.inactiveForeground", Constant.BG_DARKER_COLOR);
+    UIManager.getLookAndFeelDefaults().put("PasswordField.selectionBackground", Constant.BG_BLUE);
+    UIManager.getLookAndFeelDefaults().put("PasswordField.selectionForeground", Constant.TEXT_COLOR);
+
+    // JEditorPane
+    UIManager.getLookAndFeelDefaults().put("EditorPane.background", Constant.BG_COLOR);
+    UIManager.getLookAndFeelDefaults().put("EditorPane.caretForeground", Constant.TEXT_COLOR);
+    UIManager.getLookAndFeelDefaults().put("EditorPane.foreground", Constant.TEXT_COLOR);
+    UIManager.getLookAndFeelDefaults().put("EditorPane.inactiveForeground", Constant.BG_DARKER_COLOR);
+    UIManager.getLookAndFeelDefaults().put("EditorPane.selectionBackground", Constant.BG_BLUE);
+    UIManager.getLookAndFeelDefaults().put("EditorPane.selectionForeground", Constant.TEXT_COLOR);
+
+    // JSlider
+    UIManager.getLookAndFeelDefaults().put("Slider.altTrackColo", Constant.BG_COLOR);
+    UIManager.getLookAndFeelDefaults().put("Slider.background", Constant.BG_COLOR);
+    UIManager.getLookAndFeelDefaults().put("Slider.border", null);
+    UIManager.getLookAndFeelDefaults().put("Slider.darkShadow", Constant.BG_DARKER_BLUE);
+    UIManager.getLookAndFeelDefaults().put("Slider.focus", Constant.TEXT_COLOR);
+    UIManager.getLookAndFeelDefaults().put("Slider.foreground", Constant.TEXT_COLOR);
+    UIManager.getLookAndFeelDefaults().put("Slider.highlight", Constant.BG_DARKER_BLUE);
+    UIManager.getLookAndFeelDefaults().put("Slider.shadow", Constant.BG_BLUE);
+    UIManager.getLookAndFeelDefaults().put("Slider.thumb", Constant.BG_DARKER_BLUE);
+    UIManager.getLookAndFeelDefaults().put("Slider.tickColor", Constant.TEXT_COLOR);
+    UIManager.getLookAndFeelDefaults().put("Slider.trackBorder", null);
+
+    // JTabbedPane
+    UIManager.getLookAndFeelDefaults().put("TabbedPane.background", Constant.BG_COLOR);
+    UIManager.getLookAndFeelDefaults().put("TabbedPane.borderHightlightColor", Constant.BG_DARKER_COLOR);
+    UIManager.getLookAndFeelDefaults().put("TabbedPane.contentAreaColor", Constant.BG_COLOR);
+    UIManager.getLookAndFeelDefaults().put("TabbedPane.darkShadow", Constant.BG_DARKER_BLUE);
+    UIManager.getLookAndFeelDefaults().put("TabbedPane.focus", Constant.TEXT_COLOR);
+    UIManager.getLookAndFeelDefaults().put("TabbedPane.foreground", Constant.TEXT_COLOR);
+    UIManager.getLookAndFeelDefaults().put("TabbedPane.highlight", Constant.BG_DARKER_BLUE);
+    UIManager.getLookAndFeelDefaults().put("TabbedPane.light", Constant.BG_BLUE);
+    UIManager.getLookAndFeelDefaults().put("TabbedPane.selectedForeground", Constant.TEXT_COLOR);
+    UIManager.getLookAndFeelDefaults().put("TabbedPane.shadow", Constant.BG_BLUE);
+
+    // JColorChooser
+    UIManager.getLookAndFeelDefaults().put("ColorChooser.background", Constant.BG_COLOR);
+    UIManager.getLookAndFeelDefaults().put("ColorChooser.foreground", Constant.TEXT_COLOR);
+    //ColorChooser.panels AbstractColorChooserPanel[ ]
+
+    // JFormattedTextField
+    UIManager.getLookAndFeelDefaults().put("FormattedTextField.background", Constant.BG_COLOR);
+    UIManager.getLookAndFeelDefaults().put("FormattedTextField.border", new MatteBorder(1, 1, 1, 1, Constant.BG_DARKER_BLUE));
+    UIManager.getLookAndFeelDefaults().put("FormattedTextField.caretForeground", Constant.TEXT_COLOR);
+    UIManager.getLookAndFeelDefaults().put("FormattedTextField.foreground	Color", Constant.TEXT_COLOR);
+    UIManager.getLookAndFeelDefaults().put("FormattedTextField.inactiveBackground", Constant.BG_COLOR);
+    UIManager.getLookAndFeelDefaults().put("FormattedTextField.inactiveForeground", Constant.BG_DARKER_COLOR);
+    UIManager.getLookAndFeelDefaults().put("FormattedTextField.selectionBackground", Constant.BG_BLUE);
+    UIManager.getLookAndFeelDefaults().put("FormattedTextField.selectionForeground", Constant.TEXT_COLOR);
+
+    // JPanel
+    UIManager.getLookAndFeelDefaults().put("Panel.background", Constant.BG_COLOR);
+  }
+
   // Main method
   /**
    * @param args the command line arguments
@@ -383,134 +547,6 @@ public class ActivityCalendar extends JFrame {
         new ActivityCalendar().setVisible(true);
       }
     });
-  }
-
-  // Set look and feel colors
-  private static void customizeLAF() {
-    // JLabel
-    UIManager.put("Label.foreground", Constant.TEXT_COLOR);
-
-    // JTextField
-    UIManager.put("text", Constant.TEXT_COLOR);
-    UIManager.put("textHighlight", Constant.BG_BLUE);
-    UIManager.put("textHighlightText", Constant.TEXT_COLOR);
-    UIManager.put("textInactiveText", Constant.BG_DARKER_COLOR);
-    UIManager.put("TextField.background", Constant.BG_COLOR);
-    UIManager.put("TextField.border", new MatteBorder(1, 1, 1, 1, Constant.BG_DARKER_BLUE));
-    UIManager.put("TextField.caretForeground", Constant.TEXT_COLOR);
-    UIManager.put("TextField.disabledBackground", Constant.BG_DARKER_COLOR);
-    UIManager.put("TextField.foreground", Constant.TEXT_COLOR);
-    UIManager.put("TextField.highlight", Constant.BG_BLUE);
-    UIManager.put("TextField.inactiveBackground", Constant.BG_COLOR);
-    UIManager.put("TextField.inactiveForeground", Constant.BG_DARKER_COLOR);
-    UIManager.put("TextField.selectionBackground", Constant.BG_BLUE);
-    UIManager.put("TextField.selectionForeground", Constant.TEXT_COLOR);
-
-    // JRadioButton
-    UIManager.put("RadioButton.background", Constant.BG_COLOR);
-    UIManager.put("RadioButton.border", Constant.BG_DARKER_BLUE);
-    UIManager.put("RadioButton.darkShadow", Constant.BG_DARKER_BLUE);
-    UIManager.put("RadioButton.disabledText", Constant.BG_DARKER_COLOR);
-    UIManager.put("RadioButton.focus", Constant.TEXT_COLOR);
-    UIManager.put("RadioButton.foreground", Constant.TEXT_COLOR);
-    UIManager.put("RadioButton.highlight", Constant.BG_DARKER_BLUE);
-    UIManager.put("RadioButton.interiorBackground", Constant.BG_COLOR);
-    UIManager.put("RadioButton.light", Constant.BG_BLUE);
-    UIManager.put("RadioButton.select", Constant.BG_DARKER_BLUE);
-    UIManager.put("RadioButton.shadow", Constant.BG_BLUE);
-
-    // JTree
-    UIManager.put("Tree.background", Constant.BG_COLOR);
-    UIManager.put("Tree.editorBorder", new MatteBorder(1, 1, 1, 1, Constant.BG_DARKER_BLUE));
-    UIManager.put("Tree.editorBorderSelectionColor", Constant.BG_DARKER_COLOR);
-    UIManager.put("Tree.foreground", Constant.TEXT_COLOR);
-    UIManager.put("Tree.hash", Constant.BORDER_COLOR);
-    UIManager.put("Tree.line", Constant.BORDER_COLOR);
-    UIManager.put("Tree.selectionBackground", Constant.BG_BLUE);
-    UIManager.put("Tree.selectionBorderColor", Constant.BG_DARKER_BLUE);
-    UIManager.put("Tree.selectionForeground", Constant.TEXT_COLOR);
-    UIManager.put("Tree.textBackground", Constant.BG_COLOR);
-    UIManager.put("Tree.textForeground", Constant.TEXT_COLOR);
-
-    // JCheckBox
-    UIManager.put("CheckBox.background", Constant.BG_COLOR);
-    UIManager.put("CheckBox.border", new MatteBorder(1, 1, 1, 1, Constant.BG_DARKER_BLUE));
-    UIManager.put("CheckBox.darkShadow", Constant.BG_DARKER_BLUE);
-    UIManager.put("CheckBox.disabledText", Constant.BG_DARKER_COLOR);
-    UIManager.put("CheckBox.focus", Constant.TEXT_COLOR);
-    UIManager.put("CheckBox.foreground", Constant.TEXT_COLOR);
-    UIManager.put("CheckBox.highlight", Constant.BG_DARKER_BLUE);
-    UIManager.put("CheckBox.interiorBackground", Constant.BG_COLOR);
-    UIManager.put("CheckBox.light", Constant.BG_BLUE);
-    UIManager.put("Checkbox.select", Constant.BG_DARKER_BLUE);
-    UIManager.put("CheckBox.shadow", Constant.BG_BLUE);
-
-    // JSpinner
-    UIManager.put("Spinner.background", Constant.BG_COLOR);
-    UIManager.put("Spinner.border", new MatteBorder(1, 1, 1, 1, Constant.BG_DARKER_BLUE));
-    UIManager.put("Spinner.foreground", Constant.TEXT_COLOR);
-
-    // JPaswordField
-    UIManager.put("PasswordField.background", Constant.BG_COLOR);
-    UIManager.put("PasswordField.border", new MatteBorder(1, 1, 1, 1, Constant.BG_DARKER_BLUE));
-    UIManager.put("PasswordField.caretForeground", Constant.TEXT_COLOR);
-    UIManager.put("PasswordField.disabledBackground", Constant.BG_DARKER_COLOR);
-    UIManager.put("PasswordField.foreground", Constant.TEXT_COLOR);
-    UIManager.put("PasswordField.inactiveBackground", Constant.BG_COLOR);
-    UIManager.put("PasswordField.inactiveForeground", Constant.BG_DARKER_COLOR);
-    UIManager.put("PasswordField.selectionBackground", Constant.BG_BLUE);
-    UIManager.put("PasswordField.selectionForeground", Constant.TEXT_COLOR);
-
-    // JEditorPane
-    UIManager.put("EditorPane.background", Constant.BG_COLOR);
-    UIManager.put("EditorPane.caretForeground", Constant.TEXT_COLOR);
-    UIManager.put("EditorPane.foreground", Constant.TEXT_COLOR);
-    UIManager.put("EditorPane.inactiveForeground", Constant.BG_DARKER_COLOR);
-    UIManager.put("EditorPane.selectionBackground", Constant.BG_BLUE);
-    UIManager.put("EditorPane.selectionForeground", Constant.TEXT_COLOR);
-
-    // JSlider
-    UIManager.put("Slider.altTrackColo", Constant.BG_COLOR);
-    UIManager.put("Slider.background", Constant.BG_COLOR);
-    UIManager.put("Slider.border", null);
-    UIManager.put("Slider.darkShadow", Constant.BG_DARKER_BLUE);
-    UIManager.put("Slider.focus", Constant.TEXT_COLOR);
-    UIManager.put("Slider.foreground", Constant.TEXT_COLOR);
-    UIManager.put("Slider.highlight", Constant.BG_DARKER_BLUE);
-    UIManager.put("Slider.shadow", Constant.BG_BLUE);
-    UIManager.put("Slider.thumb", Constant.BG_DARKER_BLUE);
-    UIManager.put("Slider.tickColor", Constant.TEXT_COLOR);
-    UIManager.put("Slider.trackBorder", null);
-
-    // JTabbedPane
-    UIManager.put("TabbedPane.background", Constant.BG_COLOR);
-    UIManager.put("TabbedPane.borderHightlightColor", Constant.BG_DARKER_COLOR);
-    UIManager.put("TabbedPane.contentAreaColor", Constant.BG_COLOR);
-    UIManager.put("TabbedPane.darkShadow", Constant.BG_DARKER_BLUE);
-    UIManager.put("TabbedPane.focus", Constant.TEXT_COLOR);
-    UIManager.put("TabbedPane.foreground", Constant.TEXT_COLOR);
-    UIManager.put("TabbedPane.highlight", Constant.BG_DARKER_BLUE);
-    UIManager.put("TabbedPane.light", Constant.BG_BLUE);
-    UIManager.put("TabbedPane.selectedForeground", Constant.TEXT_COLOR);
-    UIManager.put("TabbedPane.shadow", Constant.BG_BLUE);
-
-    // JColorChooser
-    UIManager.put("ColorChooser.background", Constant.BG_COLOR);
-    UIManager.put("ColorChooser.foreground", Constant.TEXT_COLOR);
-    //ColorChooser.panels AbstractColorChooserPanel[ ]
-
-    // JFormattedTextField
-    UIManager.put("FormattedTextField.background", Constant.BG_COLOR);
-    UIManager.put("FormattedTextField.border", new MatteBorder(1, 1, 1, 1, Constant.BG_DARKER_BLUE));
-    UIManager.put("FormattedTextField.caretForeground", Constant.TEXT_COLOR);
-    UIManager.put("FormattedTextField.foreground	Color", Constant.TEXT_COLOR);
-    UIManager.put("FormattedTextField.inactiveBackground", Constant.BG_COLOR);
-    UIManager.put("FormattedTextField.inactiveForeground", Constant.BG_DARKER_COLOR);
-    UIManager.put("FormattedTextField.selectionBackground", Constant.BG_BLUE);
-    UIManager.put("FormattedTextField.selectionForeground", Constant.TEXT_COLOR);
-
-    // JPanel
-    UIManager.put("Panel.background", Constant.BG_COLOR);
   }
 
   // Mouse listener

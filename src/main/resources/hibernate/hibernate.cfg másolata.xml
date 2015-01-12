@@ -4,11 +4,11 @@
   <session-factory>
     <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
     <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
-    <property name="hibernate.connection.url">jdbc:mysql://192.168.2.183:3306/activitycalendar?zeroDateTimeBehavior=convertToNull</property>
+    <property name="hibernate.connection.url">jdbc:mysql://192.168.2.183:3306/activitycalendar</property>
     <property name="hibernate.connection.username">roli</property>
     <property name="hibernate.connection.password">x</property>
-    <property name="hibernate.show_sql">true</property>
+    <property name="hibernate.show_sql">false</property>
     <property name="hibernate.query.factory_class">org.hibernate.hql.internal.ast.ASTQueryTranslatorFactory</property>
-    <mapping resource="rosza/hibernate/Activities.hbm.xml"/>
+    <mapping resource="hibernate/Activities.hbm.xml"/>
   </session-factory>
 </hibernate-configuration>

@@ -12,11 +12,13 @@ import java.awt.Font;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Properties;
 import javax.swing.GroupLayout;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.LayoutStyle;
@@ -55,23 +57,22 @@ public class SummaryDialog extends JDialogX {
   private Summary summary;
   
   // Properties variables declaration
-  private final Properties props = XMLUtil.getProperties();
+  private Properties props;
 
   // Email variable
   private Email email;
-
-  // DataManager
-  private DataManager dataManager;
 
   // Create summary dialog
   public SummaryDialog(Frame owner, Component locationComp, String title, boolean modal, DateTime date) {
     super(owner, title, modal);
 
+    props = ActivityCalendar.getProperties();
     if(props != null) {
-      email = new Email(this, props);
+      email = new Email(props);
     }
-
-    dataManager = new DataManager();
+    else {
+      JOptionPane.showMessageDialog(null, "No e-mail settings found!\nPlease go to settings panel if you want to send e-mail.", "Information", JOptionPane.INFORMATION_MESSAGE);
+    }
 
     selectedDate = date;
     selectedYear = selectedDate.getYear();
@@ -79,7 +80,7 @@ public class SummaryDialog extends JDialogX {
     selectedDayOfMonth = selectedDate.getDayOfMonth();
 
     createUI(locationComp);
-    ArrayList<Activity> activityList = dataManager.getActivityByStartDate(selectedDate);
+    ArrayList<Activity> activityList = new DataManager().getActivityByStartDate(selectedDate);
     Category category = XMLUtil.getCategories();
     summary = buildSummary(category, activityList)[0];
     for(int i = 0, size = summary.children.size(); i < size; i++) {
@@ -259,7 +260,6 @@ public class SummaryDialog extends JDialogX {
 
     return tempSum;
   }
-  //</editor-fold>
 
   // Link together all members of a summary
   public static void linkSummary(Summary parent, Summary[] children) {

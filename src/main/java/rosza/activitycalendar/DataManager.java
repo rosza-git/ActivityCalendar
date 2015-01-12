@@ -7,33 +7,31 @@
 package rosza.activitycalendar;
 
 import java.util.ArrayList;
-import java.util.Properties;
 import org.jasypt.util.text.StrongTextEncryptor;
 import org.joda.time.DateTime;
 import rosza.hibernate.Hibernate;
 
 public class DataManager {
-  // Properties variable
-  private final Properties props;
-
   // Variable for encryption
-  private final StrongTextEncryptor textEncryptor;      // http://technofes.blogspot.in/2011/10/orgjasyptexceptionsencryptionoperationn.html
+  private static final StrongTextEncryptor textEncryptor = new StrongTextEncryptor();      // http://technofes.blogspot.in/2011/10/orgjasyptexceptionsencryptionoperationn.html
 
   // Storage variable
-  private final String storage;
-  private final Hibernate hibernate;
+  private String storage;
+  private Hibernate hibernate;
 
   public DataManager() {
-    textEncryptor = new StrongTextEncryptor();
     textEncryptor.setPassword(Constant.SALT);
-    props = XMLUtil.getProperties();
-    hibernate = new Hibernate();
-
-    if(props == null) {
+    try {
+      storage = ActivityCalendar.getProperties().getProperty(Constant.PROPS_STORAGE);
+      if(storage == null) {
+        storage = Constant.PROPS_XML_STORAGE;
+      }
+    }
+    catch(NullPointerException e) {
       storage = Constant.PROPS_XML_STORAGE;
     }
-    else {
-      storage = props.getProperty(Constant.PROPS_STORAGE);
+    if(storage.equals(Constant.PROPS_DB_STORAGE)) {
+      hibernate = new Hibernate();
     }
   }
 
@@ -103,7 +101,7 @@ public class DataManager {
     return false;
   }
 
-  public String dbDate(DateTime date) {
+  private String dbDate(DateTime date) {
     return String.format("%d-%02d-%02d", date.getYear(), date.getMonthOfYear(), date.getDayOfMonth());
   }
 }

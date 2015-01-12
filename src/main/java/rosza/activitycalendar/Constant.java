@@ -122,6 +122,5 @@ public class Constant {
   public static final String PROPS_EMAIL_AUTHENTICATION = "email.authentication";
   public static final String PROPS_EMAIL_PROTOCOL       = "email.protocol";
   public static final String PROPS_EMAIL_TLS            = "tls";
-  public static final String PROPS_EMAIL_SMTP           = "smtp";
   public static final String PROPS_EMAIL_SMTPS          = "smtps";
 }
