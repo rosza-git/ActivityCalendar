@@ -43,6 +43,7 @@ public class HibernateUtil {
       }
 
       Configuration config = new Configuration().configure("hibernate/hibernate.cfg.xml");
+      config.setProperty("hibernate.show_sql", "false");
       String url = "jdbc:mysql://" + props.getProperty(Constant.PROPS_DB_SERVER) + ":" + props.getProperty(Constant.PROPS_DB_SERVER_PORT) + "/" + "activitycalendar";
       String username = props.getProperty(Constant.PROPS_DB_USERNAME);
       String password = props.getProperty(Constant.PROPS_DB_PASSWORD);
@@ -51,7 +52,6 @@ public class HibernateUtil {
       }
       catch(EncryptionOperationNotPossibleException e) {
       }
-      System.out.println(url + "\n" + username + "\n" + password);
       config.setProperty("hibernate.connection.url", url);
       config.setProperty("hibernate.connection.username", username);
       config.setProperty("hibernate.connection.password", password);

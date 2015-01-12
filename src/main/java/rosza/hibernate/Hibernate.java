@@ -9,6 +9,8 @@ package rosza.hibernate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
@@ -27,6 +29,9 @@ public class Hibernate {
   private final Session session;
 
   public Hibernate() throws HibernateException, IllegalArgumentException, NullPointerException {
+    Logger log = Logger.getLogger("org.hibernate");
+    log.setLevel(Level.OFF);
+
     session = HibernateUtil.getSessionFactory().openSession();
   }
 
