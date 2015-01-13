@@ -102,7 +102,7 @@ public class SettingsDialog extends JDialogX {
 
     textEncryptor = new StrongTextEncryptor();
     textEncryptor.setPassword(Constant.SALT);
-    props = ActivityCalendar.getProperties();
+    props = ActivityCalendar.getSettings();
 
     createUI(locationComp);
     setFieldValues();
@@ -813,7 +813,7 @@ public class SettingsDialog extends JDialogX {
       props.setProperty(Constant.PROPS_STORAGE, Constant.PROPS_XML_STORAGE);
     }
 
-    ActivityCalendar.setProperties(props);
+    ActivityCalendar.saveSettings(props);
   }
 
   private void saveEmailButtonActionPerformed(ActionEvent e) {
@@ -843,7 +843,7 @@ public class SettingsDialog extends JDialogX {
     String auth = emailAuthCheckBox.isSelected() ? "true" : "false";
     props.setProperty(Constant.PROPS_EMAIL_AUTHENTICATION, auth);
 
-    ActivityCalendar.setProperties(props);
+    ActivityCalendar.saveSettings(props);
   }
 
   // Radio button events

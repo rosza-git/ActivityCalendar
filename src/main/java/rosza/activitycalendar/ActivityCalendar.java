@@ -94,7 +94,7 @@ public class ActivityCalendar extends JFrame {
   public static DateTime selectedDate;          // selected date
 
   // Settings
-  private static Properties properties = loadProperties();
+  private static Properties properties = loadSettings();
 
   // Create new ActivityCalendar form
   public ActivityCalendar() {
@@ -354,9 +354,9 @@ public class ActivityCalendar extends JFrame {
   }
 
   // Properties handling methods
-  private static Properties loadProperties() {
+  private static Properties loadSettings() {
     try {
-      return SettingsHandler.getProperties();
+      return SettingsHandler.getSettings();
     }
     catch(FileNotFoundException e) {
       //Logger.getLogger(ActivityCalendar.class.getName()).log(Level.SEVERE, null, e);
@@ -370,14 +370,14 @@ public class ActivityCalendar extends JFrame {
     return null;
   }
 
-  public static Properties getProperties() {
+  public static Properties getSettings() {
     return properties;
   }
 
-  public static void setProperties(Properties props) {
+  public static void saveSettings(Properties props) {
     try {
-      SettingsHandler.setProperties(props);
-      properties = loadProperties();
+      SettingsHandler.setSettings(props);
+      properties = loadSettings();
     }
     catch(IOException ex) {
       Logger.getLogger(ActivityCalendar.class.getName()).log(Level.SEVERE, null, ex);

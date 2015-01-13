@@ -65,7 +65,7 @@ public class SummaryDialog extends JDialogX {
   public SummaryDialog(Frame owner, Component locationComp, String title, boolean modal, DateTime date) {
     super(owner, title, modal);
 
-    props = ActivityCalendar.getProperties();
+    props = ActivityCalendar.getSettings();
     email = checkEmailSettings();
 
     selectedDate = date;

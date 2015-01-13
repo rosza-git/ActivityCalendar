@@ -22,7 +22,7 @@ public class DataManager {
   public DataManager() {
     textEncryptor.setPassword(Constant.SALT);
     try {
-      storage = ActivityCalendar.getProperties().getProperty(Constant.PROPS_STORAGE);
+      storage = ActivityCalendar.getSettings().getProperty(Constant.PROPS_STORAGE);
       if(storage == null) {
         storage = Constant.PROPS_XML_STORAGE;
       }

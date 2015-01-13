@@ -25,7 +25,7 @@ public class HibernateUtil {
     try {
       textEncryptor = new StrongTextEncryptor();
       textEncryptor.setPassword(Constant.SALT);
-      props = ActivityCalendar.getProperties();
+      props = ActivityCalendar.getSettings();
       if(props == null) {
         throw new NullPointerException("No settings!");
       }

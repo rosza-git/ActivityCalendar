@@ -7,7 +7,6 @@
 package rosza.activitycalendar;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -40,7 +39,6 @@ class Email {
     this.props = p;
   }
 
-  // Send e-mail
   public void sendMail(String to, String subject, String body) {
     StrongTextEncryptor textEncryptor = new StrongTextEncryptor();
     textEncryptor.setPassword(Constant.SALT);
@@ -81,7 +79,7 @@ class Email {
       };
     }
 
-    Session session = Session.getDefaultInstance(eMailProps, authenticator);
+    Session session = Session.getInstance(eMailProps, authenticator);
 
     try {
       Message message = new MimeMessage(session);
