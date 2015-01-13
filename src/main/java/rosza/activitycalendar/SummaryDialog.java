@@ -12,7 +12,6 @@ import java.awt.Font;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Properties;
 import javax.swing.GroupLayout;
@@ -67,12 +66,7 @@ public class SummaryDialog extends JDialogX {
     super(owner, title, modal);
 
     props = ActivityCalendar.getProperties();
-    if(props != null) {
-      email = new Email(props);
-    }
-    else {
-      JOptionPane.showMessageDialog(null, "No e-mail settings found!\nPlease go to settings panel if you want to send e-mail.", "Information", JOptionPane.INFORMATION_MESSAGE);
-    }
+    email = checkEmailSettings();
 
     selectedDate = date;
     selectedYear = selectedDate.getYear();
@@ -336,6 +330,41 @@ public class SummaryDialog extends JDialogX {
     }
 
     return en;
+  }
+
+  // Check e-mail settings
+  private Email checkEmailSettings() {
+    if(props != null) {
+      if(props.getProperty(Constant.PROPS_EMAIL_ADDRESS) == null || props.getProperty(Constant.PROPS_EMAIL_ADDRESS).equals("")) {
+        JOptionPane.showMessageDialog(null, "Missing senders e-mail address!\nPlease go to settings panel if you want to send e-mail.", "Error", JOptionPane.ERROR_MESSAGE);
+        return null;
+      }
+      else if(props.getProperty(Constant.PROPS_EMAIL_SMTP_HOST) == null || props.getProperty(Constant.PROPS_EMAIL_SMTP_HOST).equals("")) {
+        JOptionPane.showMessageDialog(null, "Missing SMTP host!\nPlease go to settings panel if you want to send e-mail.", "Error", JOptionPane.ERROR_MESSAGE);
+        return null;
+      }
+      else if(props.getProperty(Constant.PROPS_EMAIL_SMTP_PORT) == null || props.getProperty(Constant.PROPS_EMAIL_SMTP_PORT).equals("")) {
+        JOptionPane.showMessageDialog(null, "Missing SMTP port!\nPlease go to settings panel if you want to send e-mail.", "Error", JOptionPane.ERROR_MESSAGE);
+        return null;
+      }
+      else if(props.getProperty(Constant.PROPS_EMAIL_USERNAME) == null || props.getProperty(Constant.PROPS_EMAIL_USERNAME).equals("")) {
+        JOptionPane.showMessageDialog(null, "Missing e-mail username!\nPlease go to settings panel if you want to send e-mail.", "Error", JOptionPane.ERROR_MESSAGE);
+        return null;
+      }
+      else if(props.getProperty(Constant.PROPS_EMAIL_PASSWORD) == null || props.getProperty(Constant.PROPS_EMAIL_PASSWORD).equals("")) {
+        JOptionPane.showMessageDialog(null, "Missing e-mail password!\nPlease go to settings panel if you want to send e-mail.", "Error", JOptionPane.ERROR_MESSAGE);
+        return null;
+      }
+      else if(props.getProperty(Constant.PROPS_EMAIL_PROTOCOL) == null || props.getProperty(Constant.PROPS_EMAIL_PROTOCOL).equals("")) {
+        JOptionPane.showMessageDialog(null, "Missing e-mail protocol!\nPlease go to settings panel if you want to send e-mail.", "Error", JOptionPane.ERROR_MESSAGE);
+        return null;
+      }
+    }
+    else {
+      JOptionPane.showMessageDialog(null, "No e-mail settings found!\nPlease go to settings panel if you want to send e-mail.", "Information", JOptionPane.INFORMATION_MESSAGE);
+      return null;
+    }
+    return new Email(props);
   }
 
   // Action listener
