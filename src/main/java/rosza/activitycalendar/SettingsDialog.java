@@ -66,7 +66,7 @@ public class SettingsDialog extends JDialogX {
   private JLabel         categoriesLabel;
   private JScrollPane    categoryScrollPane;
   private CategoryTree   categoryTree;
-  private final Category categoryTreeElements = XMLUtil.getCategories();
+  private final Category categoryTreeElements;
   private JButtonX       addCategoryButton;
   private JButtonX       modifyCategoryButton;
   private JButtonX       removeCategoryButton;
@@ -99,6 +99,9 @@ public class SettingsDialog extends JDialogX {
   // Create settings dialog
   public SettingsDialog(Frame frame, Component locationComp, String title, boolean modal) {
     super(frame, title, modal);
+
+    // Get categories
+    categoryTreeElements = new DataManager().getCategories();
 
     textEncryptor = new StrongTextEncryptor();
     textEncryptor.setPassword(Constant.SALT);
@@ -758,13 +761,13 @@ public class SettingsDialog extends JDialogX {
     int id = Category.getLastID((Category)categoryTree.getModel().getRoot(), 0);
     Category c = new Category(++id, newCategoryTextField.getText(), categoryColor.getColor(), false);
     Category.addCategory(c, categoryTree.getSelected());
-    XMLUtil.createCategoriesXML(categoryTreeElements);
+    new DataManager().insertCategory(categoryTreeElements, id);
     categoryTree.updateUI();
   }
 
   private void categoryModifyButtonActionPerformed(ActionEvent e) {
     Category.modifiyCategory(categoryTree.getSelected(), newCategoryTextField.getText(), categoryColor.getColor());
-    XMLUtil.createCategoriesXML(categoryTreeElements);
+    new DataManager().modifyCategory(categoryTree.getSelected(), categoryTree.getSelected().getID());
     categoryTree.updateUI();
   }
 
@@ -777,7 +780,7 @@ public class SettingsDialog extends JDialogX {
       int reply = JOptionPane.showConfirmDialog(this, "Are you sure you want to remove '" + c.getName() + "' and its subcategories?", "Question", JOptionPane.YES_NO_OPTION);
       if(reply == JOptionPane.YES_OPTION) {
         categoryTreeElements.removeCategory(c);
-        XMLUtil.createCategoriesXML(categoryTreeElements);
+        new DataManager().removeCategory(c, c.getID());
         categoryTree.updateUI();
       }
     }
@@ -785,7 +788,7 @@ public class SettingsDialog extends JDialogX {
       int reply = JOptionPane.showConfirmDialog(this, "Are you sure you want to remove '" + c.getName() + "'?", "Question", JOptionPane.YES_NO_OPTION);
       if(reply == JOptionPane.YES_OPTION) {
         categoryTreeElements.removeCategory(c);
-        XMLUtil.createCategoriesXML(categoryTreeElements);
+        new DataManager().removeCategory(c, c.getID());
         categoryTree.updateUI();
       }
     }

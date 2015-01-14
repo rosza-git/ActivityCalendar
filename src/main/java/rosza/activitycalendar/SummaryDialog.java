@@ -75,7 +75,7 @@ public class SummaryDialog extends JDialogX {
 
     createUI(locationComp);
     ArrayList<Activity> activityList = new DataManager().getActivityByStartDate(selectedDate);
-    Category category = XMLUtil.getCategories();
+    Category category = new DataManager().getCategories();
     summary = buildSummary(category, activityList)[0];
     for(int i = 0, size = summary.children.size(); i < size; i++) {
       summary.total += summary.children.get(i).total;

@@ -35,6 +35,62 @@ public class DataManager {
     }
   }
 
+  public Category getCategoryByID(int id) {
+    switch(storage) {
+      case Constant.PROPS_DB_STORAGE:
+        return hibernate.getCategoryByID(id);
+      case Constant.PROPS_XML_STORAGE:
+        return XMLUtil.getCategoryByID(id);
+    }
+
+    return null;
+  }
+
+  public Category getCategories() {
+    switch(storage) {
+      case Constant.PROPS_DB_STORAGE:
+        return hibernate.getCategories();
+      case Constant.PROPS_XML_STORAGE:
+        return XMLUtil.getCategories();
+    }
+
+    return null;
+   
+  }
+
+  public boolean insertCategory(Category category, int id) {
+    switch(storage) {
+      case Constant.PROPS_DB_STORAGE:
+        return hibernate.insertCategory(category.getCategoryByID(id));
+      case Constant.PROPS_XML_STORAGE:
+        return XMLUtil.createCategoriesXML(category);
+    }
+
+    return false;
+  }
+
+  public boolean removeCategory(Category category, int id) {
+    switch(storage) {
+      case Constant.PROPS_DB_STORAGE:
+        return hibernate.removeCategory(category.getCategoryByID(id));
+      case Constant.PROPS_XML_STORAGE:
+        return XMLUtil.createCategoriesXML(category);
+    }
+
+    return false;
+  }
+
+  public boolean modifyCategory(Category category, int id) {
+    switch(storage) {
+      case Constant.PROPS_DB_STORAGE:
+        return hibernate.updateCategory(category.getCategoryByID(id));
+      case Constant.PROPS_XML_STORAGE:
+        return XMLUtil.createCategoriesXML(category);
+    }
+
+    return false;
+  }
+
   public Activity getActivityByID(int id) {
     switch(storage) {
       case Constant.PROPS_DB_STORAGE:
@@ -71,7 +127,7 @@ public class DataManager {
   public boolean addActivity(Activity activity) {
     switch(storage) {
       case Constant.PROPS_DB_STORAGE:
-        return hibernate.addActivity(activity);
+        return hibernate.insertActivity(activity);
       case Constant.PROPS_XML_STORAGE:
         return XMLUtil.addActivity(activity);
     }

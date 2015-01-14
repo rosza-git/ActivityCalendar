@@ -57,11 +57,14 @@ public class ActivityDialog extends JDialogX {
   private JButtonX       removeActivityButton;
   private JButtonX       cancelButton;
   private JScrollPane    categoryScrollPane;
-  private final Category categoryTreeElements = XMLUtil.getCategories();
+  private final Category categoryTreeElements;
 
   // Create new Activity dialog
   public ActivityDialog(Frame frame, Component locationComp, String title, boolean modal, Activity initialValue) {
     super(frame, title, modal);
+
+    // Get categories
+     categoryTreeElements = new DataManager().getCategories();
 
     // Set initial value.
     activity = initialValue;

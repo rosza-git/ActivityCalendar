@@ -3,4 +3,5 @@
 <hibernate-reverse-engineering>
   <schema-selection match-catalog="activitycalendar"/>
   <table-filter match-name="activities"/>
+  <table-filter match-name="categories"/>
 </hibernate-reverse-engineering>

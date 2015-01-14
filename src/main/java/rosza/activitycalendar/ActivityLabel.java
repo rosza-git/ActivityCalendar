@@ -91,7 +91,12 @@ public class ActivityLabel extends JPanel {
     DateTimeFormatter start = DateTimeFormat.forPattern("yyyy.MM.dd. HH:mm");
     DateTimeFormatter end = DateTimeFormat.forPattern("HH:mm");
     toolTip.append("<b>date:</b> ").append(start.print(activity.getStartDate())).append(" - ").append(end.print(activity.getEndDate())).append("<br>");
-    toolTip.append("<b>category:</b> ").append(escapeHtml(activity.getCategory().getName()));
+    try {
+      toolTip.append("<b>category:</b> ").append(escapeHtml(activity.getCategory().getName()));
+    }
+    catch(NullPointerException e) {
+      toolTip.append("-");
+    }
     toolTip.append("</body></html>");
 
     return toolTip.toString();

@@ -60,6 +60,7 @@ import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 import org.joda.time.DateTime;
+import rosza.hibernate.HibernateUtil;
 
 public class ActivityCalendar extends JFrame {
   // UI variables
@@ -287,7 +288,8 @@ public class ActivityCalendar extends JFrame {
 
   // Exit application method
   private void exitApplication() {
-    // Remove application from system-tray and close 
+    //HibernateUtil.shutdown();
+    // Remove application from system-tray and close
     systemTray.remove(trayIcon);
     System.exit(0);
   }
