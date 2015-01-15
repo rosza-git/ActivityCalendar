@@ -36,6 +36,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import org.hibernate.HibernateException;
 import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
 import org.jasypt.util.text.StrongTextEncryptor;
 import rosza.xcomponents.JButtonX;
@@ -66,7 +67,7 @@ public class SettingsDialog extends JDialogX {
   private JLabel         categoriesLabel;
   private JScrollPane    categoryScrollPane;
   private CategoryTree   categoryTree;
-  private final Category categoryTreeElements;
+  private Category       categoryTreeElements;
   private JButtonX       addCategoryButton;
   private JButtonX       modifyCategoryButton;
   private JButtonX       removeCategoryButton;
@@ -101,7 +102,15 @@ public class SettingsDialog extends JDialogX {
     super(frame, title, modal);
 
     // Get categories
-    categoryTreeElements = new DataManager().getCategories();
+    try {
+      categoryTreeElements = new DataManager().getCategories();
+    }
+    catch(HibernateException e) {
+      JOptionPane.showMessageDialog(null, "Unable to access database!\n" + e.getCause(), "Settings error", JOptionPane.ERROR_MESSAGE);
+      categoryTreeElements = Category.getDefaultCategories();
+    }
+    catch(NullPointerException e) {
+    }
 
     textEncryptor = new StrongTextEncryptor();
     textEncryptor.setPassword(Constant.SALT);
@@ -676,7 +685,7 @@ public class SettingsDialog extends JDialogX {
           dbPasswordField.setText(pwd);
         }
         catch(Exception e) {
-          JOptionPane.showMessageDialog(this, "Error in jaspyt!\n" + e.toString(), "Error", JOptionPane.ERROR_MESSAGE);
+          JOptionPane.showMessageDialog(this, "Error in jaspyt!\n" + e.toString(), "Settings error", JOptionPane.ERROR_MESSAGE);
         }
       }
     }
@@ -703,7 +712,7 @@ public class SettingsDialog extends JDialogX {
         emailPasswordField.setText(pwd);
       }
       catch(Exception e) {
-        JOptionPane.showMessageDialog(this, "Error in jaspyt!\n" + e.toString(), "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Error in jaspyt!\n" + e.toString(), "Settings error", JOptionPane.ERROR_MESSAGE);
       }
       if(props.getProperty(Constant.PROPS_EMAIL_AUTHENTICATION) == null) {
         emailAuthCheckBox.setSelected(false);
@@ -766,6 +775,9 @@ public class SettingsDialog extends JDialogX {
   }
 
   private void categoryModifyButtonActionPerformed(ActionEvent e) {
+    if(categoryTree.getSelected().getID() == 0) {
+      return;
+    }
     Category.modifiyCategory(categoryTree.getSelected(), newCategoryTextField.getText(), categoryColor.getColor());
     new DataManager().modifyCategory(categoryTree.getSelected(), categoryTree.getSelected().getID());
     categoryTree.updateUI();
@@ -773,24 +785,29 @@ public class SettingsDialog extends JDialogX {
 
   private void categoryRemoveButtonActionPerformed(ActionEvent e) {
     Category c = categoryTree.getSelected();
-    if(c.isPredefined()) {
-      JOptionPane.showMessageDialog(this, "Removing pre-defined categories are not allowed! (" + c.getName() + ")", "Error", JOptionPane.ERROR_MESSAGE);
-    }
-    else if(c.hasSubCategory()) {
-      int reply = JOptionPane.showConfirmDialog(this, "Are you sure you want to remove '" + c.getName() + "' and its subcategories?", "Question", JOptionPane.YES_NO_OPTION);
-      if(reply == JOptionPane.YES_OPTION) {
-        categoryTreeElements.removeCategory(c);
-        new DataManager().removeCategory(c, c.getID());
-        categoryTree.updateUI();
+    try {
+      if(c.isPredefined()) {
+        JOptionPane.showMessageDialog(this, "Removing pre-defined categories are not allowed! (" + c.getName() + ")", "Settings error", JOptionPane.ERROR_MESSAGE);
+      }
+      else if(c.hasSubCategory()) {
+        int reply = JOptionPane.showConfirmDialog(this, "Are you sure you want to remove '" + c.getName() + "' and its subcategories?", "Question", JOptionPane.YES_NO_OPTION);
+        if(reply == JOptionPane.YES_OPTION) {
+          categoryTreeElements.removeCategory(c);
+          new DataManager().removeCategory(c, c.getID());
+          categoryTree.updateUI();
+        }
+      }
+      else {
+        int reply = JOptionPane.showConfirmDialog(this, "Are you sure you want to remove '" + c.getName() + "'?", "Question", JOptionPane.YES_NO_OPTION);
+        if(reply == JOptionPane.YES_OPTION) {
+          categoryTreeElements.removeCategory(c);
+          new DataManager().removeCategory(c, c.getID());
+          categoryTree.updateUI();
+        }
       }
     }
-    else {
-      int reply = JOptionPane.showConfirmDialog(this, "Are you sure you want to remove '" + c.getName() + "'?", "Question", JOptionPane.YES_NO_OPTION);
-      if(reply == JOptionPane.YES_OPTION) {
-        categoryTreeElements.removeCategory(c);
-        new DataManager().removeCategory(c, c.getID());
-        categoryTree.updateUI();
-      }
+    catch(Exception ex) {
+      JOptionPane.showMessageDialog(null, ex.getCause(), "Settings error", JOptionPane.ERROR_MESSAGE);
     }
   }
 
@@ -809,7 +826,7 @@ public class SettingsDialog extends JDialogX {
         props.setProperty(Constant.PROPS_DB_PASSWORD, textEncryptor.encrypt(pwd));
       }
       catch(EncryptionOperationNotPossibleException ex) {
-        JOptionPane.showMessageDialog(this, "Error in jaspyt!\n" + ex.toString(), "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(this, "Error in jaspyt!\n" + ex.toString(), "Settings error", JOptionPane.ERROR_MESSAGE);
       }
     }
     else {
@@ -831,7 +848,7 @@ public class SettingsDialog extends JDialogX {
       props.setProperty(Constant.PROPS_EMAIL_PASSWORD, textEncryptor.encrypt(pwd));
     }
     catch(EncryptionOperationNotPossibleException ex) {
-      JOptionPane.showMessageDialog(this, "Error in jaspyt!\n" + ex.toString(), "Error", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(this, "Error in jaspyt!\n" + ex.toString(), "Settings error", JOptionPane.ERROR_MESSAGE);
     }
     props.setProperty(Constant.PROPS_EMAIL_SMTP_HOST, emailHostTextField.getText());
     props.setProperty(Constant.PROPS_EMAIL_SMTP_PORT, emailPortTextField.getText());
@@ -868,20 +885,20 @@ public class SettingsDialog extends JDialogX {
 
   // Category-tree selection changed
   private void categoryTreeSelectionChanged(TreeSelectionEvent e) {
-    if(categoryTree.getSelected() == null) {
-      return;
-    }
-    int id = categoryTree.getSelected().getID();
-    if(id == 0) {
-      categoryTree.setSelectionPath(categoryTree.getPathForRow(id + 1));
-    }
-    else {
+//    if(categoryTree.getSelected() == null) {
+//      return;
+//    }
+//    int id = categoryTree.getSelected().getID();
+//    if(id == 0) {
+//      categoryTree.setSelectionPath(categoryTree.getPathForRow(id + 1));
+//    }
+//    else {
       newCategoryTextField.setText(categoryTree.getSelected().toString());
       categoryColor.setColor(categoryTree.getSelected().getColor());
       newCategoryTextField.setBackground(categoryTree.getSelected().getColor());
       modifyCategoryButton.setEnabled(true);
       removeCategoryButton.setEnabled(true);
-    }
+//    }
   }
 
   // Action listener

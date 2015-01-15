@@ -7,6 +7,7 @@
 package rosza.hibernate;
 
 import java.awt.Color;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -16,10 +17,11 @@ import javax.swing.JOptionPane;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.TransactionException;
+import org.hibernate.exception.SQLGrammarException;
 import org.joda.time.DateTime;
 import rosza.activitycalendar.Activity;
 import rosza.activitycalendar.Category;
-import rosza.activitycalendar.DataManager;
 
 public class Hibernate {
   // Queries for Activities
@@ -36,16 +38,50 @@ public class Hibernate {
 
   private final Session session;
 
-  public Hibernate() throws HibernateException, IllegalArgumentException, NullPointerException {
+  public Hibernate() {
     Logger log = Logger.getLogger("org.hibernate");
     log.setLevel(Level.OFF);
 
-    session = HibernateUtil.getSessionFactory().openSession();
+    try {
+      session = HibernateUtil.getSessionFactory().openSession();
+    }
+    catch(NullPointerException e) {
+      throw new NullPointerException(e.getMessage() + " -> Hibernate");
+    }
+  }
+
+  private List executeHQL(String hql) {
+    try {
+      session.beginTransaction();
+      Query q = session.createQuery(hql);
+      List resultList = q.list();
+      session.getTransaction().commit();
+
+      return resultList;
+    }
+    catch(NullPointerException ne) {
+      JOptionPane.showMessageDialog(null, "Cannot connect to server! Missing parameter(s)!", "activityHQL", JOptionPane.ERROR_MESSAGE);
+    }
+    catch(IllegalArgumentException e) {
+      throw new IllegalArgumentException(e);
+    }
+    catch(ExceptionInInitializerError e) {
+      throw new ExceptionInInitializerError();
+    }
+    catch(SQLGrammarException e) {
+      throw new SQLGrammarException("executeHQL\n" + hql, e.getSQLException());
+    }
+    catch(HibernateException e) {
+      throw new HibernateException(e);
+    }
+    
+
+    return null;
   }
 
   // Methods for getting, inserting, modifying and removing Categories
   public Category getCategoryByID(int id) {
-    List category = categoryHQL(CATEGORY_QUERY_BASED_ON_ID + id);
+    List category = executeHQL(CATEGORY_QUERY_BASED_ON_ID + id);
     if(category.isEmpty()) {
       return null;
     }
@@ -56,20 +92,31 @@ public class Hibernate {
   }
 
   public Category getCategories() {
-    // get the root category
-    Category root = entity2Category(categoryHQL(CATEGORY_QUERY_ROOT).get(0));
-    // get sub-categories
-    Category[] subs = getCategoryDescendants(root.getID());
-    // link sub-categories to root
-    Category.linkCategories(root, subs);
+    try {
+      // get the root 
+      Category root = entity2Category(executeHQL(CATEGORY_QUERY_ROOT).get(0));
+      // get sub-categories
+      Category[] subs = getCategoryDescendants(root.getID());
+      // link sub-categories to root
+      Category.linkCategories(root, subs);
 
-    return root;
+      return root;
+    }
+    catch(IndexOutOfBoundsException e) {
+      // if no root, then no categories in the database, so populate it with the default categories
+      insertCategory(Category.getDefaultCategories());
+      return getCategories();
+    }
+    catch(Exception e) {
+      JOptionPane.showMessageDialog(null, "Unable to get categories from database!\n" + e.getCause() + "\nUsing built-in categories!", "Hibernate error", JOptionPane.ERROR_MESSAGE);
+      return Category.getDefaultCategories();
+    }
   }
 
   public Category[] getCategoryDescendants(int id) {
     ArrayList<Category> alc = new ArrayList<>();
 
-    List<Categories> subs = categoryHQL(CATEGORY_QUERY_BASED_ON_ANCESTOR + id);
+    List<Categories> subs = executeHQL(CATEGORY_QUERY_BASED_ON_ANCESTOR + id);
     for(Object sub : subs) {
       Categories c = (Categories)sub;
       Category tempRoot = entity2Category(c);
@@ -82,8 +129,9 @@ public class Hibernate {
   }
 
   public boolean insertCategory(Category category) {
-    Categories categories = new Categories(category.getParentCategory().getID(), category.getName(), Category.color2hex(category.getColor()), category.isPredefined());
     try {
+      Categories categories = category2Entity(category);
+
       session.beginTransaction();
 
       //Save category in database
@@ -92,13 +140,16 @@ public class Hibernate {
       //Commit the transaction
       session.getTransaction().commit();
 
+      if(category.hasSubCategory()) {
+        for(int i = 0, s = category.getSubCount(); i < s; i++) {
+          insertCategory(category.getSubAt(i));
+        }
+      }
+
       return true;
     }
-    catch(NullPointerException ne) {
-      JOptionPane.showMessageDialog(null, "Cannot connect to server! Missing parameter(s)!", "Hibernate error", JOptionPane.ERROR_MESSAGE);
-    }
-    catch(IllegalArgumentException | ExceptionInInitializerError | HibernateException he) {
-      JOptionPane.showMessageDialog(null, he.toString(), "Hibernate error", JOptionPane.ERROR_MESSAGE);
+    catch(Exception e) {
+      JOptionPane.showMessageDialog(null, e.getCause(), "Hibernate error", JOptionPane.ERROR_MESSAGE);
     }
 
     return false;
@@ -106,13 +157,15 @@ public class Hibernate {
 
   public boolean removeCategory(Category category) {
     try {
-      // Remove Category from database
       if(category.hasSubCategory()) {
         for(int i = 0, s = category.getSubCount(); i < s; i++) {
           removeCategory(category.getSubAt(i));
         }
       }
-      session.beginTransaction();    //  <- nested?
+
+      session.beginTransaction();
+
+      // Remove Category from database
       session.delete(category2Entity(category));
 
       //Commit the transaction
@@ -120,11 +173,11 @@ public class Hibernate {
 
       return true;
     }
-    catch(NullPointerException ne) {
-      JOptionPane.showMessageDialog(null, "Cannot connect to server! Missing parameter(s)!", "Hibernate error", JOptionPane.ERROR_MESSAGE);
+    catch(TransactionException e) {
+      //System.out.println(e.getMessage() + " " + e.getCause());
     }
-    catch(IllegalArgumentException | ExceptionInInitializerError | HibernateException he) {
-      JOptionPane.showMessageDialog(null, he.toString(), "Hibernate error", JOptionPane.ERROR_MESSAGE);
+    catch(Exception e) {
+      JOptionPane.showMessageDialog(null, e.getCause(), "Hibernate error", JOptionPane.ERROR_MESSAGE);
     }
 
     return false;
@@ -141,37 +194,16 @@ public class Hibernate {
 
       return true;
     }
-    catch(NullPointerException ne) {
-      JOptionPane.showMessageDialog(null, "Cannot connect to server! Missing parameter(s)!", "Hibernate error", JOptionPane.ERROR_MESSAGE);
-    }
-    catch(IllegalArgumentException | ExceptionInInitializerError | HibernateException he) {
-      JOptionPane.showMessageDialog(null, he.toString(), "Hibernate error", JOptionPane.ERROR_MESSAGE);
+    catch(Exception e) {
+      JOptionPane.showMessageDialog(null, e.getCause(), "Hibernate error", JOptionPane.ERROR_MESSAGE);
     }
 
     return false;
   }
 
-  private List categoryHQL(String hql) {
-    try {
-      session.beginTransaction();
-      Query q = session.createQuery(hql);
-      List resultList = q.list();
-      session.getTransaction().commit();
-      return resultList;
-    }
-    catch(NullPointerException ne) {
-      JOptionPane.showMessageDialog(null, "Cannot connect to server! Missing parameter(s)!", "Hibernate error", JOptionPane.ERROR_MESSAGE);
-    }
-    catch(IllegalArgumentException | ExceptionInInitializerError | HibernateException he) {
-      JOptionPane.showMessageDialog(null, he.toString(), "Hibernate error", JOptionPane.ERROR_MESSAGE);
-    }
-
-    return null;
-  }
-
   // Methods for getting, inserting, modifying and removing Activities
   public Activity getActivityByID(int id) {
-    ArrayList<Activity> activityList = activityHQL(ACTIVITY_QUERY_BASED_ON_ID + id);
+    ArrayList<Activity> activityList = createActivityList(executeHQL(ACTIVITY_QUERY_BASED_ON_ID + id));
 
     if(activityList.isEmpty()) {
       return null;
@@ -182,15 +214,18 @@ public class Hibernate {
   }
 
   public ArrayList<Activity> getActivityByStartDate(String dbDate) {
-    return activityHQL(ACTIVITY_QUERY_BASED_ON_START_DATE + dbDate + "%'");
+    ArrayList<Activity> activityList = createActivityList(executeHQL(ACTIVITY_QUERY_BASED_ON_START_DATE + dbDate + "%'"));
+    return activityList;
   }
 
   public ArrayList<Activity> getActivityByEndDate(String dbDate) {
-    return activityHQL(ACTIVITY_QUERY_BASED_ON_END_DATE + dbDate + "%'");
+    ArrayList<Activity> activityList = createActivityList(executeHQL(ACTIVITY_QUERY_BASED_ON_END_DATE + dbDate + "%'"));
+    return activityList;
   }
 
   public ArrayList<Activity> getActivityByCategory(int category) {
-    return activityHQL(ACTIVITY_QUERY_BASED_ON_CATEGORY + category + "%'");
+    ArrayList<Activity> activityList = createActivityList(executeHQL(ACTIVITY_QUERY_BASED_ON_CATEGORY + category + "%'"));
+    return activityList;
   }
 
   public boolean insertActivity(Activity activity) {
@@ -205,11 +240,8 @@ public class Hibernate {
 
       return true;
     }
-    catch(NullPointerException ne) {
-      JOptionPane.showMessageDialog(null, "Cannot connect to server! Missing parameter(s)!", "Hibernate error", JOptionPane.ERROR_MESSAGE);
-    }
-    catch(IllegalArgumentException | ExceptionInInitializerError | HibernateException he) {
-      JOptionPane.showMessageDialog(null, he.toString(), "Hibernate error", JOptionPane.ERROR_MESSAGE);
+    catch(Exception e) {
+      JOptionPane.showMessageDialog(null, e.getCause(), "Hibernate error", JOptionPane.ERROR_MESSAGE);
     }
 
     return false;
@@ -227,11 +259,8 @@ public class Hibernate {
 
       return true;
     }
-    catch(NullPointerException ne) {
-      JOptionPane.showMessageDialog(null, "Cannot connect to server! Missing parameter(s)!", "Hibernate error", JOptionPane.ERROR_MESSAGE);
-    }
-    catch(IllegalArgumentException | ExceptionInInitializerError | HibernateException he) {
-      JOptionPane.showMessageDialog(null, he.toString(), "Hibernate error", JOptionPane.ERROR_MESSAGE);
+    catch(Exception e) {
+      JOptionPane.showMessageDialog(null, e.getCause(), "Hibernate error", JOptionPane.ERROR_MESSAGE);
     }
 
     return false;
@@ -249,41 +278,18 @@ public class Hibernate {
 
       return true;
     }
-    catch(NullPointerException ne) {
-      JOptionPane.showMessageDialog(null, "Cannot connect to server! Missing parameter(s)!", "Hibernate error", JOptionPane.ERROR_MESSAGE);
-    }
-    catch(IllegalArgumentException | ExceptionInInitializerError | HibernateException he) {
-      JOptionPane.showMessageDialog(null, he.toString(), "Hibernate error", JOptionPane.ERROR_MESSAGE);
+    catch(Exception e) {
+      JOptionPane.showMessageDialog(null, e.getCause(), "Hibernate error", JOptionPane.ERROR_MESSAGE);
     }
 
     return false;
   }
 
-  private ArrayList<Activity> activityHQL(String hql) {
-    try {
-      session.beginTransaction();
-      Query q = session.createQuery(hql);
-      List resultList = q.list();
-      ArrayList<Activity> ala = createActivityList(resultList);
-      session.getTransaction().commit();
-
-      return ala;
-    }
-    catch(NullPointerException ne) {
-      JOptionPane.showMessageDialog(null, "Cannot connect to server! Missing parameter(s)!", "Hibernate error", JOptionPane.ERROR_MESSAGE);
-    }
-    catch(IllegalArgumentException | ExceptionInInitializerError | HibernateException he) {
-      JOptionPane.showMessageDialog(null, he.toString(), "Hibernate error", JOptionPane.ERROR_MESSAGE);
-    }
-
-    return null;
-  }
-
   private ArrayList<Activity> createActivityList(List resultList) {
     ArrayList<Activity> activityList = new ArrayList<>();
     for(Object o : resultList) {
-      Activities activity = (Activities)o;
-      Activity a = new Activity(activity.getId(), activity.getComment(), new DataManager().getCategoryByID(activity.getCategory()), new DateTime(activity.getStart()), new DateTime(activity.getEnd()));
+      Activities activities = (Activities)o;
+      Activity a = entity2Activity(activities);
       activityList.add(a);
     }
 
@@ -291,9 +297,7 @@ public class Hibernate {
   }
 
   // Activity & Activities converter methods
-  private Activity entity2Activity(Object entity) {
-    Activities a = (Activities)entity;
-
+  private Activity entity2Activity(Activities a) {
     return new Activity(a.getId(), a.getComment(), getCategoryByID(a.getCategory()), new DateTime(a.getStart()), new DateTime(a.getEnd()));
   }
 
@@ -309,6 +313,11 @@ public class Hibernate {
   }
 
   private Categories category2Entity(Category c) {
-    return new Categories(c.getID(), c.getParentCategory().getID(), c.getName(), Category.color2hex(c.getColor()), c.isPredefined());
+    try {
+      return new Categories(c.getID(), c.getParentCategory().getID(), c.getName(), Category.color2hex(c.getColor()), c.isPredefined());
+    }
+    catch(NullPointerException e) {
+      return new Categories(c.getID(), 0, c.getName(), Category.color2hex(c.getColor()), c.isPredefined());
+    }
   }
 }

@@ -30,6 +30,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreePath;
+import org.hibernate.HibernateException;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import rosza.xcomponents.JButtonX;
@@ -57,14 +58,18 @@ public class ActivityDialog extends JDialogX {
   private JButtonX       removeActivityButton;
   private JButtonX       cancelButton;
   private JScrollPane    categoryScrollPane;
-  private final Category categoryTreeElements;
+  private Category       categoryTreeElements;
 
   // Create new Activity dialog
   public ActivityDialog(Frame frame, Component locationComp, String title, boolean modal, Activity initialValue) {
     super(frame, title, modal);
 
     // Get categories
-     categoryTreeElements = new DataManager().getCategories();
+    try {
+      categoryTreeElements = new DataManager().getCategories();
+    }
+    catch(NullPointerException e) {
+    }
 
     // Set initial value.
     activity = initialValue;
@@ -336,20 +341,28 @@ public class ActivityDialog extends JDialogX {
     }
 
     if(command.equals(Constant.ADD_ACTIVITY) || command.equals(Constant.MODIFY_ACTIVITY)) {
-      ArrayList<Activity> activityList = new DataManager().getActivityByStartDate(sdate);
+      ArrayList<Activity> activityList;
+      try {
+        activityList = new DataManager().getActivityByStartDate(sdate);
+      }
+      catch(Exception e) {
+        JOptionPane.showMessageDialog(null, e.getCause(), "Activity", JOptionPane.ERROR_MESSAGE);
+        return false;
+      }
       if(activityList != null) {
         for(Activity act : activityList) {
           if(act.getID() == activity.getID()) {
             continue;
           }
           if(checkOverlaps(activity.getStartDate(), activity.getEndDate(), act.getStartDate(), act.getEndDate())) {
-            JOptionPane.showMessageDialog(this, "Overlapping activities are not allowed!", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Overlapping activities are not allowed!", "Activity error", JOptionPane.ERROR_MESSAGE);
             return false;
           }
         }
       }
       return true;
     }
+
     return false;
   }
 
@@ -466,7 +479,7 @@ public class ActivityDialog extends JDialogX {
             }
             break;
           case Constant.REMOVE_ACTIVITY:
-            int result = JOptionPane.showConfirmDialog((Component)e.getSource(), "Are you sure to remove this Activity?", "Question", JOptionPane.YES_NO_CANCEL_OPTION);
+            int result = JOptionPane.showConfirmDialog((Component)e.getSource(), "Are you sure to remove selected Activity?", "Activity question", JOptionPane.YES_NO_CANCEL_OPTION);
             if(result == JOptionPane.YES_OPTION) {
               createActivity(Constant.REMOVE_ACTIVITY);
               activityAction = new ActivityAction(Constant.REMOVE_ACTIVITY, activity);

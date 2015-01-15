@@ -73,7 +73,10 @@ public class ScrollableActivityPane extends JLayeredPane implements Scrollable {
         activityList = new DataManager().getActivityByStartDate(tempCalendar);
       }
       catch(HibernateException e) {
-        JOptionPane.showMessageDialog(null, "Unable to access server!", "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, "Unable to access database!\n" + e.getCause(), "ScrollableActivity error", JOptionPane.ERROR_MESSAGE);
+        break;
+      }
+      catch(Exception e) {
         break;
       }
       if(activityList != null) {

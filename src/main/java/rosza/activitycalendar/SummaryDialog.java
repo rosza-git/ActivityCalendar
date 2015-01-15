@@ -25,6 +25,7 @@ import javax.swing.border.MatteBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
+import org.hibernate.HibernateException;
 import org.joda.time.DateTime;
 import rosza.xcomponents.JDialogX;
 import rosza.xcomponents.JButtonX;
@@ -74,13 +75,24 @@ public class SummaryDialog extends JDialogX {
     selectedDayOfMonth = selectedDate.getDayOfMonth();
 
     createUI(locationComp);
-    ArrayList<Activity> activityList = new DataManager().getActivityByStartDate(selectedDate);
-    Category category = new DataManager().getCategories();
-    summary = buildSummary(category, activityList)[0];
-    for(int i = 0, size = summary.children.size(); i < size; i++) {
+
+    ArrayList<Activity> activityList;
+    Category category;
+
+    try {
+      activityList = new DataManager().getActivityByStartDate(selectedDate);
+      category = new DataManager().getCategories();
+      summary = buildSummary(category, activityList)[0];
+      for(int i = 0, size = summary.children.size(); i < size; i++) {
       summary.total += summary.children.get(i).total;
     }
     generateHTMLSummary();
+    }
+    catch(HibernateException e) {
+      JOptionPane.showMessageDialog(null, "Unable to access database!\n" + e.getCause(), "Summary error", JOptionPane.ERROR_MESSAGE);
+    }
+    catch(NullPointerException e) {
+    }
   }
 
   // Create UI
@@ -336,27 +348,27 @@ public class SummaryDialog extends JDialogX {
   private Email checkEmailSettings() {
     if(props != null) {
       if(props.getProperty(Constant.PROPS_EMAIL_ADDRESS) == null || props.getProperty(Constant.PROPS_EMAIL_ADDRESS).equals("")) {
-        JOptionPane.showMessageDialog(null, "Missing senders e-mail address!\nPlease go to settings panel if you want to send e-mail.", "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, "Missing senders e-mail address!\nPlease go to settings panel if you want to send e-mail.", "Summary error", JOptionPane.ERROR_MESSAGE);
         return null;
       }
       else if(props.getProperty(Constant.PROPS_EMAIL_SMTP_HOST) == null || props.getProperty(Constant.PROPS_EMAIL_SMTP_HOST).equals("")) {
-        JOptionPane.showMessageDialog(null, "Missing SMTP host!\nPlease go to settings panel if you want to send e-mail.", "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, "Missing SMTP host!\nPlease go to settings panel if you want to send e-mail.", "Summary error", JOptionPane.ERROR_MESSAGE);
         return null;
       }
       else if(props.getProperty(Constant.PROPS_EMAIL_SMTP_PORT) == null || props.getProperty(Constant.PROPS_EMAIL_SMTP_PORT).equals("")) {
-        JOptionPane.showMessageDialog(null, "Missing SMTP port!\nPlease go to settings panel if you want to send e-mail.", "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, "Missing SMTP port!\nPlease go to settings panel if you want to send e-mail.", "Summary error", JOptionPane.ERROR_MESSAGE);
         return null;
       }
       else if(props.getProperty(Constant.PROPS_EMAIL_USERNAME) == null || props.getProperty(Constant.PROPS_EMAIL_USERNAME).equals("")) {
-        JOptionPane.showMessageDialog(null, "Missing e-mail username!\nPlease go to settings panel if you want to send e-mail.", "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, "Missing e-mail username!\nPlease go to settings panel if you want to send e-mail.", "Summary error", JOptionPane.ERROR_MESSAGE);
         return null;
       }
       else if(props.getProperty(Constant.PROPS_EMAIL_PASSWORD) == null || props.getProperty(Constant.PROPS_EMAIL_PASSWORD).equals("")) {
-        JOptionPane.showMessageDialog(null, "Missing e-mail password!\nPlease go to settings panel if you want to send e-mail.", "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, "Missing e-mail password!\nPlease go to settings panel if you want to send e-mail.", "Summary error", JOptionPane.ERROR_MESSAGE);
         return null;
       }
       else if(props.getProperty(Constant.PROPS_EMAIL_PROTOCOL) == null || props.getProperty(Constant.PROPS_EMAIL_PROTOCOL).equals("")) {
-        JOptionPane.showMessageDialog(null, "Missing e-mail protocol!\nPlease go to settings panel if you want to send e-mail.", "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, "Missing e-mail protocol!\nPlease go to settings panel if you want to send e-mail.", "Summary error", JOptionPane.ERROR_MESSAGE);
         return null;
       }
     }

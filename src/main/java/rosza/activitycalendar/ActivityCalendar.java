@@ -41,11 +41,8 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
 import javax.swing.ImageIcon;
@@ -59,8 +56,8 @@ import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
+import org.hibernate.exception.SQLGrammarException;
 import org.joda.time.DateTime;
-import rosza.hibernate.HibernateUtil;
 
 public class ActivityCalendar extends JFrame {
   // UI variables
@@ -107,7 +104,6 @@ public class ActivityCalendar extends JFrame {
     setAppIcon();
     createUI();
     initSystemTray();
-    XMLUtil.getCategories();
   }
 
   // Create UI
@@ -209,11 +205,11 @@ public class ActivityCalendar extends JFrame {
         systemTray.add(trayIcon);
       }
       catch(AWTException e) {
-        JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(this, e.toString() + "\n" + e.getMessage(), "SystemTray error", JOptionPane.ERROR_MESSAGE);
       }
     }
     else {
-      JOptionPane.showMessageDialog(this, "System tray is currently not supported!", "Error", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(this, "System tray is currently not supported!", "SystemTray error", JOptionPane.ERROR_MESSAGE);
     }
   }
 
@@ -360,13 +356,8 @@ public class ActivityCalendar extends JFrame {
     try {
       return SettingsHandler.getSettings();
     }
-    catch(FileNotFoundException e) {
-      //Logger.getLogger(ActivityCalendar.class.getName()).log(Level.SEVERE, null, e);
-      JOptionPane.showMessageDialog(null, "Cannot find settings file!\nUsing default values.", "Error", JOptionPane.ERROR_MESSAGE);
-    }
     catch(IOException ex) {
-      //Logger.getLogger(ActivityCalendar.class.getName()).log(Level.SEVERE, null, ex);
-      JOptionPane.showMessageDialog(null, "Cannot load settings from file!\nUsing default values.", "Error", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, "Error loading settings from file!\nUsing default values.", "Properties error", JOptionPane.ERROR_MESSAGE);
     }
 
     return null;
@@ -382,8 +373,7 @@ public class ActivityCalendar extends JFrame {
       properties = loadSettings();
     }
     catch(IOException ex) {
-      Logger.getLogger(ActivityCalendar.class.getName()).log(Level.SEVERE, null, ex);
-      JOptionPane.showMessageDialog(null, "Cannot save settings to file!", "Error", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, "Cannot save settings to file!", "Properties error", JOptionPane.ERROR_MESSAGE);
     }
   }
 
@@ -532,13 +522,7 @@ public class ActivityCalendar extends JFrame {
           break;
         }
       }
-    } catch (ClassNotFoundException ex) {
-      java.util.logging.Logger.getLogger(ActivityCalendar.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-    } catch (InstantiationException ex) {
-      java.util.logging.Logger.getLogger(ActivityCalendar.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-    } catch (IllegalAccessException ex) {
-      java.util.logging.Logger.getLogger(ActivityCalendar.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-    } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+    } catch(ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
       java.util.logging.Logger.getLogger(ActivityCalendar.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
     }
 

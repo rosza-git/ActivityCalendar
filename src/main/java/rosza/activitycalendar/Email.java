@@ -63,7 +63,7 @@ class Email {
       pwd = textEncryptor.decrypt(pwd);
     }
     catch(EncryptionOperationNotPossibleException e) {
-      JOptionPane.showMessageDialog(null, "Error in jaspyt!\n" + e.toString(), "Error", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, "Error in jaspyt!\n" + e.toString(), "E-mail error", JOptionPane.ERROR_MESSAGE);
     }
     password = pwd;
 
@@ -110,10 +110,10 @@ class Email {
       JOptionPane.showMessageDialog(null, "Message has been sent to " + to, "Information", JOptionPane.INFORMATION_MESSAGE);
     }
     catch(AuthenticationFailedException e) {
-      JOptionPane.showMessageDialog(null, "Error in username or password!", "Error", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, "Error in username or password!", "E-mail error", JOptionPane.ERROR_MESSAGE);
     }
     catch(MessagingException e) {
-      JOptionPane.showMessageDialog(null, e.toString(), "Error", JOptionPane.ERROR_MESSAGE);
+      JOptionPane.showMessageDialog(null, e.toString() + "\n" + e.getMessage(), "E-mail error", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 }

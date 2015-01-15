@@ -7,6 +7,8 @@
 package rosza.activitycalendar;
 
 import java.util.ArrayList;
+import javax.swing.JOptionPane;
+import org.hibernate.exception.JDBCConnectionException;
 import org.jasypt.util.text.StrongTextEncryptor;
 import org.joda.time.DateTime;
 import rosza.hibernate.Hibernate;
@@ -31,7 +33,21 @@ public class DataManager {
       storage = Constant.PROPS_XML_STORAGE;
     }
     if(storage.equals(Constant.PROPS_DB_STORAGE)) {
-      hibernate = new Hibernate();
+      try {
+        hibernate = new Hibernate();
+      }
+      catch(JDBCConnectionException e) {
+        throw new JDBCConnectionException("DataManager", e.getSQLException());
+      }
+      catch(NullPointerException e) {
+        throw new NullPointerException(e.getMessage() + " -> DataManager");
+      }
+      catch(IllegalArgumentException e) {
+        JOptionPane.showMessageDialog(null, e.getMessage(), "DataManager error", JOptionPane.ERROR_MESSAGE);
+      }
+      catch(Exception e) {
+        JOptionPane.showMessageDialog(null, e.getCause() + "\n" + e.getMessage(), "DataManager - " + e.toString(), JOptionPane.ERROR_MESSAGE);
+      }
     }
   }
 

@@ -6,11 +6,15 @@
  */
 package rosza.hibernate;
 
+import java.sql.SQLException;
 import java.util.Properties;
+import javax.swing.JOptionPane;
 import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.exception.JDBCConnectionException;
+import org.hibernate.exception.SQLGrammarException;
 import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
 import org.jasypt.util.text.StrongTextEncryptor;
 import rosza.activitycalendar.ActivityCalendar;
@@ -21,25 +25,29 @@ public class HibernateUtil {
   private static Properties props;
   private static StrongTextEncryptor textEncryptor;
 
-  public static SessionFactory getSessionFactory() throws HibernateException, IllegalArgumentException, NullPointerException {
+  public static SessionFactory getSessionFactory() {
     try {
       textEncryptor = new StrongTextEncryptor();
       textEncryptor.setPassword(Constant.SALT);
       props = ActivityCalendar.getSettings();
-      if(props == null) {
-        throw new NullPointerException("No settings!");
+
+      try {
+        if(props.getProperty(Constant.PROPS_DB_SERVER).equals("")) {
+          throw new IllegalArgumentException("Missing 'server' parameter!");
+        }
+        else if(props.getProperty(Constant.PROPS_DB_SERVER_PORT).equals("")) {
+          throw new IllegalArgumentException("Missing 'server port' parameter!");
+        }
+        else if(props.getProperty(Constant.PROPS_DB_USERNAME).equals("")) {
+          throw new IllegalArgumentException("Missing 'database username' parameter");
+        }
+        else if(props.getProperty(Constant.PROPS_DB_PASSWORD).equals("")) {
+          throw new IllegalArgumentException("Missing 'database password' parameter");
+        }
       }
-      if(props.getProperty(Constant.PROPS_DB_SERVER).equals("")) {
-        throw new IllegalArgumentException("Missing 'server' parameter!");
-      }
-      else if(props.getProperty(Constant.PROPS_DB_SERVER_PORT).equals("")) {
-        throw new IllegalArgumentException("Missing 'server port' parameter!");
-      }
-      else if(props.getProperty(Constant.PROPS_DB_USERNAME).equals("")) {
-        throw new IllegalArgumentException("Missing 'database username' parameter");
-      }
-      else if(props.getProperty(Constant.PROPS_DB_PASSWORD).equals("")) {
-        throw new IllegalArgumentException("Missing 'database password' parameter");
+      catch(NullPointerException e) {
+        JOptionPane.showMessageDialog(null, "Missing configuration parameter(s):\n" + e.toString(), "HibernateUtil error", JOptionPane.ERROR_MESSAGE);
+        throw new NullPointerException("Missing configuration parameter(s)!\nHibernateUtil");
       }
 
       Configuration config = new Configuration().configure("hibernate/hibernate.cfg.xml");
@@ -59,14 +67,20 @@ public class HibernateUtil {
       StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder().applySettings(config.getProperties());
       sessionFactory = config.buildSessionFactory(builder.build());
     }
+    catch(SQLGrammarException e) {
+      throw new SQLGrammarException("HibernateUtil", e.getSQLException());
+    }
+    catch(JDBCConnectionException e) {
+      throw new JDBCConnectionException("HibernateUtil", e.getSQLException());
+    }
     catch(HibernateException e) {
-      throw new HibernateException("Error in hibernate initialization!");
+      throw new HibernateException("HibernateUtil error!");
     }
 
     return sessionFactory;
   }
 
-	public static void shutdown() {
+	public static void shutdown() throws SQLException {
 		// Close caches and connection pools
 		getSessionFactory().close();
 	}
