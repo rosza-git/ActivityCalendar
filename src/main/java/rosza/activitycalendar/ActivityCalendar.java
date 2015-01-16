@@ -56,7 +56,6 @@ import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
-import org.hibernate.exception.SQLGrammarException;
 import org.joda.time.DateTime;
 
 public class ActivityCalendar extends JFrame {

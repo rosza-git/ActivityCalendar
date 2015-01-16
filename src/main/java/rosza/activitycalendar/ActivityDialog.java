@@ -30,7 +30,6 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreePath;
-import org.hibernate.HibernateException;
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import rosza.xcomponents.JButtonX;
