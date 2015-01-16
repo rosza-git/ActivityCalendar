@@ -35,6 +35,9 @@ public class Constant {
   public static final String TRAY_ICON32   = "images/calendar32.png";
   public static final String TRAY_ICON48   = "images/calendar48.png";
 
+  // SQL file
+  public static final String SQL_FILE = "ActivityCalendar.sql";
+
   // font
   public static final Font   DEFAULT_FONT      = UIManager.getDefaults().getFont("Label.font");
   public static final int    DEFAULT_FONT_SIZE = DEFAULT_FONT.getSize();

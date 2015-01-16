@@ -8,16 +8,26 @@ package rosza.activitycalendar;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Frame;
+import java.awt.Toolkit;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URL;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.ButtonGroup;
 import javax.swing.GroupLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
 import javax.swing.JComponent;
+import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -36,6 +46,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.text.Document;
 import org.hibernate.HibernateException;
 import org.jasypt.exceptions.EncryptionOperationNotPossibleException;
 import org.jasypt.util.text.StrongTextEncryptor;
@@ -63,6 +74,9 @@ public class SettingsDialog extends JDialogX {
   private JLabel         dbServerPortLabel;
   private JTextField     dbServerTextField;
   private JTextField     dbServerPortTextField;
+  private JEditorPane    sqlEditorPane;
+  private JScrollPane    sqlScrollPane;
+  private JButtonX       sqlCopyButton;
   private JButtonX       saveStorageButton;
   private JLabel         categoriesLabel;
   private JScrollPane    categoryScrollPane;
@@ -90,6 +104,12 @@ public class SettingsDialog extends JDialogX {
   private JRadioButton   emailTLSRadioButton;
   private JRadioButton   emailSMTPSRadioButton;
   private JButtonX       emailSaveButton;
+
+  // SQL file
+  private FileInputStream sqlFile;
+
+  // Class loader
+  private final ClassLoader cl = this.getClass().getClassLoader();
 
   // Properties variable
   private Properties props;
@@ -143,6 +163,8 @@ public class SettingsDialog extends JDialogX {
     dbServerPortTextField = new JTextField();
     dbUserTextField       = new JTextField();
     dbPasswordField       = new JPasswordField();
+    sqlScrollPane         = new JScrollPane();
+    sqlCopyButton         = new JButtonX("copy");
     saveStorageButton     = new JButtonX("save");
     categoriesPanel       = new JPanel();
     categoriesLabel       = new JLabel();
@@ -254,73 +276,103 @@ public class SettingsDialog extends JDialogX {
       }
     });
 
+    sqlCopyButton.setFont(saveStorageButton.getFont().deriveFont(Font.BOLD));
+    sqlCopyButton.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        copSQL2Clipboard(sqlEditorPane.getText());
+      }
+    });
+
+    try {
+      sqlEditorPane = new JEditorPane(getSQLFile(Constant.SQL_FILE));
+    }
+    catch(IOException ex) {
+      JOptionPane.showMessageDialog(this, "Cannot find SQL file!", "Settings error", JOptionPane.ERROR_MESSAGE);
+      sqlEditorPane = new JEditorPane();
+    }
+
+    sqlEditorPane.setEditable(false);
+    sqlEditorPane.setFont(new Font("Monospaced", Font.PLAIN, 12));
+    //sqlEditorPane.setFont(sqlEditorPane.getFont().deriveFont(12f));
+    sqlEditorPane.setMinimumSize(new Dimension(600, 200));
+    sqlEditorPane.setMaximumSize(new Dimension(600, 200));
+    sqlEditorPane.setPreferredSize(new Dimension(600, 200));
+
+    sqlScrollPane.setViewportView(sqlEditorPane);
+    sqlScrollPane.getVerticalScrollBar().setUI(new JScrollBarX());
+    sqlScrollPane.getHorizontalScrollBar().setUI(new JScrollBarX());
+    sqlScrollPane.setBorder(new MatteBorder(1, 1, 1, 1, Constant.BG_DARKER_BLUE));
+
     storagePanel.setOpaque(true);
     GroupLayout storagePanelLayout = new GroupLayout(storagePanel);
     storagePanel.setLayout(storagePanelLayout);
+
     storagePanelLayout.setHorizontalGroup(
       storagePanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
       .addGroup(storagePanelLayout.createSequentialGroup()
         .addContainerGap()
         .addGroup(storagePanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
           .addGroup(storagePanelLayout.createSequentialGroup()
-            .addComponent(xmlRadio)
-            .addGap(18, 18, 18)
-            .addComponent(dbRadio)
-          )
-          .addGroup(storagePanelLayout.createParallelGroup(GroupLayout.Alignment.TRAILING)
-            .addComponent(saveStorageButton)
-            .addGroup(storagePanelLayout.createSequentialGroup()
-              .addGroup(storagePanelLayout.createParallelGroup(GroupLayout.Alignment.TRAILING)
-                .addComponent(dbServerLabel)
-                .addComponent(dbServerPortLabel)
-                .addComponent(dbUserLabel)
-                .addComponent(dbPasswordLabel)
-              )
-              .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-              .addGroup(storagePanelLayout.createParallelGroup(GroupLayout.Alignment.TRAILING, false)
-                .addComponent(dbServerTextField, GroupLayout.Alignment.LEADING)
-                .addComponent(dbServerPortTextField, GroupLayout.Alignment.LEADING)
-                .addComponent(dbUserTextField, GroupLayout.Alignment.LEADING)
-                .addComponent(dbPasswordField, GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
-              )
-            )
-          )
-        )
-        .addContainerGap(124, Short.MAX_VALUE)
-      )
+            .addGroup(storagePanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+              .addComponent(sqlScrollPane)
+              .addGroup(storagePanelLayout.createSequentialGroup()
+                .addComponent(xmlRadio)
+                .addGap(18, 18, 18)
+                .addComponent(dbRadio)
+                .addGap(0, 0, Short.MAX_VALUE)))
+            .addContainerGap())
+          .addGroup(storagePanelLayout.createSequentialGroup()
+            .addGroup(storagePanelLayout.createParallelGroup(GroupLayout.Alignment.TRAILING)
+              .addComponent(saveStorageButton)
+              .addGroup(storagePanelLayout.createSequentialGroup()
+                .addGroup(storagePanelLayout.createParallelGroup(GroupLayout.Alignment.TRAILING)
+                  .addComponent(dbUserLabel)
+                  .addComponent(dbPasswordLabel)
+                  .addComponent(dbServerLabel)
+                  .addComponent(dbServerPortLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(storagePanelLayout.createParallelGroup(GroupLayout.Alignment.TRAILING, false)
+                  .addComponent(dbUserTextField, GroupLayout.Alignment.LEADING)
+                  .addComponent(dbServerTextField, GroupLayout.Alignment.LEADING)
+                  .addComponent(dbPasswordField, GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
+                  .addComponent(dbServerPortTextField, GroupLayout.Alignment.LEADING))))
+            .addGap(39, 193, Short.MAX_VALUE))))
+      .addGroup(GroupLayout.Alignment.TRAILING, storagePanelLayout.createSequentialGroup()
+        .addContainerGap(GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        .addComponent(sqlCopyButton)
+        .addContainerGap())
     );
     storagePanelLayout.setVerticalGroup(
-      storagePanelLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+      storagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
       .addGroup(storagePanelLayout.createSequentialGroup()
         .addContainerGap()
-        .addGroup(storagePanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+        .addGroup(storagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
           .addComponent(xmlRadio)
-          .addComponent(dbRadio)
-        )
+          .addComponent(dbRadio))
         .addGap(18, 18, 18)
-        .addGroup(storagePanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+        .addGroup(storagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
           .addComponent(dbServerLabel)
-          .addComponent(dbServerTextField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-        )
-        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-        .addGroup(storagePanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+          .addComponent(dbServerTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addGroup(storagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
           .addComponent(dbServerPortLabel)
-          .addComponent(dbServerPortTextField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-        )
-        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-        .addGroup(storagePanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-          .addComponent(dbUserLabel)
-          .addComponent(dbUserTextField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-        )
-        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-        .addGroup(storagePanelLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-          .addComponent(dbPasswordLabel)
-          .addComponent(dbPasswordField, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-        )
-        .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+          .addComponent(dbServerPortTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addGroup(storagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+          .addComponent(dbUserTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+          .addComponent(dbUserLabel))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addGroup(storagePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+          .addComponent(dbPasswordField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+          .addComponent(dbPasswordLabel))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(saveStorageButton)
-        .addContainerGap(168, Short.MAX_VALUE)
-      )
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(sqlScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 96, Short.MAX_VALUE)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(sqlCopyButton)
+        .addContainerGap())
     );
 
     categoriesLabel.setHorizontalAlignment(JLabel.RIGHT);
@@ -650,6 +702,18 @@ public class SettingsDialog extends JDialogX {
     setLocationRelativeTo(locationComp);
   }
 
+  // Get file
+  private URL getSQLFile(String fileName) {
+    URL resource = Thread.currentThread().getContextClassLoader().getResource("hibernate/" + fileName);
+    return resource;
+    
+  }
+
+  // Copy SQL content to clipboard
+  private void copSQL2Clipboard(String s) {
+    Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(s), null);
+  }
+
   // Set field values from properties
   private void setFieldValues() {
     try {
@@ -662,6 +726,9 @@ public class SettingsDialog extends JDialogX {
         dbServerTextField.setEnabled(false);
         dbUserTextField.setEnabled(false);
         dbPasswordField.setEnabled(false);
+        sqlCopyButton.setEnabled(false);
+        sqlEditorPane.setEnabled(false);
+        sqlScrollPane.setEnabled(false);
       }
       else {
         xmlRadio.setSelected(false);
@@ -687,6 +754,10 @@ public class SettingsDialog extends JDialogX {
         catch(Exception e) {
           JOptionPane.showMessageDialog(this, "Error in jaspyt!\n" + e.toString(), "Settings error", JOptionPane.ERROR_MESSAGE);
         }
+
+        sqlCopyButton.setEnabled(true);
+        sqlEditorPane.setEnabled(true);
+        sqlScrollPane.setEnabled(true);
       }
     }
     catch(NullPointerException e) {
@@ -696,6 +767,9 @@ public class SettingsDialog extends JDialogX {
       dbPasswordField.setEnabled(false);
       dbServerTextField.setEnabled(false);
       dbUserTextField.setEnabled(false);
+      sqlCopyButton.setEnabled(false);
+      sqlEditorPane.setEnabled(false);
+      sqlScrollPane.setEnabled(false);
     }
     saveStorageButton.setEnabled(enableStorageSaveButton());
     // Get e-mail settings
@@ -869,16 +943,23 @@ public class SettingsDialog extends JDialogX {
   // Radio button events
   private void storageRadioActionPerformed(ActionEvent e) {
     if(xmlRadio.isSelected()) {
-      this.dbServerTextField.setEnabled(false);
-      this.dbServerPortTextField.setEnabled(false);
-      this.dbUserTextField.setEnabled(false);
-      this.dbPasswordField.setEnabled(false);
+      dbServerTextField.setEnabled(false);
+      dbServerPortTextField.setEnabled(false);
+      dbUserTextField.setEnabled(false);
+      dbPasswordField.setEnabled(false);
+      sqlCopyButton.setEnabled(false);
+      sqlEditorPane.setEnabled(false);
+      sqlScrollPane.setEnabled(false);
+
     }
     else {
-      this.dbServerTextField.setEnabled(true);
-      this.dbServerPortTextField.setEnabled(true);
-      this.dbUserTextField.setEnabled(true);
-      this.dbPasswordField.setEnabled(true);
+      dbServerTextField.setEnabled(true);
+      dbServerPortTextField.setEnabled(true);
+      dbUserTextField.setEnabled(true);
+      dbPasswordField.setEnabled(true);
+      sqlCopyButton.setEnabled(true);
+      sqlEditorPane.setEnabled(true);
+      sqlScrollPane.setEnabled(true);
     }
     saveStorageButton.setEnabled(enableStorageSaveButton());
   }
